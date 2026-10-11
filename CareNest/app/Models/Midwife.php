@@ -16,7 +16,13 @@ class Midwife extends Model
     protected $fillable = [
         'midwife_name',
         'area_id',
+        'user_id',
     ];
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
 
     public function area(): BelongsTo
     {

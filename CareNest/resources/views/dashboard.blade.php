@@ -257,8 +257,6 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            padding-left: 12px;
-            border-left: 1px solid #e2e8f0;
         }
 
         .user-role-label {
@@ -578,62 +576,71 @@
                     <span>Dashboard</span>
                 </a>
             </li>
+            @if(Auth::user()->role === 'provider' || Auth::user()->role === 'admin')
             <li class="nav-item">
-                <a href="#mothers">
+                <a href="{{ route('admin.midwife-requests') }}">
+                    <i class="fa-solid fa-user-check"></i>
+                    <span>Midwife Requests</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ route('admin.midwives.index') }}">
+                    <i class="fa-solid fa-user-nurse"></i>
+                    <span>Manage Midwives</span>
+                </a>
+            </li>
+            @endif
+            @php
+                $role = Auth::user()->role;
+                $prefix = ($role === 'provider' || $role === 'admin') ? 'admin' : ($role === 'midwife' ? 'midwife' : 'mother');
+            @endphp
+            <li class="nav-item">
+                <a href="{{ route($prefix . '.mothers.index') }}">
                     <i class="fa-solid fa-user-nurse"></i>
                     <span>Mothers</span>
                 </a>
             </li>
+
             <li class="nav-item">
-                <a href="#children">
+                <a href="{{ route($prefix . '.children.index') }}">
                     <i class="fa-solid fa-baby"></i>
                     <span>Children</span>
                 </a>
             </li>
             <li class="nav-item">
-                <a href="#immunizations">
+                <a href="{{ route($prefix . '.immunizations.index') }}">
                     <i class="fa-solid fa-syringe"></i>
                     <span>Immunizations</span>
                 </a>
             </li>
+            @if($role !== 'mother')
             <li class="nav-item">
-                <a href="#alerts">
+                <a href="{{ route($prefix . '.alerts.index') }}">
                     <i class="fa-solid fa-triangle-exclamation"></i>
                     <span>High-Risk Alerts</span>
                 </a>
             </li>
+            <!-- Additional Sections mapped to database tables -->
             <li class="nav-item">
-                <a href="#areas">
-                    <i class="fa-solid fa-hospital"></i>
-                    <span>Clinic Areas</span>
-                </a>
-            </li>
-
-            <!-- Additional Sections mapped to 13 database tables -->
-            <li class="nav-item">
-                <a href="#pregnancy-history">
-                    <i class="fa-solid fa-notes-medical"></i>
-                    <span>Pregnancy History</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="#lab-tests">
-                    <i class="fa-solid fa-vial-circle-check"></i>
-                    <span>Lab Tests</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="#triposha">
+                <a href="{{ route($prefix . '.triposha.index') }}">
                     <i class="fa-solid fa-book-medical"></i>
                     <span>Triposha Book</span>
                 </a>
             </li>
             <li class="nav-item">
-                <a href="#attendances">
+                <a href="{{ route($prefix . '.attendances.index') }}">
                     <i class="fa-solid fa-calendar-check"></i>
                     <span>Clinic Attendances</span>
                 </a>
             </li>
+            @else
+            <li class="nav-item">
+                <a href="{{ route('mother.notifications.index') }}">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    <span>Notifications</span>
+                </a>
+            </li>
+            @endif
             <li class="nav-item">
                 <a href="#reports">
                     <i class="fa-solid fa-file-invoice"></i>
@@ -648,14 +655,6 @@
                 <i class="fa-regular fa-calendar-plus"></i>
                 <span>Schedule Visit</span>
             </button>
-
-            <form action="{{ route('logout') }}" method="POST">
-                @csrf
-                <button type="submit" class="logout-btn">
-                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
-                    <span>Log Out</span>
-                </button>
-            </form>
         </div>
     </aside>
 
@@ -667,24 +666,9 @@
                 CareNest
             </div>
 
-            <!-- Search Bar -->
-            <div class="search-box">
-                <i class="fa-solid fa-magnifying-glass search-icon"></i>
-                <input type="text" class="search-input" placeholder="Search records...">
-            </div>
-
-            <!-- Right Profile Badge & Settings -->
+            <!-- Right Profile Badge with Dropdown -->
             <div class="header-right">
-                <button class="icon-btn" title="Settings">
-                    <i class="fa-solid fa-gear"></i>
-                </button>
-
-                <div class="user-badge-container">
-                    <span class="user-role-label">{{ ucfirst($user->role ?? 'Admin') }}</span>
-                    <div class="user-avatar">
-                        <i class="fa-regular fa-user"></i>
-                    </div>
-                </div>
+                @include('partials.top-header-user')
             </div>
         </header>
 
@@ -788,6 +772,61 @@
                         @empty
                             <tr>
                                 <td colspan="6" style="text-align: center; color: #94a3b8;">No clinic areas available.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- High Blood Pressure Alerts Card -->
+            <div class="table-card" id="alerts" style="margin-bottom: 60px;">
+                <div class="table-header">
+                    <h2 class="table-title">High-Risk Alerts <span style="font-size: 14px; color: #ef4444; background: #fee2e2; padding: 4px 12px; border-radius: 20px; vertical-align: middle; margin-left: 8px;">High Blood Pressure</span></h2>
+                    <p class="table-subtitle">Mothers requiring immediate attention due to elevated blood pressure</p>
+                </div>
+
+                <table class="custom-table">
+                    <thead>
+                        <tr>
+                            <th>MOTHER'S NAME</th>
+                            <th>CONTACT NO</th>
+                            <th>CONDITION</th>
+                            <th>CLINIC AREA</th>
+                            <th>MIDWIFE IN-CHARGE</th>
+                            <th>ACTION</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($highBPMothers as $history)
+                            <tr>
+                                <td>
+                                    <div class="area-name-cell">
+                                        <div class="area-icon-dot" style="background: #fee2e2; color: #ef4444;">
+                                            <i class="fa-solid fa-heart-pulse"></i>
+                                        </div>
+                                        <span>{{ $history->mother->user->name ?? 'Unknown' }}</span>
+                                    </div>
+                                </td>
+                                <td>{{ $history->mother->telephone ?? '-' }}</td>
+                                <td>
+                                    <span style="color: #ef4444; font-weight: 700; background: #fef2f2; padding: 4px 10px; border-radius: 12px; font-size: 12px; border: 1px solid #fecaca; display: inline-block; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                        {{ $history->high_blood_pressure }}
+                                    </span>
+                                </td>
+                                <td>{{ $history->mother->midwife->area->area_name ?? '-' }}</td>
+                                <td>{{ $history->mother->midwife->user->name ?? '-' }}</td>
+                                <td>
+                                    <button class="action-arrow-btn" title="View Details">
+                                        <i class="fa-solid fa-chevron-right"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="6" style="text-align: center; color: #94a3b8; padding: 30px;">
+                                    <i class="fa-solid fa-shield-heart" style="font-size: 32px; color: #e2e8f0; display: block; margin-bottom: 12px;"></i>
+                                    No high blood pressure alerts found.
+                                </td>
                             </tr>
                         @endforelse
                     </tbody>

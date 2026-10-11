@@ -6,17 +6,11 @@ use Carbon\Carbon;
 
 class MaternalService
 {
-    /**
-     * Calculate Expected Date of Delivery (EDD) using Naegele's Rule (LMP + 280 days)
-     */
     public function calculateEDD(string|\DateTimeInterface $lmp): string
     {
         return Carbon::parse($lmp)->addDays(280)->toDateString();
     }
 
-    /**
-     * Calculate Gestational Age in weeks based on LMP and reference date.
-     */
     public function calculateGestationalWeeks(string|\DateTimeInterface $lmp, string|\DateTimeInterface $referenceDate = 'now'): int
     {
         $lmpCarbon = Carbon::parse($lmp);
@@ -24,9 +18,6 @@ class MaternalService
         return (int) floor($lmpCarbon->diffInDays($refCarbon) / 7);
     }
 
-    /**
-     * Evaluate Maternal Health Risk indicators based on tests and family history.
-     */
     public function evaluateHealthRisk(array $testData, array $familyHistory = []): array
     {
         $risks = [];

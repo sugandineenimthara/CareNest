@@ -15,12 +15,22 @@ class Attendance extends Model
         'child_id',
         'midwife_id',
         'clinic_name',
+        'clinic_type',
         'clinic_date',
+        'remarks',
     ];
 
     protected $casts = [
         'clinic_date' => 'date',
     ];
+
+    public function getAttendeeNameAttribute(): string
+    {
+        if ($this->clinic_type === 'pediatric') {
+            return $this->child?->display_name ?? 'Child #' . $this->child_id;
+        }
+        return $this->mother?->mother_name ?? 'Mother #' . $this->mother_id;
+    }
 
     public function mother(): BelongsTo
     {

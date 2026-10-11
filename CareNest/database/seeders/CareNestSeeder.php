@@ -12,7 +12,6 @@ class CareNestSeeder extends Seeder
 {
     public function run(): void
     {
-        // 1. Create Default Login User Accounts
         User::firstOrCreate(
             ['email' => 'admin@carenest.com'],
             [
@@ -22,7 +21,15 @@ class CareNestSeeder extends Seeder
             ]
         );
 
-        // 2. Create the 5 exact Clinic Areas requested
+        User::firstOrCreate(
+            ['email' => 'midwife@carenest.com'],
+            [
+                'name' => 'Midwife User',
+                'password' => Hash::make('midwife123'),
+                'role' => 'midwife',
+            ]
+        );
+
         $areas = [
             'Kala-Eliya',
             'Indivitiya',
@@ -34,7 +41,6 @@ class CareNestSeeder extends Seeder
         foreach ($areas as $areaName) {
             $area = Area::firstOrCreate(['area_name' => $areaName]);
             
-            // Assign a midwife on duty for each area
             Midwife::firstOrCreate(
                 ['area_id' => $area->area_id],
                 ['midwife_name' => 'Midwife (' . $areaName . ')']

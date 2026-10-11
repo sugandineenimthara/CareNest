@@ -23,30 +23,17 @@ class TriposhaBook extends Model
         'recipient_type',
         'name_of_mother',
         'name_of_child',
+        'opening_stock',
+        'session_label',
     ];
 
     protected $casts = [
-        'issuing_date' => 'date',
-        'no_of_packets' => 'integer',
+        'issuing_date'   => 'date',
+        'no_of_packets'  => 'integer',
+        'opening_stock'  => 'integer',
     ];
 
-    protected $appends = ['age'];
-
-    public function age(): Attribute
-    {
-        return Attribute::make(
-            get: function () {
-                if ($this->recipient_type === 'Child' && $this->child && $this->child->date_of_birth) {
-                    return Carbon::parse($this->child->date_of_birth)->age . ' years';
-                }
-                if ($this->mother && $this->mother->date_of_birth) {
-                    return Carbon::parse($this->mother->date_of_birth)->age . ' years';
-                }
-                return null;
-            }
-        );
-    }
-
+    // ─── Relationships ──────────────────────────────────────────────
     public function mother(): BelongsTo
     {
         return $this->belongsTo(Mother::class, 'mother_id', 'mother_id');
@@ -60,5 +47,29 @@ class TriposhaBook extends Model
     public function midwife(): BelongsTo
     {
         return $this->belongsTo(Midwife::class, 'midwife_id', 'midwife_id');
+    }
+
+    // ─── Computed Attributes ────────────────────────────────────────
+    /** Display name of the recipient */
+    public function getRecipientNameAttribute(): string
+    {
+        if ($this->recipient_type === 'Child') {
+            return $this->name_of_child
+                ?? ($this->child ? $this->child->display_name : 'Unknown Child');
+        }
+        return $this->name_of_mother
+            ?? ($this->mother ? $this->mother->mother_name : 'Unknown Mother');
+    }
+
+    /** Remaining stock after this session */
+    public function getRemainingStockAttribute(): ?int
+    {
+        if ($this->opening_stock === null) return null;
+
+        $distributed = self::where('issuing_date', $this->issuing_date)
+            ->where('session_label', $this->session_label)
+            ->sum('no_of_packets');
+
+        return $this->opening_stock - $distributed;
     }
 }

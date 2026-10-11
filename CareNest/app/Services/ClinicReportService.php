@@ -7,9 +7,6 @@ use App\Models\Report;
 
 class ClinicReportService
 {
-    /**
-     * Create or update a Daily Clinic Summary based on a report.
-     */
     public function generateDailySummary(Report $report, int $areaId): DailyClinicSummary
     {
         $closingStock = $report->closing_stock ?? (

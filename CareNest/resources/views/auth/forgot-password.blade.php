@@ -83,10 +83,13 @@
 
     <form action="{{ route('password.email') }}" method="POST">
         @csrf
+        @if(request('from') || Auth::check())
+            <input type="hidden" name="from" value="change-password">
+        @endif
 
         <div class="input-wrapper" style="text-align: left; margin-bottom: 24px;">
             <label class="input-label">EMAIL ADDRESS</label>
-            <input type="email" name="email" class="input-field" placeholder="Enter your registered email" value="{{ old('email') }}" required autofocus>
+            <input type="email" name="email" class="input-field" placeholder="Enter your registered email" value="{{ old('email', Auth::user()->email ?? '') }}" required autofocus>
             <i class="fa-regular fa-envelope input-icon"></i>
         </div>
 
@@ -94,9 +97,15 @@
             Send Reset Link <i class="fa-solid fa-paper-plane"></i>
         </button>
 
-        <a href="{{ route('login') }}" class="back-link">
-            <i class="fa-solid fa-arrow-left me-1"></i> Back to Login
-        </a>
+        @if(Auth::check())
+            <a href="{{ route('password.change') }}" class="back-link">
+                <i class="fa-solid fa-arrow-left me-1"></i> Back to Change Password
+            </a>
+        @else
+            <a href="{{ route('login') }}" class="back-link">
+                <i class="fa-solid fa-arrow-left me-1"></i> Back to Login
+            </a>
+        @endif
     </form>
 </div>
 @endsection

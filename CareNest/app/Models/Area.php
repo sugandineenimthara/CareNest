@@ -25,4 +25,9 @@ class Area extends Model
     {
         return $this->hasMany(DailyClinicSummary::class, 'area_id', 'area_id');
     }
+
+    public function children(): HasMany
+    {
+        return $this->hasMany(Child::class, 'area_id', 'area_id');
+    }
 }

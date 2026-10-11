@@ -18,11 +18,9 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
 
-        // Core Dashboard Statistics (Dynamic live counts from DB)
         $registeredMothersCount = Mother::count();
         $childrenEnrolledCount = Child::count();
 
-        // High Risk Cases: Mothers with low Haemoglobin (< 11 g/dL) or positive test alerts
         $highRiskCount = TestDone::where('Haemoglobin', '<', 11.0)
             ->orWhere('urine_sugar_level', '!=', 'Negative')
             ->orWhere('blood_sugar', 'like', '%high%')
@@ -32,7 +30,6 @@ class DashboardController extends Controller
         $immunizationsDueCount = Immunization::count();
         $triposhaPacketsCount = TriposhaBook::sum('no_of_packets');
 
-        // Clinic Areas Overview with patient counts and midwives on duty
         $clinicAreas = Area::withCount(['midwives'])->get()->map(function ($area) {
             $midwifeIds = Midwife::where('area_id', $area->area_id)->pluck('midwife_id');
             $patientCount = Mother::whereIn('midwife_id', $midwifeIds)->count() + Child::whereIn('midwife_id', $midwifeIds)->count();
@@ -43,8 +40,32 @@ class DashboardController extends Controller
             return $area;
         });
 
-        // Recent Attendances
-        $recentAttendances = Attendance::with(['mother', 'child', 'midwife'])->latest()->take(5)->get();
+        $attendancesQuery = Attendance::with(['mother', 'child', 'midwife']);
+        
+        if ($user->role === 'mother') {
+            if ($user->mother) {
+                $attendancesQuery->where('mother_id', $user->mother->mother_id);
+            } else {
+                // If no mother profile, return empty
+                $attendancesQuery->where('mother_id', -1);
+            }
+        } elseif ($user->role === 'midwife' && $user->midwife) {
+            $attendancesQuery->where('midwife_id', $user->midwife->midwife_id);
+        }
+        
+        $recentAttendances = $attendancesQuery->latest()->take(5)->get();
+
+        // Get mothers with high blood pressure from family health history
+        $highBPMothers = \App\Models\FamilyHealthHistory::with(['mother.user', 'mother.midwife.area'])
+            ->whereNotNull('high_blood_pressure')
+            ->where('high_blood_pressure', '!=', 'no')
+            ->where('high_blood_pressure', '!=', 'No')
+            ->where('high_blood_pressure', '!=', 'false')
+            ->where('high_blood_pressure', '!=', '0')
+            ->where('high_blood_pressure', '!=', '')
+            ->latest()
+            ->take(5)
+            ->get();
 
         return view('dashboard', compact(
             'user',
@@ -54,7 +75,8 @@ class DashboardController extends Controller
             'immunizationsDueCount',
             'triposhaPacketsCount',
             'clinicAreas',
-            'recentAttendances'
+            'recentAttendances',
+            'highBPMothers'
         ));
     }
 }

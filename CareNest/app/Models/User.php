@@ -22,7 +22,19 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
+        'status',
     ];
+
+    public function mother()
+    {
+        return $this->hasOne(Mother::class);
+    }
+
+    public function midwife()
+    {
+        return $this->hasOne(Midwife::class);
+    }
 
     /**
      * The attributes that should be hidden for serialization.

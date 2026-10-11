@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Area;
 use App\Models\Midwife;
 use App\Models\Mother;
 use App\Models\User;
@@ -14,7 +15,7 @@ class AuthController extends Controller
     public function showLogin()
     {
         if (Auth::check()) {
-            return redirect()->route('dashboard');
+            return $this->redirectBasedOnRole(Auth::user());
         }
         return view('auth.login');
     }
@@ -26,7 +27,7 @@ class AuthController extends Controller
             'password' => 'required|string',
         ]);
 
-        // Support login by email or name
+        // Support both email and username if applicable
         $loginType = filter_var($credentials['email'], FILTER_VALIDATE_EMAIL) ? 'email' : 'name';
         
         $attemptData = [
@@ -34,64 +35,118 @@ class AuthController extends Controller
             'password' => $credentials['password'],
         ];
 
-        if (Auth::attempt($attemptData, $request->remember)) {
+        if (Auth::attempt($attemptData, $request->boolean('remember'))) {
+            $user = Auth::user();
+
+            if ($user->status === 'pending') {
+                Auth::logout();
+                return back()->with('error', 'Your registration is currently awaiting administrator approval.');
+            }
+
+            if ($user->status === 'rejected') {
+                Auth::logout();
+                return back()->with('error', 'Your account has been rejected.');
+            }
+
             $request->session()->regenerate();
-            return redirect()->intended(route('dashboard'));
+            return $this->redirectBasedOnRole($user);
         }
 
         return back()->withErrors([
-            'email' => 'The provided credentials do not match our records.',
+            'email' => 'Invalid login credentials.',
         ])->onlyInput('email');
     }
 
-    public function showRegister()
+    private function redirectBasedOnRole($user)
     {
-        if (Auth::check()) {
-            return redirect()->route('dashboard');
+        switch ($user->role) {
+            case 'provider':
+            case 'admin':
+                return redirect()->route('admin.dashboard');
+            case 'midwife':
+                return redirect()->route('midwife.dashboard');
+            case 'mother':
+                return redirect()->route('mother.dashboard');
+            default:
+                Auth::logout();
+                return redirect()->route('login')->with('error', 'Invalid role assigned to your account.');
         }
-        return view('auth.register');
     }
 
-    public function register(Request $request)
+    public function showRegisterMother()
+    {
+        if (Auth::check()) {
+            return $this->redirectBasedOnRole(Auth::user());
+        }
+        $midwives = Midwife::all();
+        return view('auth.register_mother', compact('midwives'));
+    }
+
+    public function registerMother(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
+            'mother_name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:6',
-            'role' => 'required|in:mother,provider',
+            'password' => 'required|string|min:6|confirmed',
+            'phone_no' => 'required|string|max:15',
+            'date_of_birth' => 'required|date',
+            'address' => 'required|string|max:500',
+            'midwife_id' => 'required|exists:midwives,midwife_id',
         ]);
 
         $user = User::create([
-            'name' => $validated['name'],
+            'name' => $validated['mother_name'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
-            'role' => $validated['role'],
+            'role' => 'mother',
+            'status' => 'approved',
         ]);
 
-        // Automatically link to default midwife or mother record if available
-        if ($validated['role'] === 'mother') {
-            $midwife = Midwife::first();
-            if ($midwife) {
-                Mother::firstOrCreate(
-                    ['phone_no' => $validated['email']],
-                    [
-                        'mother_name' => $validated['name'],
-                        'midwife_id' => $midwife->midwife_id,
-                        'address' => 'Registered via CareNest App',
-                    ]
-                );
-            }
-        }
+        Mother::create([
+            'mother_name' => $validated['mother_name'],
+            'phone_no' => $validated['phone_no'],
+            'date_of_birth' => $validated['date_of_birth'],
+            'address' => $validated['address'],
+            'midwife_id' => $validated['midwife_id'],
+            'user_id' => $user->id,
+        ]);
 
-        Auth::login($user);
-
-        return redirect()->route('dashboard');
+        return redirect()->route('login')->with('success', 'Registration completed successfully. You can now login.');
     }
 
-    public function dashboard()
+    public function showRegisterMidwife()
     {
-        $user = Auth::user();
-        return view('dashboard', compact('user'));
+        if (Auth::check()) {
+            return $this->redirectBasedOnRole(Auth::user());
+        }
+        $areas = Area::all();
+        return view('auth.register_midwife', compact('areas'));
+    }
+
+    public function registerMidwife(Request $request)
+    {
+        $validated = $request->validate([
+            'midwife_name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:6|confirmed',
+            'area_id' => 'required|exists:areas,area_id',
+        ]);
+
+        $user = User::create([
+            'name' => $validated['midwife_name'],
+            'email' => $validated['email'],
+            'password' => Hash::make($validated['password']),
+            'role' => 'midwife',
+            'status' => 'pending',
+        ]);
+
+        Midwife::create([
+            'midwife_name' => $validated['midwife_name'],
+            'area_id' => $validated['area_id'],
+            'user_id' => $user->id,
+        ]);
+
+        return redirect()->route('login')->with('success', 'Your registration request has been submitted successfully and is waiting for administrator approval.');
     }
 
     public function logout(Request $request)

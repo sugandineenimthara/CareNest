@@ -14,6 +14,7 @@ class Immunization extends Model
 
     protected $fillable = [
         'child_id',
+        'mother_id',
         'midwife_id',
         'batch_no',
         'vaccine_name',
@@ -21,6 +22,8 @@ class Immunization extends Model
         'age',
         'immunization_date',
         'expiry_date',
+        'status',
+        'remarks',
     ];
 
     protected $casts = [
@@ -31,6 +34,11 @@ class Immunization extends Model
     public function child(): BelongsTo
     {
         return $this->belongsTo(Child::class, 'child_id', 'child_id');
+    }
+
+    public function mother(): BelongsTo
+    {
+        return $this->belongsTo(Mother::class, 'mother_id', 'mother_id');
     }
 
     public function midwife(): BelongsTo
