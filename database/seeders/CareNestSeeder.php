@@ -22,15 +22,6 @@ class CareNestSeeder extends Seeder
         );
 
         User::firstOrCreate(
-            ['email' => 'kamala@example.com'],
-            [
-                'name' => 'Kamala Silva',
-                'password' => Hash::make('password123'),
-                'role' => 'mother',
-            ]
-        );
-
-        User::firstOrCreate(
             ['email' => 'midwife@carenest.com'],
             [
                 'name' => 'Midwife User',
