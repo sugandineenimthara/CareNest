@@ -12,21 +12,13 @@ class CareNestSeeder extends Seeder
 {
     public function run(): void
     {
-        User::firstOrCreate(
+        User::updateOrCreate(
             ['email' => 'admin@carenest.com'],
             [
                 'name' => 'System Admin',
                 'password' => Hash::make('admin123'),
                 'role' => 'provider',
-            ]
-        );
-
-        User::firstOrCreate(
-            ['email' => 'midwife@carenest.com'],
-            [
-                'name' => 'Midwife User',
-                'password' => Hash::make('midwife123'),
-                'role' => 'midwife',
+                'status' => 'approved',
             ]
         );
 
@@ -38,12 +30,31 @@ class CareNestSeeder extends Seeder
             'Kapuwaththa-02',
         ];
 
-        foreach ($areas as $areaName) {
+        $firstArea = null;
+        foreach ($areas as $index => $areaName) {
             $area = Area::firstOrCreate(['area_name' => $areaName]);
-            
-            Midwife::firstOrCreate(
-                ['area_id' => $area->area_id],
-                ['midwife_name' => 'Midwife (' . $areaName . ')']
+            if ($index === 0) {
+                $firstArea = $area;
+            }
+        }
+
+        $midwifeUser = User::updateOrCreate(
+            ['email' => 'midwife@carenest.com'],
+            [
+                'name' => 'Midwife User',
+                'password' => Hash::make('midwife123'),
+                'role' => 'midwife',
+                'status' => 'approved',
+            ]
+        );
+
+        if ($firstArea) {
+            Midwife::updateOrCreate(
+                ['user_id' => $midwifeUser->id],
+                [
+                    'midwife_name' => 'Midwife User',
+                    'area_id' => $firstArea->area_id,
+                ]
             );
         }
     }
