@@ -5,6 +5,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ForgotPasswordController;
 use App\Http\Controllers\MotherController;
 use App\Http\Controllers\PasswordController;
+use App\Http\Controllers\VaccineReportController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -78,6 +79,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/immunizations', [\App\Http\Controllers\ImmunizationController::class, 'index'])->name('immunizations.index');
         Route::post('/immunizations/child', [\App\Http\Controllers\ImmunizationController::class, 'storeChildVaccine'])->name('immunizations.child.store');
         Route::post('/immunizations/mother', [\App\Http\Controllers\ImmunizationController::class, 'storeMotherVaccine'])->name('immunizations.mother.store');
+        Route::get('/vaccine-reports', [VaccineReportController::class, 'index'])->name('vaccine-reports.index');
 
         Route::get('/alerts', [\App\Http\Controllers\AlertController::class, 'index'])->name('alerts.index');
 
@@ -113,6 +115,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/immunizations', [\App\Http\Controllers\ImmunizationController::class, 'index'])->name('immunizations.index');
         Route::post('/immunizations/child', [\App\Http\Controllers\ImmunizationController::class, 'storeChildVaccine'])->name('immunizations.child.store');
         Route::post('/immunizations/mother', [\App\Http\Controllers\ImmunizationController::class, 'storeMotherVaccine'])->name('immunizations.mother.store');
+        Route::get('/vaccine-reports', [VaccineReportController::class, 'index'])->name('vaccine-reports.index');
 
         Route::get('/alerts', [\App\Http\Controllers\AlertController::class, 'index'])->name('alerts.index');
 
@@ -139,6 +142,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/children/{id}', [\App\Http\Controllers\ChildController::class, 'show'])->name('children.show');
 
         Route::get('/immunizations', [\App\Http\Controllers\ImmunizationController::class, 'index'])->name('immunizations.index');
+        Route::get('/vaccine-reports', [VaccineReportController::class, 'index'])->name('vaccine-reports.index');
         
         Route::get('/notifications', [\App\Http\Controllers\AlertController::class, 'index'])->name('notifications.index');
     });
