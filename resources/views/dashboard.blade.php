@@ -642,7 +642,7 @@
             </li>
             @endif
             <li class="nav-item">
-                <a href="#reports">
+                <a href="{{ route($prefix . '.vaccine-reports.index') }}">
                     <i class="fa-solid fa-file-invoice"></i>
                     <span>Vaccine Reports</span>
                 </a>
