@@ -25,6 +25,9 @@ class Child extends Model
         'date_of_birth',
         'birth_weight',
         'birth_length',
+        'height',
+        'weight',
+        'bmi',
         'bcg_vaccinated_at_birth',
         'bcg_batch_no',
         'bcg_vaccinated_date',
@@ -35,11 +38,37 @@ class Child extends Model
         'date_of_birth' => 'date',
         'birth_weight' => 'decimal:2',
         'birth_length' => 'decimal:2',
+        'height' => 'decimal:2',
+        'weight' => 'decimal:2',
+        'bmi' => 'decimal:2',
         'bcg_vaccinated_at_birth' => 'boolean',
         'bcg_vaccinated_date' => 'date',
     ];
 
-    protected $appends = ['age', 'display_name'];
+    protected $appends = ['age', 'display_name', 'bmi_calculated'];
+
+    public function calculateBmi(): ?float
+    {
+        $weight = $this->weight ?? $this->birth_weight;
+        $height = $this->height ?? $this->birth_length;
+        if (!$height || !$weight || $height <= 0) {
+            return null;
+        }
+        $heightInM = $height > 3 ? ($height / 100) : $height;
+        return round($weight / ($heightInM * $heightInM), 2);
+    }
+
+    public function getBmiCalculatedAttribute(): ?float
+    {
+        return $this->bmi ?: $this->calculateBmi();
+    }
+
+    public function bmiCalculated(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->bmi ?: $this->calculateBmi()
+        );
+    }
 
     public function displayName(): Attribute
     {
@@ -98,9 +127,8 @@ class Child extends Model
         return $this->hasMany(TriposhaBook::class, 'child_id', 'child_id');
     }
 
-    /**
-     * Standard National Immunization Schedule for Children
-     */
+    
+
     public static function getVaccinationSchedule(): array
     {
         return [

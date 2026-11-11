@@ -5,12 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>High-Risk Alerts - CareNest</title>
     
-    <!-- Google Fonts -->
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
-    <!-- FontAwesome Icons -->
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
@@ -37,7 +37,7 @@
             display: flex;
         }
 
-        /* Sidebar */
+        
         .sidebar {
             width: var(--sidebar-width);
             background: rgba(255,255,255,0.95);
@@ -71,10 +71,10 @@
         }
         .logout-btn:hover { color: #ef4444; }
 
-        /* Main */
+        
         .main-wrapper { margin-left: var(--sidebar-width); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
 
-        /* Top Header */
+        
         .top-header {
             display: flex;
             justify-content: space-between;
@@ -131,7 +131,7 @@
             font-size: 16px;
         }
 
-        /* Content Container */
+        
         .content-container {
             padding: 40px 48px;
             max-width: 1400px;
@@ -154,7 +154,7 @@
             margin-bottom: 30px;
         }
 
-        /* Table Card */
+        
         .table-card {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px);
@@ -206,7 +206,7 @@
             font-size: 14px;
         }
 
-        /* Severities */
+        
         .bg-danger { background: #fee2e2; color: #ef4444; }
         .bg-warning { background: #fef3c7; color: #d97706; }
         
@@ -238,95 +238,139 @@
 </head>
 <body>
 
-    <!-- Sidebar -->
-    <aside class="sidebar">
-        <a href="{{ route('dashboard') }}" class="sidebar-brand">
-            <i class="fa-solid fa-leaf" style="color:#00c853;"></i>
-            <span>CareNest</span>
-        </a>
-        <ul class="sidebar-menu">
-            <li class="nav-item"><a href="{{ route('dashboard') }}"><i class="fa-solid fa-table-cells-large"></i><span>Dashboard</span></a></li>
-            @if(Auth::check() && (Auth::user()->role === 'provider' || Auth::user()->role === 'admin'))
-            <li class="nav-item"><a href="{{ route('admin.midwife-requests') }}"><i class="fa-solid fa-user-check"></i><span>Midwife Requests</span></a></li>
-            <li class="nav-item"><a href="{{ route('admin.midwives.index') }}"><i class="fa-solid fa-user-nurse"></i><span>Manage Midwives</span></a></li>
-            @endif
-            <li class="nav-item"><a href="{{ route('admin.mothers.index') }}"><i class="fa-solid fa-user-nurse"></i><span>Mothers</span></a></li>
-            <li class="nav-item"><a href="{{ route('admin.children.index') }}"><i class="fa-solid fa-baby"></i><span>Children</span></a></li>
-            <li class="nav-item"><a href="{{ route('admin.immunizations.index') }}"><i class="fa-solid fa-syringe"></i><span>Immunizations</span></a></li>
-            <li class="nav-item active"><a href="{{ route('admin.alerts.index') }}"><i class="fa-solid fa-triangle-exclamation"></i><span>High-Risk Alerts</span></a></li>
+    
+    @include('partials.sidebar')
 
-            <li class="nav-item"><a href="{{ route('admin.triposha.index') }}"><i class="fa-solid fa-book-medical"></i><span>Triposha Book</span></a></li>
-            <li class="nav-item"><a href="{{ route('admin.attendances.index') }}"><i class="fa-solid fa-calendar-check"></i><span>Clinic Attendances</span></a></li>
-            <li class="nav-item"><a href="#reports"><i class="fa-solid fa-file-invoice"></i><span>Vaccine Reports</span></a></li>
-        </ul>
-    </aside>
-
+    @php
+        $role = auth()->user()->role ?? 'admin';
+    @endphp
     <div class="main-wrapper">
-    <!-- Header -->
     <header class="top-header">
         <div class="header-left">
-            <span>High-Risk Alerts</span>
+            <span>{{ $role === 'mother' ? 'My Notifications' : 'High-Risk Alerts' }}</span>
         </div>
         <div class="header-right">
             @include('partials.top-header-user')
         </div>
     </header>
 
-    <!-- Main Content -->
     <main class="content-container">
-        <h1 class="page-title">High-Risk Medical Alerts</h1>
-        <p class="page-subtitle">A comprehensive list of mothers requiring immediate medical attention based on clinic tests and health history.</p>
+        @if($role === 'mother')
+            <h1 class="page-title">My Notifications</h1>
+            <p class="page-subtitle">Advance notifications and clinic schedule reminders for you and your children.</p>
 
-        <div class="table-card">
-            <table>
-                <thead>
-                    <tr>
-                        <th>MOTHER'S NAME</th>
-                        <th>ALERT TYPE</th>
-                        <th>CONDITION / VALUE</th>
-                        <th>CLINIC AREA</th>
-                        <th>MIDWIFE IN-CHARGE</th>
-                        <th>CONTACT NO</th>
-                        <th>ACTION</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($allAlerts as $alert)
-                        <tr>
-                            <td>
-                                <div class="name-cell">
-                                    <div class="area-icon-dot bg-{{ $alert->severity }}">
-                                        <i class="fa-solid {{ $alert->icon }}"></i>
-                                    </div>
-                                    <span>{{ $alert->mother_name }}</span>
+            @forelse($motherNotifications as $notification)
+                <div style="background:white; border-radius:20px; padding:24px 28px; border:1px solid {{ $notification->is_within_week ? '#fde68a' : '#e2e8f0' }}; margin-bottom:16px; box-shadow:0 4px 16px rgba(0,0,0,0.03); display:flex; align-items:flex-start; gap:20px; {{ $notification->is_within_week ? 'background:linear-gradient(135deg, #fffbeb 0%, #ffffff 100%);' : '' }}">
+                    <div style="width:48px; height:48px; border-radius:14px; background:{{ $notification->is_within_week ? '#d97706' : ($notification->severity === 'danger' ? '#ef4444' : '#00c853') }}; color:white; display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0;">
+                        <i class="fa-solid {{ $notification->icon }}"></i>
+                    </div>
+                    <div style="flex:1;">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:10px;">
+                            <div>
+                                <h3 style="font-family:var(--font-heading); font-size:18px; font-weight:800; color:#1e293b; margin-bottom:4px;">
+                                    {{ $notification->title }}
+                                </h3>
+                                <div style="font-size:13px; color:#64748b;">
+                                    For: <strong style="color:#0f172a;">{{ $notification->beneficiary }}</strong>
                                 </div>
-                            </td>
-                            <td style="font-weight: 600;">{{ $alert->type }}</td>
-                            <td>
-                                <span class="condition-pill pill-{{ $alert->severity }}">
-                                    {{ $alert->condition_text }}
-                                </span>
-                            </td>
-                            <td>{{ $alert->area }}</td>
-                            <td>{{ $alert->midwife }}</td>
-                            <td>{{ $alert->contact_no }}</td>
-                            <td>
-                                <button class="action-arrow-btn" title="View Details">
-                                    <i class="fa-solid fa-chevron-right"></i>
-                                </button>
-                            </td>
-                        </tr>
-                    @empty
+                            </div>
+                            <div>
+                                @if($notification->is_within_week)
+                                    <span class="condition-pill" style="background:#fef3c7; color:#92400e; border:1px solid #fde68a; font-weight:800;">
+                                        <i class="fa-solid fa-bell"></i> Upcoming within 1 week
+                                    </span>
+                                @else
+                                    <span class="condition-pill pill-{{ $notification->severity }}">
+                                        {{ $notification->status_label }}
+                                    </span>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div style="margin-top:14px; background:#f8fafc; border-radius:12px; padding:12px 18px; display:flex; flex-wrap:wrap; gap:20px; font-size:13px; color:#334155; border:1px solid #f1f5f9;">
+                            <div>
+                                <span style="color:#94a3b8; font-weight:700; text-transform:uppercase; font-size:11px; display:block;">Date</span>
+                                <strong style="color:#1b4d3e; font-size:14px;">{{ $notification->date }}</strong>
+                            </div>
+                            <div>
+                                <span style="color:#94a3b8; font-weight:700; text-transform:uppercase; font-size:11px; display:block;">Time</span>
+                                <strong style="color:#0f172a; font-size:14px;">{{ $notification->time }}</strong>
+                            </div>
+                            <div>
+                                <span style="color:#94a3b8; font-weight:700; text-transform:uppercase; font-size:11px; display:block;">Venue</span>
+                                <strong style="color:#0284c7; font-size:14px;"><i class="fa-solid fa-hospital" style="margin-right:4px;"></i> {{ $notification->venue }}</strong>
+                            </div>
+                        </div>
+
+                        <p style="margin-top:12px; font-size:14px; color:#475569; line-height:1.5;">
+                            {{ $notification->message }}
+                        </p>
+                    </div>
+                </div>
+            @empty
+                <div style="background:white; border-radius:24px; padding:48px 24px; text-align:center; border:1px solid #e2e8f0; box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+                    <i class="fa-solid fa-bell-slash" style="font-size:44px; color:#cbd5e1; display:block; margin-bottom:14px;"></i>
+                    <h3 style="font-family:var(--font-heading); font-size:18px; font-weight:800; color:#1e293b; margin-bottom:6px;">No Notifications</h3>
+                    <p style="color:#64748b; font-size:14px; max-width:480px; margin:0 auto;">
+                        You have no upcoming immunization alerts at this time. When a clinic date approaches within 1 week, you will receive notifications here.
+                    </p>
+                </div>
+            @endforelse
+        @else
+            <h1 class="page-title">High-Risk Medical Alerts</h1>
+            <p class="page-subtitle">A comprehensive list of mothers requiring immediate medical attention based on clinic tests and health history.</p>
+
+            <div class="table-card">
+                <table>
+                    <thead>
                         <tr>
-                            <td colspan="7" style="text-align: center; color: #94a3b8; padding: 40px;">
-                                <i class="fa-solid fa-shield-heart" style="font-size: 32px; color: #e2e8f0; display: block; margin-bottom: 12px;"></i>
-                                No high-risk medical alerts found.
-                            </td>
+                            <th>MOTHER'S NAME</th>
+                            <th>ALERT TYPE</th>
+                            <th>CONDITION / VALUE</th>
+                            <th>CLINIC AREA</th>
+                            <th>MIDWIFE IN-CHARGE</th>
+                            <th>CONTACT NO</th>
+                            <th>ACTION</th>
                         </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
+                    </thead>
+                    <tbody>
+                        @forelse($allAlerts as $alert)
+                            <tr>
+                                <td>
+                                    <div class="name-cell">
+                                        <div class="area-icon-dot bg-{{ $alert->severity }}">
+                                            <i class="fa-solid {{ $alert->icon }}"></i>
+                                        </div>
+                                        <span>{{ $alert->mother_name }}</span>
+                                    </div>
+                                </td>
+                                <td style="font-weight: 600;">{{ $alert->type }}</td>
+                                <td>
+                                    <span class="condition-pill pill-{{ $alert->severity }}">
+                                        {{ $alert->condition_text }}
+                                    </span>
+                                </td>
+                                <td>{{ $alert->area }}</td>
+                                <td>{{ $alert->midwife }}</td>
+                                <td>{{ $alert->contact_no }}</td>
+                                <td>
+                                    <button class="action-arrow-btn" title="View Details">
+                                        <i class="fa-solid fa-chevron-right"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="7" style="text-align: center; color: #94a3b8; padding: 40px;">
+                                    <i class="fa-solid fa-shield-heart" style="font-size: 32px; color: #e2e8f0; display: block; margin-bottom: 12px;"></i>
+                                    No high-risk medical alerts found.
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        @endif
     </main>
     </div>
 

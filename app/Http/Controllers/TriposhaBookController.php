@@ -14,9 +14,8 @@ use Illuminate\Support\Facades\DB;
 
 class TriposhaBookController extends Controller
 {
-    /**
-     * Show all distribution sessions grouped by date.
-     */
+    
+
     public function index(Request $request)
     {
         $user     = Auth::user();
@@ -24,7 +23,7 @@ class TriposhaBookController extends Controller
         $dateFrom = $request->query('date_from');
         $dateTo   = $request->query('date_to');
 
-        // Records grouped by issuing_date + session_label
+        
         $query = TriposhaBook::with(['mother', 'child', 'midwife.area']);
 
         if ($search) {
@@ -42,13 +41,13 @@ class TriposhaBookController extends Controller
             $query->whereDate('issuing_date', '<=', $dateTo);
         }
 
-        // Group by date and session_label
+        
         $allRecords = $query->orderBy('issuing_date', 'desc')
                             ->orderBy('session_label')
                             ->orderBy('serial_no')
                             ->get();
 
-        // Build sessions array
+        
         $sessions = $allRecords->groupBy(fn ($r) => $r->issuing_date->format('Y-m-d') . '||' . ($r->session_label ?? 'Session'))
             ->map(function ($records, $key) {
                 [$date, $label] = explode('||', $key);
@@ -69,14 +68,14 @@ class TriposhaBookController extends Controller
             })
             ->values();
 
-        // Summary stats
+        
         $totalPacketsEver   = TriposhaBook::sum('no_of_packets');
         $totalSessionsEver  = TriposhaBook::select('issuing_date', 'session_label')
                                 ->distinct()->count();
         $mothersServed      = TriposhaBook::where('recipient_type', 'Mother')->count();
         $childrenServed     = TriposhaBook::where('recipient_type', 'Child')->count();
 
-        // For create form
+        
         $mothers  = Mother::with('midwife.area')->orderBy('mother_name')->get();
         $children = Child::with('mother', 'midwife.area')->orderBy('child_id')->get();
         $midwives = Midwife::with('area')->get();
@@ -105,14 +104,8 @@ class TriposhaBookController extends Controller
         ));
     }
 
-    /**
-     * Store a batch of Thriposha records for one distribution session.
-     * Expects:
-     *   date          => 2026-09-30
-     *   session_label => "Morning Session"
-     *   opening_stock => 150
-     *   rows[]        => [ {recipient_type, mother_id|child_id, no_of_packets} ... ]
-     */
+    
+
     public function storeBatch(Request $request)
     {
         $request->validate([
@@ -131,7 +124,7 @@ class TriposhaBookController extends Controller
         $midwifeId    = $midwife?->midwife_id;
         $sessionLabel = $request->session_label ?? 'Distribution Session';
 
-        // If logged in as midwife, use their ID
+        
         if ($user->role === 'midwife') {
             $mw = Midwife::where('user_id', $user->id)->first();
             if ($mw) $midwifeId = $mw->midwife_id;
@@ -159,7 +152,7 @@ class TriposhaBookController extends Controller
                         $child       = Child::with('mother')->find($childId);
                         $nameOfChild = $child?->display_name;
                         $nameOfMother = $child?->mother?->mother_name;
-                        // Link to mother if exists
+                        
                         if (!$motherId && $child?->mother_id) {
                             $motherId = $child->mother_id;
                         }
@@ -193,9 +186,8 @@ class TriposhaBookController extends Controller
         }
     }
 
-    /**
-     * Delete a single record.
-     */
+    
+
     public function destroy(int $id)
     {
         TriposhaBook::findOrFail($id)->delete();

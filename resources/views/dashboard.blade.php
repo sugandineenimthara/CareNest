@@ -5,12 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - CareNest</title>
 
-    <!-- Google Fonts -->
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-    <!-- FontAwesome Icons -->
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
@@ -40,7 +40,7 @@
             display: flex;
         }
 
-        /* Sidebar Styling */
+        
         .sidebar {
             width: var(--sidebar-width);
             background: rgba(255, 255, 255, 0.95);
@@ -118,7 +118,7 @@
             text-align: center;
         }
 
-        /* Sidebar Footer Buttons */
+        
         .sidebar-footer {
             margin-top: 20px;
             display: flex;
@@ -170,7 +170,7 @@
             color: #ef4444;
         }
 
-        /* Main Content Wrapper */
+        
         .main-wrapper {
             margin-left: var(--sidebar-width);
             flex: 1;
@@ -179,7 +179,7 @@
             min-height: 100vh;
         }
 
-        /* Top Header Bar */
+        
         .top-header {
             display: flex;
             justify-content: space-between;
@@ -277,7 +277,7 @@
             font-size: 16px;
         }
 
-        /* Body Container */
+        
         .content-container {
             padding: 36px 48px;
             max-width: 1250px;
@@ -301,7 +301,7 @@
             margin-bottom: 32px;
         }
 
-        /* 4 Stat Cards Grid */
+        
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -367,7 +367,7 @@
             margin-top: 12px;
         }
 
-        /* Clinic Areas Table Card */
+        
         .table-card {
             background: rgba(255, 255, 255, 0.9);
             backdrop-filter: blur(20px);
@@ -479,7 +479,7 @@
             color: #00c853;
         }
 
-        /* Bottom Center Badge & Floating FAB */
+        
         .bottom-badge-center {
             display: flex;
             justify-content: center;
@@ -523,7 +523,7 @@
             transform: scale(1.1);
         }
 
-        /* Simple Visit Modal */
+        
         .modal-overlay {
             display: none;
             position: fixed;
@@ -561,126 +561,32 @@
 </head>
 <body>
 
-    <!-- Left Taskbar Sidebar -->
-    <aside class="sidebar">
-        <a href="{{ route('dashboard') }}" class="sidebar-brand">
-            <i class="fa-solid fa-leaf" style="color: #00c853;"></i>
-            <span>CareNest</span>
-        </a>
+    
+    @include('partials.sidebar')
 
-        <!-- Taskbar Sections mapped to Database entities -->
-        <ul class="sidebar-menu">
-            <li class="nav-item active">
-                <a href="{{ route('dashboard') }}">
-                    <i class="fa-solid fa-table-cells-large"></i>
-                    <span>Dashboard</span>
-                </a>
-            </li>
-            @if(Auth::user()->role === 'provider' || Auth::user()->role === 'admin')
-            <li class="nav-item">
-                <a href="{{ route('admin.midwife-requests') }}">
-                    <i class="fa-solid fa-user-check"></i>
-                    <span>Midwife Requests</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="{{ route('admin.midwives.index') }}">
-                    <i class="fa-solid fa-user-nurse"></i>
-                    <span>Manage Midwives</span>
-                </a>
-            </li>
-            @endif
-            @php
-                $role = Auth::user()->role;
-                $prefix = ($role === 'provider' || $role === 'admin') ? 'admin' : ($role === 'midwife' ? 'midwife' : 'mother');
-            @endphp
-            <li class="nav-item">
-                <a href="{{ route($prefix . '.mothers.index') }}">
-                    <i class="fa-solid fa-user-nurse"></i>
-                    <span>Mothers</span>
-                </a>
-            </li>
-
-            <li class="nav-item">
-                <a href="{{ route($prefix . '.children.index') }}">
-                    <i class="fa-solid fa-baby"></i>
-                    <span>Children</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="{{ route($prefix . '.immunizations.index') }}">
-                    <i class="fa-solid fa-syringe"></i>
-                    <span>Immunizations</span>
-                </a>
-            </li>
-            @if($role !== 'mother')
-            <li class="nav-item">
-                <a href="{{ route($prefix . '.alerts.index') }}">
-                    <i class="fa-solid fa-triangle-exclamation"></i>
-                    <span>High-Risk Alerts</span>
-                </a>
-            </li>
-            <!-- Additional Sections mapped to database tables -->
-            <li class="nav-item">
-                <a href="{{ route($prefix . '.triposha.index') }}">
-                    <i class="fa-solid fa-book-medical"></i>
-                    <span>Triposha Book</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="{{ route($prefix . '.attendances.index') }}">
-                    <i class="fa-solid fa-calendar-check"></i>
-                    <span>Clinic Attendances</span>
-                </a>
-            </li>
-            @else
-            <li class="nav-item">
-                <a href="{{ route('mother.notifications.index') }}">
-                    <i class="fa-solid fa-triangle-exclamation"></i>
-                    <span>Notifications</span>
-                </a>
-            </li>
-            @endif
-            <li class="nav-item">
-                <a href="{{ route($prefix . '.vaccine-reports.index') }}">
-                    <i class="fa-solid fa-file-invoice"></i>
-                    <span>Vaccine Reports</span>
-                </a>
-            </li>
-        </ul>
-
-        <!-- Sidebar Bottom Footer -->
-        <div class="sidebar-footer">
-            <button type="button" class="btn-schedule" onclick="openVisitModal()">
-                <i class="fa-regular fa-calendar-plus"></i>
-                <span>Schedule Visit</span>
-            </button>
-        </div>
-    </aside>
-
-    <!-- Main Content Area -->
+    
     <div class="main-wrapper">
-        <!-- Top Navigation Header -->
+        
         <header class="top-header">
             <div class="header-left">
                 CareNest
             </div>
 
-            <!-- Right Profile Badge with Dropdown -->
+            
             <div class="header-right">
                 @include('partials.top-header-user')
             </div>
         </header>
 
-        <!-- Main Dashboard Content -->
+        
         <main class="content-container">
             <h1 class="welcome-title">Welcome Back!</h1>
             <p class="welcome-sub">Overview of your clinic's maternal and pediatric care status today.</p>
 
-            <!-- 4 Top Stat Cards -->
+            
             <div class="stats-grid">
-                <!-- Card 1: Registered Mothers -->
-                <div class="stat-card card-green">
+                
+                <div class="stat-card card-green" style="cursor: pointer;" onclick="window.location.href='{{ $role !== 'mother' ? route($prefix . 'mothers.index') : route('mother.profile') }}'" title="View Registered Mothers">
                     <div class="stat-card-header">
                         <span class="stat-card-title">REGISTERED MOTHERS</span>
                         <div class="stat-card-icon icon-green">
@@ -690,8 +596,8 @@
                     <div class="stat-value">{{ $registeredMothersCount > 0 ? $registeredMothersCount : '--' }}</div>
                 </div>
 
-                <!-- Card 2: Children Enrolled -->
-                <div class="stat-card card-blue">
+                
+                <div class="stat-card card-blue" style="cursor: pointer;" onclick="window.location.href='{{ route($prefix . 'children.index') }}'" title="View Enrolled Children">
                     <div class="stat-card-header">
                         <span class="stat-card-title">CHILDREN ENROLLED</span>
                         <div class="stat-card-icon icon-blue">
@@ -701,8 +607,8 @@
                     <div class="stat-value">{{ $childrenEnrolledCount > 0 ? $childrenEnrolledCount : '--' }}</div>
                 </div>
 
-                <!-- Card 3: High-Risk Cases -->
-                <div class="stat-card card-red">
+                
+                <div class="stat-card card-red" style="cursor: pointer;" onclick="window.location.href='{{ $role !== 'mother' ? route($prefix . 'alerts.index') : '#' }}'" title="View High-Risk Alerts">
                     <div class="stat-card-header">
                         <span class="stat-card-title">HIGH-RISK CASES</span>
                         <div class="stat-card-icon icon-red">
@@ -712,8 +618,8 @@
                     <div class="stat-value">{{ $highRiskCount > 0 ? $highRiskCount : '--' }}</div>
                 </div>
 
-                <!-- Card 4: Immunizations Due -->
-                <div class="stat-card card-brown">
+                
+                <div class="stat-card card-brown" style="cursor: pointer;" onclick="window.location.href='{{ route($prefix . 'immunizations.index') }}'" title="View Immunizations">
                     <div class="stat-card-header">
                         <span class="stat-card-title">IMMUNIZATIONS DUE</span>
                         <div class="stat-card-icon icon-brown">
@@ -724,8 +630,8 @@
                 </div>
             </div>
 
-            <!-- Clinic Areas Overview Table Card -->
-            <div class="table-card">
+            
+            <div class="table-card" style="margin-bottom: 60px;">
                 <div class="table-header">
                     <h2 class="table-title">Clinic Areas Overview</h2>
                     <p class="table-subtitle">Performance and occupancy by department</p>
@@ -736,10 +642,8 @@
                         <tr>
                             <th>CLINIC AREA</th>
                             <th>PATIENT COUNT</th>
-                            <th>CAPACITY</th>
                             <th>ACTIVE ALERTS</th>
                             <th>STAFF ON DUTY</th>
-                            <th>ACTION</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -755,85 +659,20 @@
                                 </td>
                                 <td>{{ $area->patient_count ?? '-' }}</td>
                                 <td>
-                                    <div class="progress-bar-bg">
-                                        <div class="progress-bar-fill"></div>
-                                    </div>
-                                </td>
-                                <td>
                                     <span class="alert-pill">{{ $area->active_alerts ?? '-' }}</span>
                                 </td>
-                                <td>{{ $area->staff_on_duty ?? '-' }}</td>
-                                <td>
-                                    <button class="action-arrow-btn">
-                                        <i class="fa-solid fa-chevron-right"></i>
-                                    </button>
-                                </td>
+                                <td>{{ $area->staff_on_duty ?? 1 }}</td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" style="text-align: center; color: #94a3b8;">No clinic areas available.</td>
+                                <td colspan="4" style="text-align: center; color: #94a3b8;">No clinic areas available.</td>
                             </tr>
                         @endforelse
                     </tbody>
                 </table>
             </div>
 
-            <!-- High Blood Pressure Alerts Card -->
-            <div class="table-card" id="alerts" style="margin-bottom: 60px;">
-                <div class="table-header">
-                    <h2 class="table-title">High-Risk Alerts <span style="font-size: 14px; color: #ef4444; background: #fee2e2; padding: 4px 12px; border-radius: 20px; vertical-align: middle; margin-left: 8px;">High Blood Pressure</span></h2>
-                    <p class="table-subtitle">Mothers requiring immediate attention due to elevated blood pressure</p>
-                </div>
-
-                <table class="custom-table">
-                    <thead>
-                        <tr>
-                            <th>MOTHER'S NAME</th>
-                            <th>CONTACT NO</th>
-                            <th>CONDITION</th>
-                            <th>CLINIC AREA</th>
-                            <th>MIDWIFE IN-CHARGE</th>
-                            <th>ACTION</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($highBPMothers as $history)
-                            <tr>
-                                <td>
-                                    <div class="area-name-cell">
-                                        <div class="area-icon-dot" style="background: #fee2e2; color: #ef4444;">
-                                            <i class="fa-solid fa-heart-pulse"></i>
-                                        </div>
-                                        <span>{{ $history->mother->user->name ?? 'Unknown' }}</span>
-                                    </div>
-                                </td>
-                                <td>{{ $history->mother->telephone ?? '-' }}</td>
-                                <td>
-                                    <span style="color: #ef4444; font-weight: 700; background: #fef2f2; padding: 4px 10px; border-radius: 12px; font-size: 12px; border: 1px solid #fecaca; display: inline-block; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                                        {{ $history->high_blood_pressure }}
-                                    </span>
-                                </td>
-                                <td>{{ $history->mother->midwife->area->area_name ?? '-' }}</td>
-                                <td>{{ $history->mother->midwife->user->name ?? '-' }}</td>
-                                <td>
-                                    <button class="action-arrow-btn" title="View Details">
-                                        <i class="fa-solid fa-chevron-right"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="6" style="text-align: center; color: #94a3b8; padding: 30px;">
-                                    <i class="fa-solid fa-shield-heart" style="font-size: 32px; color: #e2e8f0; display: block; margin-bottom: 12px;"></i>
-                                    No high blood pressure alerts found.
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Bottom Pill Badge -->
+            
             <div class="bottom-badge-center">
                 <div class="badge-pill-light">
                     CARING FOR MOTHERS & CHILDREN
@@ -842,12 +681,12 @@
         </main>
     </div>
 
-    <!-- Bottom Right Floating Action Button -->
+    
     <button class="fab-btn" onclick="openVisitModal()" title="Quick Action">
         <i class="fa-solid fa-plus"></i>
     </button>
 
-    <!-- Schedule Visit Modal -->
+    
     <div class="modal-overlay" id="visitModal">
         <div class="modal-content">
             <h3 class="modal-title">Schedule Clinic Visit</h3>

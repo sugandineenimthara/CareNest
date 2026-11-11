@@ -13,8 +13,8 @@ return new class extends Migration
             $table->string('mother_name');
             $table->string('phone_no')->nullable();
             $table->foreignId('midwife_id')->constrained('midwives', 'midwife_id')->onDelete('cascade');
-            $table->decimal('height', 5, 2)->nullable(); // in cm or m
-            $table->decimal('weight', 5, 2)->nullable(); // in kg
+            $table->decimal('height', 5, 2)->nullable(); 
+            $table->decimal('weight', 5, 2)->nullable(); 
             $table->string('husband_name')->nullable();
             $table->string('husband_occupation')->nullable();
             $table->date('date_of_birth')->nullable();

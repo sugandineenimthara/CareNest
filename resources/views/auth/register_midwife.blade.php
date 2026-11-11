@@ -14,7 +14,7 @@
         padding: 40px 0;
     }
 
-    /* Center Login Glass Card */
+    
     .login-card {
         padding: 30px;
         width: 100%;

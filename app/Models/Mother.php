@@ -22,6 +22,7 @@ class Mother extends Model
         'midwife_id',
         'height',
         'weight',
+        'blood_pressure',
         'husband_name',
         'husband_occupation',
         'date_of_birth',
@@ -40,7 +41,25 @@ class Mother extends Model
         'weight' => 'decimal:2',
     ];
 
-    protected $appends = ['age', 'bmi'];
+    protected $appends = ['age', 'bmi', 'is_high_blood_pressure'];
+
+    public function isHighBloodPressure(): bool
+    {
+        if (!$this->blood_pressure) {
+            return false;
+        }
+        if (preg_match('/(\d+)\s*[\/\-]\s*(\d+)/', $this->blood_pressure, $m)) {
+            $systolic = (int)$m[1];
+            $diastolic = (int)$m[2];
+            return ($systolic >= 140 || $diastolic >= 90);
+        }
+        return false;
+    }
+
+    public function getIsHighBloodPressureAttribute(): bool
+    {
+        return $this->isHighBloodPressure();
+    }
 
     public function age(): Attribute
     {

@@ -18,11 +18,30 @@ class Attendance extends Model
         'clinic_type',
         'clinic_date',
         'remarks',
+        'blood_pressure',
+        'height',
+        'weight',
+        'bmi',
     ];
 
     protected $casts = [
         'clinic_date' => 'date',
+        'height'      => 'decimal:2',
+        'weight'      => 'decimal:2',
+        'bmi'         => 'decimal:2',
     ];
+
+    public function isHighBloodPressure(): bool
+    {
+        $bp = $this->blood_pressure ?: $this->remarks;
+        if (!$bp) {
+            return false;
+        }
+        if (preg_match('/(\d+)\s*[\/\-]\s*(\d+)/', $bp, $m)) {
+            return ((int)$m[1] >= 140 || (int)$m[2] >= 90);
+        }
+        return false;
+    }
 
     public function getAttendeeNameAttribute(): string
     {

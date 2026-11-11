@@ -27,7 +27,6 @@ class AuthController extends Controller
             'password' => 'required|string',
         ]);
 
-        // Support both email and username if applicable
         $loginType = filter_var($credentials['email'], FILTER_VALIDATE_EMAIL) ? 'email' : 'name';
         
         $attemptData = [
@@ -40,12 +39,18 @@ class AuthController extends Controller
 
             if ($user->status === 'pending') {
                 Auth::logout();
-                return back()->with('error', 'Your registration is currently awaiting administrator approval.');
+                $msg = $user->role === 'mother'
+                    ? 'Your registration is currently awaiting approval by your area midwife.'
+                    : 'Your registration is currently awaiting administrator approval.';
+                return back()->with('error', $msg);
             }
 
             if ($user->status === 'rejected') {
                 Auth::logout();
-                return back()->with('error', 'Your account has been rejected.');
+                $msg = $user->role === 'mother'
+                    ? 'Your registration request was not approved. Please contact your area midwife.'
+                    : 'Your account has been rejected.';
+                return back()->with('error', $msg);
             }
 
             $request->session()->regenerate();
@@ -66,7 +71,7 @@ class AuthController extends Controller
             case 'midwife':
                 return redirect()->route('midwife.dashboard');
             case 'mother':
-                return redirect()->route('mother.dashboard');
+                return redirect()->route('mother.profile');
             default:
                 Auth::logout();
                 return redirect()->route('login')->with('error', 'Invalid role assigned to your account.');
@@ -85,33 +90,77 @@ class AuthController extends Controller
     public function registerMother(Request $request)
     {
         $validated = $request->validate([
-            'mother_name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:6|confirmed',
-            'phone_no' => 'required|string|max:15',
-            'date_of_birth' => 'required|date',
-            'address' => 'required|string|max:500',
-            'midwife_id' => 'required|exists:midwives,midwife_id',
+            'mother_id'     => 'nullable|exists:mothers,mother_id',
+            'mother_name'   => 'required|string|max:255',
+            'email'         => 'required|string|email|max:255|unique:users,email',
+            'password'      => 'required|string|min:6|confirmed',
+            'phone_no'      => 'nullable|string|max:20',
+            'date_of_birth' => 'nullable|date',
+            'address'       => 'nullable|string|max:500',
+            'midwife_id'    => 'nullable|exists:midwives,midwife_id',
         ]);
 
+        if ($request->filled('mother_id')) {
+            $mother = Mother::with(['midwife.area', 'user'])->findOrFail($validated['mother_id']);
+
+            if ($mother->user_id && $mother->user) {
+                if ($mother->user->status === 'approved') {
+                    return back()->withInput()->withErrors([
+                        'mother_id' => 'An active user account is already approved for Mother ID #' . $mother->mother_id . '. Please log in.',
+                    ]);
+                }
+                if ($mother->user->status === 'pending') {
+                    return back()->withInput()->withErrors([
+                        'mother_id' => 'A registration request for Mother ID #' . $mother->mother_id . ' is already awaiting midwife approval.',
+                    ]);
+                }
+            }
+
+            $user = User::create([
+                'name'     => $validated['mother_name'],
+                'email'    => $validated['email'],
+                'password' => Hash::make($validated['password']),
+                'role'     => 'mother',
+                'status'   => 'pending',
+            ]);
+
+            $mother->user_id = $user->id;
+            if (!empty($validated['phone_no']) && empty($mother->phone_no)) {
+                $mother->phone_no = $validated['phone_no'];
+            }
+            if (!empty($validated['date_of_birth']) && empty($mother->date_of_birth)) {
+                $mother->date_of_birth = $validated['date_of_birth'];
+            }
+            if (!empty($validated['address']) && empty($mother->address)) {
+                $mother->address = $validated['address'];
+            }
+            $mother->save();
+
+            $midwifeName = $mother->midwife ? $mother->midwife->midwife_name : 'your area midwife';
+
+            return redirect()->route('login')->with('success', "Registration request submitted successfully! Your account is awaiting approval by {$midwifeName}. You can log in once approved.");
+        }
+
+        $midwifeId = $validated['midwife_id'] ?? Midwife::query()->value('midwife_id');
+
         $user = User::create([
-            'name' => $validated['mother_name'],
-            'email' => $validated['email'],
+            'name'     => $validated['mother_name'],
+            'email'    => $validated['email'],
             'password' => Hash::make($validated['password']),
-            'role' => 'mother',
-            'status' => 'approved',
+            'role'     => 'mother',
+            'status'   => 'pending',
         ]);
 
         Mother::create([
-            'mother_name' => $validated['mother_name'],
-            'phone_no' => $validated['phone_no'],
-            'date_of_birth' => $validated['date_of_birth'],
-            'address' => $validated['address'],
-            'midwife_id' => $validated['midwife_id'],
-            'user_id' => $user->id,
+            'mother_name'   => $validated['mother_name'],
+            'phone_no'      => $validated['phone_no'] ?? null,
+            'date_of_birth' => $validated['date_of_birth'] ?? null,
+            'address'       => $validated['address'] ?? null,
+            'midwife_id'    => $midwifeId,
+            'user_id'       => $user->id,
         ]);
 
-        return redirect()->route('login')->with('success', 'Registration completed successfully. You can now login.');
+        return redirect()->route('login')->with('success', 'Registration request submitted successfully! Your account is awaiting approval by your area midwife. You can log in once approved.');
     }
 
     public function showRegisterMidwife()

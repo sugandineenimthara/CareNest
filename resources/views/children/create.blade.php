@@ -34,7 +34,7 @@
             display: flex;
         }
 
-        /* Sidebar */
+        
         .sidebar {
             width: var(--sidebar-width);
             background: rgba(255,255,255,0.95);
@@ -71,7 +71,7 @@
         }
         .logout-btn:hover { color: #ef4444; }
 
-        /* Main */
+        
         .main-wrapper { margin-left: var(--sidebar-width); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
         .top-header {
             display: flex; justify-content: space-between; align-items: center;
@@ -138,7 +138,7 @@
             outline: none; box-shadow: 0 0 0 4px rgba(0,230,118,0.15);
         }
 
-        /* Mother live preview box */
+        
         .mother-preview-box {
             background: linear-gradient(135deg, #f0fdf4 0%, #f8fafc 100%);
             border: 1.5px dashed #86efac; border-radius: 16px;
@@ -153,7 +153,7 @@
         .preview-name { font-size: 15px; font-weight: 800; color: #166534; }
         .preview-sub { font-size: 12px; color: #4b5563; margin-top: 2px; }
 
-        /* Gender selector */
+        
         .gender-options { display: flex; gap: 14px; }
         .gender-label {
             flex: 1; padding: 12px 18px; border-radius: 14px; border: 1.5px solid #e2e8f0;
@@ -166,7 +166,7 @@
             box-shadow: 0 4px 14px rgba(0,200,83,0.15);
         }
 
-        /* BCG Checkbox Box */
+        
         .bcg-card {
             background: #fffbeb; border: 1.5px solid #fde68a; border-radius: 18px;
             padding: 20px; display: flex; flex-direction: column; gap: 16px;
@@ -186,7 +186,7 @@
         }
         .bcg-fields.show { display: grid; }
 
-        /* Form Buttons */
+        
         .form-actions {
             display: flex; justify-content: flex-end; align-items: center; gap: 14px;
             margin-top: 10px;
@@ -213,34 +213,18 @@
     </style>
 </head>
 <body>
-    <!-- Sidebar -->
-    <aside class="sidebar">
-        <a href="{{ route('dashboard') }}" class="sidebar-brand">
-            <i class="fa-solid fa-leaf" style="color:#00c853;"></i>
-            <span>CareNest</span>
-        </a>
-        <ul class="sidebar-menu">
-            <li class="nav-item"><a href="{{ route('dashboard') }}"><i class="fa-solid fa-table-cells-large"></i><span>Dashboard</span></a></li>
-            @if(Auth::check() && (Auth::user()->role === 'provider' || Auth::user()->role === 'admin'))
-            <li class="nav-item"><a href="{{ route('admin.midwife-requests') }}"><i class="fa-solid fa-user-check"></i><span>Midwife Requests</span></a></li>
-            <li class="nav-item"><a href="{{ route('admin.midwives.index') }}"><i class="fa-solid fa-user-nurse"></i><span>Manage Midwives</span></a></li>
-            @endif
-            <li class="nav-item"><a href="{{ route('admin.mothers.index') }}"><i class="fa-solid fa-user-nurse"></i><span>Mothers</span></a></li>
-            <li class="nav-item active"><a href="{{ route('admin.children.index') }}"><i class="fa-solid fa-baby"></i><span>Children</span></a></li>
-            <li class="nav-item"><a href="{{ route('admin.immunizations.index') }}"><i class="fa-solid fa-syringe"></i><span>Immunizations</span></a></li>
-            <li class="nav-item"><a href="{{ route('admin.alerts.index') }}"><i class="fa-solid fa-triangle-exclamation"></i><span>High-Risk Alerts</span></a></li>
-            <li class="nav-item"><a href="#lab-tests"><i class="fa-solid fa-vial-circle-check"></i><span>Lab Tests</span></a></li>
-            <li class="nav-item"><a href="{{ route('admin.triposha.index') }}"><i class="fa-solid fa-book-medical"></i><span>Triposha Book</span></a></li>
-            <li class="nav-item"><a href="{{ route('admin.attendances.index') }}"><i class="fa-solid fa-calendar-check"></i><span>Clinic Attendances</span></a></li>
-            <li class="nav-item"><a href="#reports"><i class="fa-solid fa-file-invoice"></i><span>Vaccine Reports</span></a></li>
-        </ul>
-    </aside>
+    @php
+        $role = auth()->user()->role ?? 'admin';
+        $prefix = $role === 'midwife' ? 'midwife.' : ($role === 'mother' ? 'mother.' : 'admin.');
+    @endphp
+    
+    @include('partials.sidebar')
 
-    <!-- Main Content -->
+    
     <div class="main-wrapper">
         <header class="top-header">
             <div class="header-left">
-                <a href="{{ route('admin.children.index') }}" class="back-btn" title="Back to Children">
+                <a href="{{ route($prefix . 'children.index') }}" class="back-btn" title="Back to Children">
                     <i class="fa-solid fa-arrow-left"></i>
                 </a>
                 <span>Register New Child</span>
@@ -270,7 +254,7 @@
             <form action="{{ route('children.store') }}" method="POST" class="form-card" id="childRegistrationForm">
                 @csrf
 
-                <!-- Section 1: Mother Association -->
+                
                 <div>
                     <div class="section-header">
                         <div class="section-icon"><i class="fa-solid fa-person-breastfeeding"></i></div>
@@ -303,7 +287,7 @@
                             </select>
                         </div>
 
-                        <!-- Live preview box of chosen mother -->
+                        
                         <div class="mother-preview-box" id="motherPreviewBox" style="display:none;">
                             <div class="preview-details">
                                 <div class="preview-avatar"><i class="fa-solid fa-user-nurse"></i></div>
@@ -319,7 +303,7 @@
                     </div>
                 </div>
 
-                <!-- Section 2: Child Demographics & Measurements -->
+                
                 <div>
                     <div class="section-header">
                         <div class="section-icon"><i class="fa-solid fa-baby"></i></div>
@@ -379,7 +363,7 @@
                     </div>
                 </div>
 
-                <!-- Section 3: Neonatal BCG Vaccination (Checkbox Requirement) -->
+                
                 <div>
                     <div class="section-header">
                         <div class="section-icon" style="background:#fef3c7; color:#b45309;"><i class="fa-solid fa-syringe"></i></div>
@@ -415,7 +399,7 @@
                     </div>
                 </div>
 
-                <!-- Section 4: Clinical Health Details -->
+                
                 <div>
                     <div class="section-header">
                         <div class="section-icon"><i class="fa-solid fa-notes-medical"></i></div>
@@ -433,9 +417,9 @@
                     </div>
                 </div>
 
-                <!-- Form Actions -->
+                
                 <div class="form-actions">
-                    <a href="{{ route('admin.children.index') }}" class="btn-cancel">Cancel</a>
+                    <a href="{{ route($prefix . 'children.index') }}" class="btn-cancel">Cancel</a>
                     <button type="submit" class="btn-submit">
                         <i class="fa-solid fa-check"></i>
                         <span>Register Child &amp; Link Mother</span>
@@ -464,7 +448,6 @@
                 
                 previewBox.style.display = 'flex';
 
-                // Auto-select area if available
                 if (areaId) {
                     const areaSelect = document.getElementById('area_id');
                     if (areaSelect) {
@@ -486,7 +469,6 @@
             }
         }
 
-        // Initialize on load
         document.addEventListener('DOMContentLoaded', function() {
             handleMotherChange();
             toggleBcgFields();

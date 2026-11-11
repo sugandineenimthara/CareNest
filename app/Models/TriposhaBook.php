@@ -33,7 +33,7 @@ class TriposhaBook extends Model
         'opening_stock'  => 'integer',
     ];
 
-    // ─── Relationships ──────────────────────────────────────────────
+    
     public function mother(): BelongsTo
     {
         return $this->belongsTo(Mother::class, 'mother_id', 'mother_id');
@@ -49,8 +49,8 @@ class TriposhaBook extends Model
         return $this->belongsTo(Midwife::class, 'midwife_id', 'midwife_id');
     }
 
-    // ─── Computed Attributes ────────────────────────────────────────
-    /** Display name of the recipient */
+    
+    
     public function getRecipientNameAttribute(): string
     {
         if ($this->recipient_type === 'Child') {
@@ -61,7 +61,7 @@ class TriposhaBook extends Model
             ?? ($this->mother ? $this->mother->mother_name : 'Unknown Mother');
     }
 
-    /** Remaining stock after this session */
+    
     public function getRemainingStockAttribute(): ?int
     {
         if ($this->opening_stock === null) return null;

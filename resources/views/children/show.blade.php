@@ -102,7 +102,7 @@
             display: flex; align-items: center; gap: 10px;
         }
 
-        /* Hero banner */
+        
         .child-hero {
             background: rgba(255,255,255,0.9); backdrop-filter: blur(16px);
             border: 1px solid rgba(226,232,240,0.9); border-radius: 24px;
@@ -127,7 +127,7 @@
         .tag-area { background: #e0f2fe; color: #0369a1; }
         .tag-midwife { background: #ecfdf5; color: #047857; }
 
-        /* Two column layout */
+        
         .show-layout {
             display: grid; grid-template-columns: 380px 1fr; gap: 28px;
         }
@@ -138,7 +138,7 @@
         .side-col { display: flex; flex-direction: column; gap: 24px; }
         .main-col { display: flex; flex-direction: column; gap: 24px; }
 
-        /* Detail card */
+        
         .info-card {
             background: rgba(255,255,255,0.9); backdrop-filter: blur(16px);
             border: 1px solid rgba(226,232,240,0.9); border-radius: 20px;
@@ -163,7 +163,7 @@
         .info-lbl { color: var(--text-muted); font-weight: 600; }
         .info-val { color: var(--text-dark); font-weight: 700; text-align: right; }
 
-        /* Linked Mother Highlight Card */
+        
         .mother-highlight-card {
             background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
             border: 1.5px solid #a7f3d0; border-radius: 20px;
@@ -187,7 +187,7 @@
         }
         .btn-view-mother:hover { background: #047857; color: white; border-color: #047857; }
 
-        /* Immunization Schedule Progress & Timeline */
+        
         .progress-box {
             background: white; border: 1px solid #e2e8f0; border-radius: 16px;
             padding: 16px 20px; display: flex; flex-direction: column; gap: 10px;
@@ -234,7 +234,7 @@
         }
         .btn-log-dose:hover { background: #009624; }
 
-        /* Modal */
+        
         .modal-overlay {
             display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(15,23,42,0.6); backdrop-filter: blur(4px);
@@ -266,44 +266,30 @@
     </style>
 </head>
 <body>
-    <!-- Sidebar -->
-    <aside class="sidebar">
-        <a href="{{ route('dashboard') }}" class="sidebar-brand">
-            <i class="fa-solid fa-leaf" style="color:#00c853;"></i>
-            <span>CareNest</span>
-        </a>
-        <ul class="sidebar-menu">
-            <li class="nav-item"><a href="{{ route('dashboard') }}"><i class="fa-solid fa-table-cells-large"></i><span>Dashboard</span></a></li>
-            @if(Auth::check() && (Auth::user()->role === 'provider' || Auth::user()->role === 'admin'))
-            <li class="nav-item"><a href="{{ route('admin.midwife-requests') }}"><i class="fa-solid fa-user-check"></i><span>Midwife Requests</span></a></li>
-            <li class="nav-item"><a href="{{ route('admin.midwives.index') }}"><i class="fa-solid fa-user-nurse"></i><span>Manage Midwives</span></a></li>
-            @endif
-            <li class="nav-item"><a href="{{ route('admin.mothers.index') }}"><i class="fa-solid fa-user-nurse"></i><span>Mothers</span></a></li>
-            <li class="nav-item active"><a href="{{ route('admin.children.index') }}"><i class="fa-solid fa-baby"></i><span>Children</span></a></li>
-            <li class="nav-item"><a href="{{ route('admin.immunizations.index') }}"><i class="fa-solid fa-syringe"></i><span>Immunizations</span></a></li>
-            <li class="nav-item"><a href="{{ route('admin.alerts.index') }}"><i class="fa-solid fa-triangle-exclamation"></i><span>High-Risk Alerts</span></a></li>
-            <li class="nav-item"><a href="#lab-tests"><i class="fa-solid fa-vial-circle-check"></i><span>Lab Tests</span></a></li>
-            <li class="nav-item"><a href="{{ route('admin.triposha.index') }}"><i class="fa-solid fa-book-medical"></i><span>Triposha Book</span></a></li>
-            <li class="nav-item"><a href="{{ route('admin.attendances.index') }}"><i class="fa-solid fa-calendar-check"></i><span>Clinic Attendances</span></a></li>
-            <li class="nav-item"><a href="#reports"><i class="fa-solid fa-file-invoice"></i><span>Vaccine Reports</span></a></li>
-        </ul>
-    </aside>
+    @php
+        $role = auth()->user()->role ?? 'admin';
+        $prefix = $role === 'midwife' ? 'midwife.' : ($role === 'mother' ? 'mother.' : 'admin.');
+    @endphp
+    
+    @include('partials.sidebar')
 
-    <!-- Main Content -->
+    
     <div class="main-wrapper">
         <header class="top-header">
             <div class="header-left">
-                <a href="{{ route('admin.children.index') }}" class="back-btn" title="Back to Children">
+                <a href="{{ route($prefix . 'children.index') }}" class="back-btn" title="Back to Children">
                     <i class="fa-solid fa-arrow-left"></i>
                 </a>
                 <span>Child Profile &amp; Immunization</span>
             </div>
             <div class="header-right" style="display: flex; align-items: center; gap: 16px;">
                 <div class="header-actions">
-                    <a href="{{ route('admin.children.edit', $child->child_id) }}" class="btn-action btn-edit">
+                    @if(in_array($role, ['admin', 'provider', 'midwife']))
+                    <a href="{{ route($prefix . 'children.edit', $child->child_id) }}" class="btn-action btn-edit">
                         <i class="fa-solid fa-pen-to-square"></i>
                         <span>Edit Child</span>
                     </a>
+                    @endif
                     <button type="button" class="btn-action btn-record-vaccine" onclick="openVaccineModal('', '')">
                         <i class="fa-solid fa-syringe"></i>
                         <span>Record Vaccine Dose</span>
@@ -321,7 +307,7 @@
                 </div>
             @endif
 
-            <!-- Hero Banner -->
+            
             <div class="child-hero">
                 <div class="hero-left">
                     <div class="hero-avatar {{ $child->gender === 'Female' ? 'hero-female' : 'hero-male' }}">
@@ -334,6 +320,18 @@
                             <span class="tag tag-area"><i class="fa-solid fa-hospital"></i> Area: {{ $child->area ? $child->area->area_name : ($child->midwife?->area?->area_name ?? 'N/A') }}</span>
                             <span class="tag tag-midwife"><i class="fa-solid fa-user-nurse"></i> Midwife: {{ $child->midwife ? $child->midwife->midwife_name : 'N/A' }}</span>
                             <span class="tag" style="background:#f1f5f9; color:#334155;"><i class="fa-solid fa-cake-candles"></i> {{ \Carbon\Carbon::parse($child->date_of_birth)->format('M d, Y') }} ({{ $child->age }})</span>
+                            @if($child->height)
+                            <span class="tag" style="background:#e0f2fe; color:#0369a1; font-weight:700;"><i class="fa-solid fa-ruler-vertical"></i> Ht: {{ (float)$child->height }} cm</span>
+                            @endif
+                            @if($child->weight)
+                            <span class="tag" style="background:#dcfce7; color:#166534; font-weight:700;"><i class="fa-solid fa-weight-scale"></i> Wt: {{ (float)$child->weight }} kg</span>
+                            @endif
+                            @php
+                                $cHeroBmi = $child->bmi ?: $child->calculateBmi();
+                            @endphp
+                            @if($cHeroBmi)
+                            <span class="tag" style="background:#fef3c7; color:#92400e; font-weight:700;"><i class="fa-solid fa-chart-line"></i> BMI: {{ $cHeroBmi }}</span>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -351,11 +349,11 @@
                 </div>
             </div>
 
-            <!-- 2-Column Content -->
+            
             <div class="show-layout">
-                <!-- Left Column -->
+                
                 <div class="side-col">
-                    <!-- LINKED MOTHER DETAILS CARD (REQUIRED) -->
+                    
                     <div class="mother-highlight-card">
                         <div class="mother-header">
                             <div class="mother-icon"><i class="fa-solid fa-person-breastfeeding"></i></div>
@@ -389,14 +387,48 @@
                                 </div>
                             </div>
 
-                            <a href="{{ route('admin.mothers.show', $child->mother_id) }}" class="btn-view-mother">
+                            <a href="{{ route($prefix . 'mothers.show', $child->mother_id) }}" class="btn-view-mother">
                                 <i class="fa-solid fa-arrow-up-right-from-square"></i>
                                 <span>Open Full Mother Profile</span>
                             </a>
                         @endif
                     </div>
 
-                    <!-- Child Measurements Card -->
+                    
+                    <div class="info-card" style="border-left:4px solid #00c853;">
+                        <div class="card-header-row">
+                            <h2 class="card-title" style="color:#1b5e20;"><i class="fa-solid fa-chart-line"></i> Current Growth &amp; BMI</h2>
+                            <span style="font-size:11px; background:#e8f5e9; color:#1b5e20; padding:3px 10px; border-radius:12px; font-weight:700;">Clinic Record</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-lbl">Current Height</span>
+                            <span class="info-val" style="font-weight:800; color:#1e293b;">
+                                {{ $child->height ? (float)$child->height . ' cm' : 'Pending clinic visit' }}
+                            </span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-lbl">Current Weight</span>
+                            <span class="info-val" style="font-weight:800; color:#1e293b;">
+                                {{ $child->weight ? (float)$child->weight . ' kg' : 'Pending clinic visit' }}
+                            </span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-lbl">Current BMI Value</span>
+                            <span class="info-val">
+                                @if($child->bmi || $child->calculateBmi())
+                                    @php $cBmi = $child->bmi ?: $child->calculateBmi(); @endphp
+                                    <span class="badge-status status-completed" style="font-size:13px; font-weight:800; display:inline-flex; align-items:center; gap:6px;">
+                                        <i class="fa-solid fa-calculator"></i>
+                                        {{ $cBmi }} ({{ $cBmi < 14 ? 'Underweight' : ($cBmi > 18.5 ? 'Overweight' : 'Normal') }})
+                                    </span>
+                                @else
+                                    <span style="color:#94a3b8;">Pending measurements</span>
+                                @endif
+                            </span>
+                        </div>
+                    </div>
+
+                    
                     <div class="info-card">
                         <div class="card-header-row">
                             <h2 class="card-title"><i class="fa-solid fa-ruler-combined"></i> Birth Measurements</h2>
@@ -423,7 +455,7 @@
                         </div>
                     </div>
 
-                    <!-- Clinical Health Details -->
+                    
                     <div class="info-card">
                         <div class="card-header-row">
                             <h2 class="card-title"><i class="fa-solid fa-stethoscope"></i> Clinical Observations</h2>
@@ -434,7 +466,7 @@
                     </div>
                 </div>
 
-                <!-- Right Column: Immunization Schedule -->
+                
                 <div class="main-col">
                     <div class="info-card">
                         <div class="card-header-row">
@@ -449,7 +481,7 @@
                             </button>
                         </div>
 
-                        <!-- Progress Bar -->
+                        
                         @php
                             $completedDoses = collect($scheduleStatus)->where('status', 'Completed')->count();
                             $totalDoses = count($scheduleStatus);
@@ -465,7 +497,7 @@
                             </div>
                         </div>
 
-                        <!-- Vaccine Milestones Timeline -->
+                        
                         <div class="vaccine-list">
                             @foreach($scheduleStatus as $item)
                                 <div class="vaccine-item">
@@ -538,14 +570,14 @@
         </div>
     </div>
 
-    <!-- Quick Vaccine Dose Modal -->
+    
     <div class="modal-overlay" id="vaccineModal">
         <div class="modal-card">
             <div class="modal-header">
                 <h3 class="modal-title"><i class="fa-solid fa-syringe" style="color:#00c853;"></i> Record Vaccine Dose</h3>
                 <button type="button" class="close-btn" onclick="closeVaccineModal()"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <form action="{{ route('admin.immunizations.child.store') }}" method="POST">
+            <form action="{{ route($prefix . 'immunizations.child.store') }}" method="POST">
                 @csrf
                 <input type="hidden" name="child_id" value="{{ $child->child_id }}">
 
@@ -615,7 +647,6 @@
             const modal = document.getElementById('vaccineModal');
             const select = document.getElementById('modal_vaccine_name');
             if (vaccineName) {
-                // Find matching option
                 for (let i = 0; i < select.options.length; i++) {
                     if (select.options[i].value.toLowerCase().includes(vaccineName.toLowerCase().split(' ')[0])) {
                         select.selectedIndex = i;
@@ -630,7 +661,6 @@
             document.getElementById('vaccineModal').classList.remove('open');
         }
 
-        // Close on clicking overlay
         document.getElementById('vaccineModal').addEventListener('click', function(e) {
             if (e.target === this) {
                 closeVaccineModal();

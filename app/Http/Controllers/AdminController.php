@@ -2,6 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Attendance;
+use App\Models\Child;
+use App\Models\Immunization;
+use App\Models\Midwife;
+use App\Models\Mother;
+use App\Models\Report;
+use App\Models\TriposhaBook;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -24,7 +31,31 @@ class AdminController extends Controller
         $user->status = 'approved';
         $user->save();
 
-        return redirect()->back()->with('success', 'Midwife approved successfully.');
+        
+        if ($user->midwife && $user->midwife->area_id) {
+            $areaId = $user->midwife->area_id;
+
+            $placeholderMidwives = Midwife::where('area_id', $areaId)
+                ->where('midwife_id', '!=', $user->midwife->midwife_id)
+                ->where(function ($q) {
+                    $q->whereNull('user_id')
+                      ->orWhere('midwife_name', 'like', 'Midwife (%');
+                })
+                ->get();
+
+            foreach ($placeholderMidwives as $placeholder) {
+                Mother::where('midwife_id', $placeholder->midwife_id)->update(['midwife_id' => $user->midwife->midwife_id]);
+                Child::where('midwife_id', $placeholder->midwife_id)->update(['midwife_id' => $user->midwife->midwife_id]);
+                Attendance::where('midwife_id', $placeholder->midwife_id)->update(['midwife_id' => $user->midwife->midwife_id]);
+                Immunization::where('midwife_id', $placeholder->midwife_id)->update(['midwife_id' => $user->midwife->midwife_id]);
+                TriposhaBook::where('midwife_id', $placeholder->midwife_id)->update(['midwife_id' => $user->midwife->midwife_id]);
+                Report::where('midwife_id', $placeholder->midwife_id)->update(['midwife_id' => $user->midwife->midwife_id]);
+
+                $placeholder->delete();
+            }
+        }
+
+        return redirect()->back()->with('success', 'Midwife approved successfully and assigned to area.');
     }
 
     public function rejectMidwife($id)
@@ -72,18 +103,39 @@ class AdminController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,'.$id,
-            'area_id' => 'required|exists:area,area_id' // Assuming area table and area_id
+            'area_id' => 'required|exists:areas,area_id'
         ]);
 
-        // Update User
+        
         $user->name = $request->name;
         $user->email = $request->email;
         $user->save();
 
-        // Update Midwife details
+        
         if ($user->midwife) {
+            $user->midwife->midwife_name = $request->name;
             $user->midwife->area_id = $request->area_id;
             $user->midwife->save();
+
+            
+            $placeholderMidwives = Midwife::where('area_id', $request->area_id)
+                ->where('midwife_id', '!=', $user->midwife->midwife_id)
+                ->where(function ($q) {
+                    $q->whereNull('user_id')
+                      ->orWhere('midwife_name', 'like', 'Midwife (%');
+                })
+                ->get();
+
+            foreach ($placeholderMidwives as $placeholder) {
+                Mother::where('midwife_id', $placeholder->midwife_id)->update(['midwife_id' => $user->midwife->midwife_id]);
+                Child::where('midwife_id', $placeholder->midwife_id)->update(['midwife_id' => $user->midwife->midwife_id]);
+                Attendance::where('midwife_id', $placeholder->midwife_id)->update(['midwife_id' => $user->midwife->midwife_id]);
+                Immunization::where('midwife_id', $placeholder->midwife_id)->update(['midwife_id' => $user->midwife->midwife_id]);
+                TriposhaBook::where('midwife_id', $placeholder->midwife_id)->update(['midwife_id' => $user->midwife->midwife_id]);
+                Report::where('midwife_id', $placeholder->midwife_id)->update(['midwife_id' => $user->midwife->midwife_id]);
+
+                $placeholder->delete();
+            }
         }
 
         return redirect()->route('admin.midwives.index')->with('success', 'Midwife details updated successfully.');
@@ -94,7 +146,7 @@ class AdminController extends Controller
         $user = User::findOrFail($id);
         if ($user->role !== 'midwife') abort(403);
 
-        // Delete associated midwife record and user
+        
         if ($user->midwife) {
             $user->midwife->delete();
         }

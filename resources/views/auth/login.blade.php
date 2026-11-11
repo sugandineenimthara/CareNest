@@ -14,7 +14,7 @@
         padding: 40px 0;
     }
 
-    /* Floating Images */
+    
     .floating-img {
         position: absolute;
         border-radius: 36px;
@@ -50,7 +50,7 @@
         object-fit: cover;
     }
 
-    /* Center Login Glass Card */
+    
     .login-card {
         padding: 48px;
         width: 100%;
@@ -101,7 +101,7 @@
         margin-top: 10px;
     }
 
-    /* Bottom Pill Badge */
+    
     .bottom-badge-wrapper {
         position: absolute;
         bottom: -50px;
@@ -143,17 +143,17 @@
 
 @section('content')
 <div class="login-container">
-    <!-- Top Right Floating Image -->
+    
     <div class="floating-img float-top-right">
         <img src="{{ asset('images/mothernchild.jpg') }}" alt="Mother holding child">
     </div>
 
-    <!-- Bottom Left Floating Image -->
+    
     <div class="floating-img float-bottom-left">
         <img src="{{ asset('images/linedrawing.jpg') }}" alt="Mother and baby line drawing">
     </div>
 
-    <!-- Center Login Glass Card -->
+    
     <div class="glass-card login-card">
         <h1 class="login-title">Welcome Back</h1>
         <p class="login-subtitle">MATERNAL & PEDIATRIC CARE SYSTEM</p>
@@ -179,7 +179,7 @@
         <form action="{{ route('login') }}" method="POST">
             @csrf
 
-            <!-- Username / Email -->
+            
             <div class="input-wrapper-login">
                 <label class="input-label">USERNAME OR EMAIL</label>
                 <div class="input-wrapper" style="margin-bottom: 0;">
@@ -188,11 +188,11 @@
                 </div>
             </div>
 
-            <!-- Password -->
+            
             <div class="input-wrapper-login">
                 <div style="margin-bottom: 8px;">
                     <label class="input-label" style="display: inline-block;">PASSWORD</label>
-                    <a href="#" class="forgot-link">Forgot Password?</a>
+                    <a href="{{ route('password.request') }}" class="forgot-link">Forgot Password?</a>
                 </div>
                 <div class="input-wrapper" style="margin-bottom: 0;">
                     <input type="password" name="password" class="input-field" placeholder="••••••••" required>
@@ -200,7 +200,7 @@
                 </div>
             </div>
 
-            <!-- Buttons -->
+            
             <div class="action-group">
                 <button type="submit" class="btn-emerald">
                     Login <i class="fa-solid fa-arrow-right"></i>
@@ -218,7 +218,7 @@
         </form>
     </div>
 
-    <!-- Bottom Badge -->
+    
     <div class="bottom-badge-wrapper">
         <div class="bottom-badge">
             CARING FOR MOTHERS & CHILDREN

@@ -27,7 +27,7 @@
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: var(--font-main); background: var(--bg-gradient); background-attachment: fixed; color: var(--text-dark); min-height: 100vh; display: flex; }
 
-        /* ── Sidebar ── */
+        
         .sidebar { width: var(--sidebar-width); background: rgba(255,255,255,0.95); backdrop-filter: blur(20px); border-right: 1px solid rgba(226,232,240,0.8); display: flex; flex-direction: column; padding: 30px 20px; position: fixed; top: 0; bottom: 0; left: 0; z-index: 100; }
         .sidebar-brand { display: flex; align-items: center; gap: 10px; font-family: var(--font-heading); font-size: 24px; font-weight: 800; color: #1b4d3e; text-decoration: none; margin-bottom: 36px; padding-left: 10px; }
         .sidebar-menu { list-style: none; display: flex; flex-direction: column; gap: 6px; flex: 1; overflow-y: auto; }
@@ -41,7 +41,7 @@
         .logout-btn { display: flex; align-items: center; gap: 10px; background: transparent; border: none; padding: 10px 18px; font-family: var(--font-main); font-size: 14px; font-weight: 600; color: #64748b; cursor: pointer; width: 100%; }
         .logout-btn:hover { color: #ef4444; }
 
-        /* ── Main ── */
+        
         .main-wrapper { margin-left: var(--sidebar-width); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
         .top-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 48px; min-height: 76px; box-sizing: border-box; background: rgba(255,255,255,0.7); backdrop-filter: blur(16px); border-bottom: 1px solid rgba(226,232,240,0.6); position: sticky; top: 0; z-index: 90; }
         .header-left { font-family: var(--font-heading); font-size: 22px; font-weight: 800; color: #1b4d3e; }
@@ -50,32 +50,32 @@
 
         .content { padding: 32px 48px; display: flex; flex-direction: column; gap: 28px; }
 
-        /* ── Alerts ── */
+        
         .alert { padding: 14px 20px; border-radius: 14px; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 10px; }
         .alert-success { background: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; }
         .alert-error   { background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; }
 
-        /* ── Stats ── */
+        
         .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
         .stat-card { background: white; border: 1px solid #e2e8f0; border-radius: 20px; padding: 22px; display: flex; align-items: center; gap: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); }
         .stat-icon { width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
         .stat-val { font-family: var(--font-heading); font-size: 28px; font-weight: 800; color: var(--text-dark); }
         .stat-lbl { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.6px; margin-top: 2px; }
 
-        /* ── Distribution Form Card ── */
+        
         .dist-card { background: white; border: 1px solid #e2e8f0; border-radius: 24px; padding: 28px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
         .dist-card-header { display: flex; align-items: center; gap: 14px; margin-bottom: 24px; }
         .dist-card-icon { width: 48px; height: 48px; background: linear-gradient(135deg, #f59e0b, #d97706); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 22px; color: white; }
         .dist-card-title { font-family: var(--font-heading); font-size: 20px; font-weight: 800; color: var(--text-dark); }
         .dist-card-sub { font-size: 13px; color: var(--text-muted); }
 
-        /* Session top row */
+        
         .session-bar { display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 16px; align-items: end; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 16px; padding: 20px; margin-bottom: 24px; }
         .form-group label { font-size: 12px; font-weight: 800; color: #475569; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px; display: block; }
         .form-input, .form-select { width: 100%; padding: 11px 14px; background: white; border: 1.5px solid #e2e8f0; border-radius: 12px; font-family: var(--font-main); font-size: 14px; color: var(--text-dark); outline: none; transition: border-color 0.2s; }
         .form-input:focus, .form-select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(0,200,83,0.12); }
 
-        /* Stock tracker */
+        
         .stock-tracker { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
         .stock-box { border-radius: 14px; padding: 16px 20px; text-align: center; }
         .stock-box.opening { background: #e0f2fe; border: 1px solid #7dd3fc; }
@@ -89,7 +89,7 @@
         .stock-box.low .stock-num { color: #dc2626; }
         .stock-lbl { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; margin-top: 4px; color: var(--text-muted); }
 
-        /* Batch table */
+        
         .batch-table-wrapper { border: 1.5px solid #e2e8f0; border-radius: 16px; overflow: hidden; margin-bottom: 18px; }
         .batch-table { width: 100%; border-collapse: collapse; }
         .batch-table thead th { background: linear-gradient(135deg, #1b5e20, #00695c); color: white; padding: 13px 16px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.7px; text-align: left; }
@@ -105,24 +105,24 @@
         .btn-del-row { background: #fee2e2; border: none; color: #dc2626; width: 30px; height: 30px; border-radius: 8px; cursor: pointer; font-size: 14px; transition: all 0.2s; display: flex; align-items: center; justify-content: center; }
         .btn-del-row:hover { background: #fecaca; transform: scale(1.1); }
 
-        /* Action buttons */
+        
         .table-actions { display: flex; align-items: center; gap: 12px; }
         .btn-add-row { display: flex; align-items: center; gap: 8px; padding: 11px 20px; background: #f0fdf4; border: 1.5px dashed #86efac; border-radius: 12px; color: #16a34a; font-weight: 700; font-size: 14px; cursor: pointer; transition: all 0.2s; }
         .btn-add-row:hover { background: #dcfce7; border-color: var(--primary); }
         .btn-save { display: flex; align-items: center; gap: 8px; padding: 12px 28px; background: linear-gradient(135deg, #00c853, #00a843); border: none; border-radius: 14px; color: white; font-family: var(--font-heading); font-size: 15px; font-weight: 700; cursor: pointer; box-shadow: 0 6px 20px rgba(0,200,83,0.35); transition: all 0.25s; }
         .btn-save:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(0,200,83,0.45); }
 
-        /* ── History Section ── */
+        
         .section-header-row { display: flex; justify-content: space-between; align-items: center; }
         .section-title { font-family: var(--font-heading); font-size: 20px; font-weight: 800; color: var(--text-dark); }
 
-        /* Filter bar */
+        
         .filter-bar { display: flex; gap: 12px; align-items: center; background: white; border: 1px solid #e2e8f0; border-radius: 16px; padding: 14px 20px; }
         .filter-bar input { padding: 9px 14px; border: 1.5px solid #e2e8f0; border-radius: 10px; font-family: var(--font-main); font-size: 13px; outline: none; }
         .filter-bar input:focus { border-color: var(--primary); }
         .btn-filter { padding: 9px 18px; background: var(--primary-dark); color: white; border: none; border-radius: 10px; font-weight: 700; font-size: 13px; cursor: pointer; }
 
-        /* Session block */
+        
         .session-block { background: white; border: 1px solid #e2e8f0; border-radius: 20px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.04); }
         .session-head { display: flex; justify-content: space-between; align-items: center; padding: 18px 24px; background: linear-gradient(135deg, #f0fdf4, #ecfdf5); border-bottom: 1px solid #d1fae5; cursor: pointer; }
         .session-date { font-family: var(--font-heading); font-size: 17px; font-weight: 800; color: #065f46; }
@@ -151,33 +151,15 @@
     </style>
 </head>
 <body>
+    @php
+        $role = auth()->user()->role ?? 'admin';
+        $prefix = $role === 'midwife' ? 'midwife.' : ($role === 'mother' ? 'mother.' : 'admin.');
+    @endphp
 
-<!-- ═══════════════════════════ SIDEBAR ═══════════════════════════ -->
-<aside class="sidebar">
-    <a href="{{ route('dashboard') }}" class="sidebar-brand">
-        <i class="fa-solid fa-leaf" style="color:#00c853;"></i>
-        <span>CareNest</span>
-    </a>
+@include('partials.sidebar')
 
-    <ul class="sidebar-menu">
-        <li class="nav-item"><a href="{{ route('dashboard') }}"><i class="fa-solid fa-table-cells-large"></i><span>Dashboard</span></a></li>
-        @if(Auth::check() && (Auth::user()->role === 'provider' || Auth::user()->role === 'admin'))
-        <li class="nav-item"><a href="{{ route('admin.midwife-requests') }}"><i class="fa-solid fa-user-check"></i><span>Midwife Requests</span></a></li>
-        <li class="nav-item"><a href="{{ route('admin.midwives.index') }}"><i class="fa-solid fa-user-nurse"></i><span>Manage Midwives</span></a></li>
-        @endif
-        <li class="nav-item"><a href="{{ route('admin.mothers.index') }}"><i class="fa-solid fa-user-nurse"></i><span>Mothers</span></a></li>
-        <li class="nav-item"><a href="{{ route('admin.children.index') }}"><i class="fa-solid fa-baby"></i><span>Children</span></a></li>
-        <li class="nav-item"><a href="{{ route('admin.immunizations.index') }}"><i class="fa-solid fa-syringe"></i><span>Immunizations</span></a></li>
-        <li class="nav-item"><a href="{{ route('admin.alerts.index') }}"><i class="fa-solid fa-triangle-exclamation"></i><span>High-Risk Alerts</span></a></li>
-        <li class="nav-item active"><a href="{{ route('admin.triposha.index') }}"><i class="fa-solid fa-box-open"></i><span>Thriposha Book</span></a></li>
-        <li class="nav-item"><a href="{{ route('admin.attendances.index') }}"><i class="fa-solid fa-calendar-check"></i><span>Clinic Attendances</span></a></li>
-        <li class="nav-item"><a href="#reports"><i class="fa-solid fa-file-invoice"></i><span>Vaccine Reports</span></a></li>
-    </ul>
-</aside>
-
-<!-- ═══════════════════════════ MAIN ═══════════════════════════════ -->
 <div class="main-wrapper">
-    <!-- Header -->
+    
     <header class="top-header">
         <div class="header-left">
             <i class="fa-solid fa-box-open" style="color:#f59e0b; margin-right:10px;"></i>
@@ -188,10 +170,10 @@
         </div>
     </header>
 
-    <!-- Content -->
+    
     <div class="content">
 
-        {{-- Flash Messages --}}
+        
         @if(session('success'))
         <div class="alert alert-success"><i class="fa-solid fa-circle-check"></i>{{ session('success') }}</div>
         @endif
@@ -209,7 +191,7 @@
         </div>
         @endif
 
-        {{-- Stats Row --}}
+        
         <div class="stats-grid">
             <div class="stat-card">
                 <div class="stat-icon" style="background:#fef3c7; color:#d97706;"><i class="fa-solid fa-box-open"></i></div>
@@ -241,7 +223,7 @@
             </div>
         </div>
 
-        {{-- ═══════════ NEW DISTRIBUTION FORM ═══════════ --}}
+        
         <div class="dist-card">
             <div class="dist-card-header">
                 <div class="dist-card-icon"><i class="fa-solid fa-plus"></i></div>
@@ -251,10 +233,10 @@
                 </div>
             </div>
 
-            <form id="batchForm" method="POST" action="{{ route('admin.triposha.store.batch') }}">
+            <form id="batchForm" method="POST" action="{{ route($prefix . 'triposha.store.batch') }}">
                 @csrf
 
-                {{-- Session Details --}}
+                
                 <div class="session-bar">
                     <div class="form-group">
                         <label for="issuing_date"><i class="fa-solid fa-calendar"></i> Distribution Date <span style="color:#e11d48;">*</span></label>
@@ -278,7 +260,7 @@
                     </div>
                 </div>
 
-                {{-- Stock Tracker --}}
+                
                 <div class="stock-tracker">
                     <div class="stock-box opening">
                         <div class="stock-num" id="tracker-opening">—</div>
@@ -294,7 +276,7 @@
                     </div>
                 </div>
 
-                {{-- Batch Table --}}
+                
                 <div class="batch-table-wrapper">
                     <table class="batch-table" id="batchTable">
                         <thead>
@@ -307,7 +289,7 @@
                             </tr>
                         </thead>
                         <tbody id="batchRows">
-                            {{-- Rows added dynamically --}}
+                            
                         </tbody>
                     </table>
                 </div>
@@ -327,21 +309,21 @@
             </form>
         </div>
 
-        {{-- ═══════════ DISTRIBUTION HISTORY ═══════════ --}}
+        
         <div>
             <div class="section-header-row" style="margin-bottom:16px;">
                 <div class="section-title"><i class="fa-solid fa-clock-rotate-left" style="color:#f59e0b;"></i> Distribution History</div>
             </div>
 
-            {{-- Filters --}}
-            <form method="GET" action="{{ route('admin.triposha.index') }}" class="filter-bar" style="margin-bottom:20px;">
+            
+            <form method="GET" action="{{ route($prefix . 'triposha.index') }}" class="filter-bar" style="margin-bottom:20px;">
                 <i class="fa-solid fa-magnifying-glass" style="color:#94a3b8;"></i>
                 <input type="text" name="search" placeholder="Search by name..." value="{{ $search }}" style="flex:1;">
                 <input type="date" name="date_from" value="{{ $dateFrom }}" placeholder="From">
                 <input type="date" name="date_to" value="{{ $dateTo }}" placeholder="To">
                 <button type="submit" class="btn-filter"><i class="fa-solid fa-filter"></i> Filter</button>
                 @if($search || $dateFrom || $dateTo)
-                <a href="{{ route('admin.triposha.index') }}" style="font-size:13px; color:#64748b; font-weight:600; text-decoration:none;">Clear</a>
+                <a href="{{ route($prefix . 'triposha.index') }}" style="font-size:13px; color:#64748b; font-weight:600; text-decoration:none;">Clear</a>
                 @endif
             </form>
 
@@ -357,7 +339,7 @@
             <div style="display:flex; flex-direction:column; gap:16px;">
                 @foreach($sessions as $i => $session)
                 <div class="session-block">
-                    {{-- Session Header --}}
+                    
                     <div class="session-head" onclick="toggleSession({{ $i }})">
                         <div style="display:flex; align-items:center; gap:14px;">
                             <i class="fa-solid fa-calendar-day" style="color:#065f46; font-size:20px;"></i>
@@ -383,9 +365,9 @@
                         </div>
                     </div>
 
-                    {{-- Session Body --}}
+                    
                     <div class="session-body" id="session-body-{{ $i }}">
-                        {{-- Stock Summary --}}
+                        
                         @if($session['opening_stock'] !== null)
                         <div class="stock-summary-bar">
                             <div class="ssb-item">
@@ -406,7 +388,7 @@
                         </div>
                         @endif
 
-                        {{-- Records Table --}}
+                        
                         <table class="hist-table" style="margin-top:14px;">
                             <thead>
                                 <tr>
@@ -447,7 +429,7 @@
                                         {{ $record->midwife?->area?->area_name ?? '—' }}
                                     </td>
                                     <td>
-                                        <form method="POST" action="{{ route('admin.triposha.destroy', $record->serial_no) }}"
+                                        <form method="POST" action="{{ route($prefix . 'triposha.destroy', $record->serial_no) }}"
                                               onsubmit="return confirm('Delete this record?')">
                                             @csrf @method('DELETE')
                                             <button type="submit" class="btn-del-record" title="Delete">
@@ -466,12 +448,10 @@
             @endif
         </div>
 
-    </div>{{-- /content --}}
-</div>{{-- /main-wrapper --}}
+    </div>
+</div>
 
-{{-- ═══════════════════════════ SCRIPTS ═══════════════════════════ --}}
 <script>
-// Pass PHP data to JS
 const mothers  = @json($mothersList);
 const children = @json($childrenList);
 
@@ -559,7 +539,6 @@ function renumberRows() {
 function updateStockTracker() {
     const opening = parseInt(document.getElementById('opening_stock').value) || null;
 
-    // Sum all packet inputs
     let total = 0;
     document.querySelectorAll('#batchRows input[type="number"]').forEach(inp => {
         total += parseInt(inp.value) || 0;
@@ -602,7 +581,6 @@ function toggleSession(idx) {
     }
 }
 
-// Add first row on load
 document.addEventListener('DOMContentLoaded', function() {
     addRow();
     updateStockTracker();

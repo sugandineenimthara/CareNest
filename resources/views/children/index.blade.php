@@ -34,7 +34,7 @@
             display: flex;
         }
 
-        /* ---- Sidebar ---- */
+        
         .sidebar {
             width: var(--sidebar-width);
             background: rgba(255,255,255,0.95);
@@ -83,10 +83,10 @@
         }
         .logout-btn:hover { color: #ef4444; }
 
-        /* ---- Main Wrapper ---- */
+        
         .main-wrapper { margin-left: var(--sidebar-width); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
 
-        /* ---- Top Header ---- */
+        
         .top-header {
             display: flex; justify-content: space-between; align-items: center;
             padding: 20px 48px;
@@ -114,17 +114,17 @@
         .user-name { font-size: 14px; font-weight: 700; color: var(--text-dark); }
         .user-role { font-size: 12px; color: var(--text-muted); }
 
-        /* ---- Content Container ---- */
+        
         .content-container { padding: 36px 48px; display: flex; flex-direction: column; gap: 32px; }
 
-        /* Alert message */
+        
         .alert-success {
             padding: 16px 20px; background: #ecfdf5; border: 1px solid #a7f3d0;
             border-radius: 14px; color: #065f46; font-size: 14px; font-weight: 600;
             display: flex; align-items: center; gap: 10px;
         }
 
-        /* ---- Top Action Bar ---- */
+        
         .action-bar {
             display: flex; justify-content: space-between; align-items: center;
             flex-wrap: wrap; gap: 16px;
@@ -148,7 +148,7 @@
         }
         .btn-register:hover { transform: translateY(-2px); box-shadow: 0 12px 25px rgba(27,94,32,0.35); }
 
-        /* ---- Stat Chips ---- */
+        
         .stats-grid {
             display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;
         }
@@ -166,7 +166,7 @@
         .stat-val { font-family: var(--font-heading); font-size: 24px; font-weight: 800; color: #1b4d3e; }
         .stat-lbl { font-size: 12px; font-weight: 600; color: var(--text-muted); }
 
-        /* ---- Area Filter Pills ---- */
+        
         .area-pills {
             display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
         }
@@ -181,7 +181,7 @@
             box-shadow: 0 4px 12px rgba(27,77,62,0.2);
         }
 
-        /* ---- Area Sections ---- */
+        
         .area-section {
             background: rgba(255,255,255,0.85); backdrop-filter: blur(16px);
             border: 1px solid rgba(226,232,240,0.9); border-radius: 24px;
@@ -206,7 +206,7 @@
             padding: 6px 14px; border-radius: 20px; border: 1px solid #a7f3d0;
         }
 
-        /* ---- Children Grid ---- */
+        
         .children-grid {
             display: grid; grid-template-columns: repeat(auto-fill, minmax(420px, 1fr)); gap: 20px;
         }
@@ -240,7 +240,7 @@
             padding: 2px 8px; border-radius: 6px;
         }
 
-        /* Measurements grid */
+        
         .measure-chips {
             display: flex; gap: 8px; flex-wrap: wrap;
         }
@@ -252,7 +252,7 @@
         .chip i { color: #64748b; font-size: 12px; }
         .chip strong { color: #0f172a; }
 
-        /* BCG status pill */
+        
         .bcg-pill {
             display: inline-flex; align-items: center; gap: 6px; font-size: 11px;
             font-weight: 700; padding: 4px 10px; border-radius: 12px;
@@ -260,7 +260,7 @@
         .bcg-done { background: #dcfce7; color: #15803d; border: 1px solid #86efac; }
         .bcg-pending { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
 
-        /* ---- Mother Details Sub-Card (LINKED WITH MOTHER) ---- */
+        
         .mother-subcard {
             background: linear-gradient(135deg, #f0fdf4 0%, #f8fafc 100%);
             border: 1px solid #d1fae5; border-radius: 14px;
@@ -282,7 +282,7 @@
         }
         .mother-view-link:hover { background: #ecfdf5; color: #047857; }
 
-        /* Card footer action */
+        
         .child-footer {
             display: flex; justify-content: space-between; align-items: center;
             padding-top: 12px; border-top: 1px solid #f1f5f9;
@@ -298,90 +298,119 @@
         }
         .btn-edit-child:hover { color: #1e293b; }
 
-        /* Empty state */
+        
         .empty-area {
             text-align: center; padding: 32px; color: #94a3b8; font-size: 14px;
+        
+        .search-box {
+            position: relative;
+        }
+        .search-suggestions-dropdown {
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            right: 0;
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.15);
+            border: 1px solid #e2e8f0;
+            z-index: 999;
+            max-height: 380px;
+            overflow-y: auto;
+            display: none;
+            padding: 8px;
+        }
+        .suggestion-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 14px;
+            border-radius: 12px;
+            text-decoration: none;
+            color: #1e293b;
+            transition: all 0.15s ease;
+            cursor: pointer;
+        }
+        .suggestion-item:hover, .suggestion-item.active {
+            background: #f0fdf4;
+            color: #15803d;
+        }
+        .suggestion-item-main {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .suggestion-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #e0f2fe;
+            color: #0284c7;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 12px;
+        }
+        .suggestion-name {
+            font-weight: 700;
+            font-size: 14px;
+        }
+        .suggestion-name mark {
+            background: #fef08a;
+            color: #854d0e;
+            padding: 0 2px;
+            border-radius: 2px;
+            font-weight: 800;
+        }
+        .suggestion-sub {
+            font-size: 12px;
+            color: #64748b;
+        }
+        .suggestion-badge {
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 10px;
+            background: #f1f5f9;
+            color: #475569;
+        }
+        .suggestions-count {
+            padding: 8px 12px 6px;
+            font-size: 11px;
+            font-weight: 800;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid #f1f5f9;
+            margin-bottom: 4px;
         }
     </style>
 </head>
 <body>
-    <!-- Sidebar -->
-    <aside class="sidebar">
-        <a href="{{ route('dashboard') }}" class="sidebar-brand">
-            <i class="fa-solid fa-leaf" style="color:#00c853;"></i>
-            <span>CareNest</span>
-        </a>
-        <ul class="sidebar-menu">
-            <li class="nav-item">
-                <a href="{{ route('dashboard') }}">
-                    <i class="fa-solid fa-table-cells-large"></i>
-                    <span>Dashboard</span>
-                </a>
-            </li>
-            @if(Auth::check() && (Auth::user()->role === 'provider' || Auth::user()->role === 'admin'))
-            <li class="nav-item">
-                <a href="{{ route('admin.midwife-requests') }}">
-                    <i class="fa-solid fa-user-check"></i>
-                    <span>Midwife Requests</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="{{ route('admin.midwives.index') }}">
-                    <i class="fa-solid fa-user-nurse"></i>
-                    <span>Manage Midwives</span>
-                </a>
-            </li>
-            @endif
-            <li class="nav-item">
-                <a href="{{ route('admin.mothers.index') }}">
-                    <i class="fa-solid fa-user-nurse"></i>
-                    <span>Mothers</span>
-                </a>
-            </li>
-            <li class="nav-item active">
-                <a href="{{ route('admin.children.index') }}">
-                    <i class="fa-solid fa-baby"></i>
-                    <span>Children</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="{{ route('admin.immunizations.index') }}">
-                    <i class="fa-solid fa-syringe"></i>
-                    <span>Immunizations</span>
-                </a>
-            </li>
-            <li class="nav-item"><a href="{{ route('admin.alerts.index') }}"><i class="fa-solid fa-triangle-exclamation"></i><span>High-Risk Alerts</span></a></li>
-            <li class="nav-item"><a href="#lab-tests"><i class="fa-solid fa-vial-circle-check"></i><span>Lab Tests</span></a></li>
-            <li class="nav-item"><a href="{{ route('admin.triposha.index') }}"><i class="fa-solid fa-book-medical"></i><span>Triposha Book</span></a></li>
-            <li class="nav-item"><a href="{{ route('admin.attendances.index') }}"><i class="fa-solid fa-calendar-check"></i><span>Clinic Attendances</span></a></li>
-            <li class="nav-item"><a href="#reports"><i class="fa-solid fa-file-invoice"></i><span>Vaccine Reports</span></a></li>
-        </ul>
-        <div class="sidebar-footer">
-            <a href="{{ route('admin.children.create') }}" class="btn-schedule">
-                <i class="fa-solid fa-plus"></i>
-                <span>Register Child</span>
-            </a>
-        </div>
-    </aside>
+    
+    @include('partials.sidebar')
 
-    <!-- Main Content -->
+    @php
+        $role = auth()->user()->role ?? 'admin';
+        $prefix = $role === 'midwife' ? 'midwife.' : ($role === 'mother' ? 'mother.' : 'admin.');
+    @endphp
     <div class="main-wrapper">
-        <!-- Top Header -->
         <header class="top-header">
-            <div class="header-left">Children Management</div>
-            <form method="GET" action="{{ route('admin.children.index') }}" class="search-box">
+            <div class="header-left">{{ $role === 'mother' ? 'My Children' : 'Children Management' }}</div>
+            <form method="GET" action="{{ route($prefix . 'children.index') }}" class="search-box" id="childSearchForm" autocomplete="off">
                 @if(request('area_id'))
                     <input type="hidden" name="area_id" value="{{ request('area_id') }}">
                 @endif
                 <i class="fa-solid fa-magnifying-glass search-icon"></i>
-                <input type="text" name="search" class="search-input" placeholder="Search child name, ID, or mother..." value="{{ $search }}">
+                <input type="text" id="childSearch" name="search" class="search-input" placeholder="{{ $role === 'mother' ? 'Search among your children...' : 'Search child name, ID, or mother...' }}" value="{{ $search }}" autocomplete="off">
+                <div class="search-suggestions-dropdown" id="childSuggestions"></div>
             </form>
             <div class="header-right">
                 @include('partials.top-header-user')
             </div>
         </header>
 
-        <!-- Content Area -->
         <main class="content-container">
             @if(session('success'))
                 <div class="alert-success">
@@ -390,206 +419,416 @@
                 </div>
             @endif
 
-            <!-- Action Bar -->
             <div class="action-bar">
                 <div>
                     <h1 class="page-title">
-                        <span>Children Registry</span>
-                        <span class="page-title-badge">Separated by Clinic Areas</span>
+                        <span>{{ $role === 'mother' ? 'My Children' : 'Children Registry' }}</span>
+                        <span class="page-title-badge">{{ $role === 'mother' ? 'Family Records' : 'Separated by Clinic Areas' }}</span>
                     </h1>
                 </div>
                 <div style="display:flex; gap:12px;">
-                    <a href="{{ route('admin.immunizations.index') }}" class="btn-register" style="background:white; color:#1b4d3e; border:1px solid #cbd5e1; box-shadow:none;">
+                    <a href="{{ route($prefix . 'immunizations.index') }}" class="btn-register" style="background:white; color:#1b4d3e; border:1px solid #cbd5e1; box-shadow:none;">
                         <i class="fa-solid fa-syringe" style="color:#00c853;"></i>
                         <span>Immunization Schedule</span>
                     </a>
-                    <a href="{{ route('admin.children.create') }}" class="btn-register">
+                    @if(in_array($role, ['admin', 'provider', 'midwife']))
+                    <a href="{{ route($prefix . 'children.create') }}" class="btn-register">
                         <i class="fa-solid fa-plus"></i>
                         <span>Register New Child</span>
                     </a>
-                </div>
-            </div>
-
-            <!-- Stats Chips -->
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-icon" style="background:#e0f2fe; color:#0284c7;"><i class="fa-solid fa-baby"></i></div>
-                    <div>
-                        <div class="stat-val">{{ $totalChildren }}</div>
-                        <div class="stat-lbl">Total Registered Children</div>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon" style="background:#f0fdf4; color:#16a34a;"><i class="fa-solid fa-hospital"></i></div>
-                    <div>
-                        <div class="stat-val">{{ $totalAreas }}</div>
-                        <div class="stat-lbl">Clinic Areas</div>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon" style="background:#fce7f3; color:#db2777;"><i class="fa-solid fa-venus-mars"></i></div>
-                    <div>
-                        <div class="stat-val">{{ $maleChildren }}M / {{ $femaleChildren }}F</div>
-                        <div class="stat-lbl">Gender Distribution</div>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon" style="background:#ecfdf5; color:#059669;"><i class="fa-solid fa-shield-virus"></i></div>
-                    <div>
-                        <div class="stat-val">{{ $bcgVaccinatedCount }}</div>
-                        <div class="stat-lbl">BCG Vaccinated (&lt;24hrs)</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Area Filter Pills -->
-            <div class="area-pills">
-                <span class="pill-label"><i class="fa-solid fa-filter"></i> Filter Area:</span>
-                <a href="{{ route('admin.children.index', array_filter(['search' => $search])) }}" class="area-pill {{ empty($areaFilter) ? 'active' : '' }}">
-                    All Areas ({{ $totalChildren }})
-                </a>
-                @foreach($allAreas as $a)
-                    <a href="{{ route('admin.children.index', array_filter(['area_id' => $a->area_id, 'search' => $search])) }}" class="area-pill {{ $areaFilter == $a->area_id ? 'active' : '' }}">
-                        {{ $a->area_name }}
-                    </a>
-                @endforeach
-            </div>
-
-            @if($search)
-                <div style="font-size:14px; color:#64748b;">
-                    Showing search results for "<strong>{{ $search }}</strong>" —
-                    <a href="{{ route('admin.children.index') }}" style="color:#00c853; font-weight:700;">Clear search</a>
-                </div>
-            @endif
-
-            <!-- Area Groups -->
-            @foreach($areas as $area)
-                <div class="area-section">
-                    <div class="area-header">
-                        <div class="area-info">
-                            <div class="area-avatar"><i class="fa-solid fa-hospital"></i></div>
-                            <div>
-                                <h2 class="area-name">{{ $area->area_name }}</h2>
-                                <div class="area-midwives">
-                                    <i class="fa-solid fa-user-nurse" style="color:#00c853;"></i>
-                                    <span>
-                                        Assigned Midwives: 
-                                        @if($area->midwives->count() > 0)
-                                            {{ $area->midwives->pluck('midwife_name')->join(', ') }}
-                                        @else
-                                            None Assigned
-                                        @endif
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="area-count-badge">
-                            <i class="fa-solid fa-baby"></i> {{ $area->filtered_children->count() }} Children
-                        </div>
-                    </div>
-
-                    @if($area->filtered_children->count() > 0)
-                        <div class="children-grid">
-                            @foreach($area->filtered_children as $child)
-                                <div class="child-card">
-                                    <!-- Child Header -->
-                                    <div class="child-header">
-                                        <div class="child-main">
-                                            <div class="child-gender-avatar {{ $child->gender === 'Female' ? 'gender-female' : 'gender-male' }}">
-                                                <i class="fa-solid {{ $child->gender === 'Female' ? 'fa-venus' : 'fa-mars' }}"></i>
-                                            </div>
-                                            <div>
-                                                <h3 class="child-name">{{ $child->display_name }}</h3>
-                                                <div class="child-meta">
-                                                    <span class="child-id-pill">ID: #{{ $child->child_id }}</span>
-                                                    <span>•</span>
-                                                    <span>{{ $child->age ?? 'Age N/A' }}</span>
-                                                    <span>•</span>
-                                                    <span>DOB: {{ \Carbon\Carbon::parse($child->date_of_birth)->format('M d, Y') }}</span>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <!-- BCG Badge -->
-                                        <div>
-                                            @if($child->bcg_vaccinated_at_birth)
-                                                <span class="bcg-pill bcg-done" title="BCG vaccinated before 24hrs from birth">
-                                                    <i class="fa-solid fa-check"></i> BCG Vaccinated
-                                                </span>
-                                            @else
-                                                <span class="bcg-pill bcg-pending" title="BCG not yet recorded">
-                                                    <i class="fa-solid fa-clock"></i> BCG Pending
-                                                </span>
-                                            @endif
-                                        </div>
-                                    </div>
-
-                                    <!-- Measurements -->
-                                    <div class="measure-chips">
-                                        <div class="chip">
-                                            <i class="fa-solid fa-weight-scale"></i>
-                                            <span>Birth Wt: <strong>{{ $child->birth_weight ? $child->birth_weight . ' kg' : 'N/A' }}</strong></span>
-                                        </div>
-                                        <div class="chip">
-                                            <i class="fa-solid fa-ruler-vertical"></i>
-                                            <span>Birth Lg: <strong>{{ $child->birth_length ? $child->birth_length . ' cm' : 'N/A' }}</strong></span>
-                                        </div>
-                                        <div class="chip">
-                                            <i class="fa-solid fa-syringe"></i>
-                                            <span>Vaccines: <strong>{{ $child->immunizations->count() }} doses</strong></span>
-                                        </div>
-                                    </div>
-
-                                    <!-- LINKED MOTHER DETAILS (Required) -->
-                                    <div class="mother-subcard">
-                                        <div class="mother-left">
-                                            <div class="mother-icon"><i class="fa-solid fa-person-breastfeeding"></i></div>
-                                            <div>
-                                                <div class="mother-name-title">
-                                                    Mother: {{ $child->mother ? $child->mother->mother_name : 'Not Assigned' }}
-                                                </div>
-                                                <div class="mother-details-sub">
-                                                    <span>Mother ID: <strong>#{{ $child->mother_id }}</strong></span>
-                                                    @if($child->mother && $child->mother->phone_no)
-                                                        <span>• <i class="fa-solid fa-phone" style="font-size:10px;"></i> {{ $child->mother->phone_no }}</span>
-                                                    @endif
-                                                </div>
-                                            </div>
-                                        </div>
-                                        @if($child->mother)
-                                            <a href="{{ route('admin.mothers.show', $child->mother_id) }}" class="mother-view-link" title="View Mother Profile">
-                                                <span>Profile</span> <i class="fa-solid fa-arrow-up-right-from-square"></i>
-                                            </a>
-                                        @endif
-                                    </div>
-
-                                    <!-- Footer Actions -->
-                                    <div class="child-footer">
-                                        <a href="{{ route('admin.children.edit', $child->child_id) }}" class="btn-edit-child">
-                                            <i class="fa-solid fa-pen-to-square"></i> Edit
-                                        </a>
-                                        <a href="{{ route('admin.children.show', $child->child_id) }}" class="btn-view-child">
-                                            <span>View Immunization Schedule</span>
-                                            <i class="fa-solid fa-arrow-right"></i>
-                                        </a>
-                                    </div>
-                                </div>
-                            @endforeach
-                        </div>
-                    @else
-                        <div class="empty-area">
-                            <i class="fa-solid fa-baby-carriage" style="font-size:32px; color:#cbd5e1; margin-bottom:8px; display:block;"></i>
-                            No children currently registered in {{ $area->area_name }}.
-                            <div style="margin-top:10px;">
-                                <a href="{{ route('admin.children.create', ['area_id' => $area->area_id]) }}" style="color:#00c853; font-weight:700; text-decoration:none;">
-                                    + Register first child in this area
-                                </a>
-                            </div>
-                        </div>
                     @endif
                 </div>
-            @endforeach
+            </div>
+
+            @if($role === 'mother')
+                @if($search)
+                    <div style="font-size:14px; color:#64748b;">
+                        Showing search results for "<strong>{{ $search }}</strong>" —
+                        <a href="{{ route('mother.children.index') }}" style="color:#00c853; font-weight:700;">Clear search</a>
+                    </div>
+                @endif
+
+                @if($myChildren->count() > 0)
+                    <div class="children-grid">
+                        @foreach($myChildren as $child)
+                            <div class="child-card">
+                                <div class="child-header">
+                                    <div class="child-main">
+                                        <div class="child-gender-avatar {{ $child->gender === 'Female' ? 'gender-female' : 'gender-male' }}">
+                                            <i class="fa-solid {{ $child->gender === 'Female' ? 'fa-venus' : 'fa-mars' }}"></i>
+                                        </div>
+                                        <div>
+                                            <h3 class="child-name">{{ $child->display_name }}</h3>
+                                            <div class="child-meta">
+                                                <span class="child-id-pill">ID: #{{ $child->child_id }}</span>
+                                                <span>•</span>
+                                                <span>{{ $child->age ?? 'Age N/A' }}</span>
+                                                <span>•</span>
+                                                <span>DOB: {{ \Carbon\Carbon::parse($child->date_of_birth)->format('M d, Y') }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        @if($child->bcg_vaccinated_at_birth)
+                                            <span class="bcg-pill bcg-done" title="BCG vaccinated before 24hrs from birth">
+                                                <i class="fa-solid fa-check"></i> BCG Vaccinated
+                                            </span>
+                                        @else
+                                            <span class="bcg-pill bcg-pending" title="BCG not yet recorded">
+                                                <i class="fa-solid fa-clock"></i> BCG Pending
+                                            </span>
+                                        @endif
+                                    </div>
+                                </div>
+
+                                <div class="measure-chips">
+                                    <div class="chip">
+                                        <i class="fa-solid fa-weight-scale"></i>
+                                        <span>Weight: <strong>{{ $child->weight ? $child->weight . ' kg' : ($child->birth_weight ? $child->birth_weight . ' kg' : 'N/A') }}</strong></span>
+                                    </div>
+                                    <div class="chip">
+                                        <i class="fa-solid fa-ruler-vertical"></i>
+                                        <span>Height: <strong>{{ $child->height ? $child->height . ' cm' : ($child->birth_length ? $child->birth_length . ' cm' : 'N/A') }}</strong></span>
+                                    </div>
+                                    @php
+                                        $idxBmi = $child->bmi ?: $child->calculateBmi();
+                                    @endphp
+                                    @if($idxBmi)
+                                    <div class="chip" style="background:#e0f2fe; color:#0369a1;">
+                                        <i class="fa-solid fa-chart-line"></i>
+                                        <span>BMI: <strong>{{ $idxBmi }}</strong></span>
+                                    </div>
+                                    @endif
+                                    <div class="chip">
+                                        <i class="fa-solid fa-syringe"></i>
+                                        <span>Vaccines: <strong>{{ $child->immunizations->count() }}</strong></span>
+                                    </div>
+                                </div>
+
+                                <div style="font-size:12px; color:#64748b; background:#f8fafc; padding:10px 14px; border-radius:12px; border:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center;">
+                                    <span><i class="fa-solid fa-user-nurse" style="color:#00c853;"></i> Midwife: <strong>{{ $child->midwife->midwife_name ?? ($child->mother?->midwife?->midwife_name ?? 'Assigned Midwife') }}</strong></span>
+                                    <span><i class="fa-solid fa-location-dot" style="color:#0284c7;"></i> {{ $child->area->area_name ?? ($child->midwife?->area?->area_name ?? 'Clinic Area') }}</span>
+                                </div>
+
+                                <div class="child-footer">
+                                    <a href="{{ route('mother.immunizations.index') }}" class="btn-view-child" style="flex:1;">
+                                        <i class="fa-solid fa-syringe"></i>
+                                        <span>View Immunization Details</span>
+                                        <i class="fa-solid fa-arrow-right"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @else
+                    <div style="background:white; border-radius:24px; padding:48px 24px; text-align:center; border:1px solid #e2e8f0; box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+                        <i class="fa-solid fa-baby-carriage" style="font-size:44px; color:#cbd5e1; display:block; margin-bottom:14px;"></i>
+                        <h3 style="font-family:var(--font-heading); font-size:18px; font-weight:800; color:#1e293b; margin-bottom:6px;">No Children Registered Yet</h3>
+                        <p style="color:#64748b; font-size:14px; max-width:480px; margin:0 auto;">
+                            Your registered children will appear here once recorded by your area midwife. You can track their growth and immunizations here.
+                        </p>
+                    </div>
+                @endif
+            @else
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background:#e0f2fe; color:#0284c7;"><i class="fa-solid fa-baby"></i></div>
+                        <div>
+                            <div class="stat-val">{{ $totalChildren }}</div>
+                            <div class="stat-lbl">Total Registered Children</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background:#f0fdf4; color:#16a34a;"><i class="fa-solid fa-hospital"></i></div>
+                        <div>
+                            <div class="stat-val">{{ $totalAreas }}</div>
+                            <div class="stat-lbl">Clinic Areas</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background:#fce7f3; color:#db2777;"><i class="fa-solid fa-venus-mars"></i></div>
+                        <div>
+                            <div class="stat-val">{{ $maleChildren }}M / {{ $femaleChildren }}F</div>
+                            <div class="stat-lbl">Gender Distribution</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background:#ecfdf5; color:#059669;"><i class="fa-solid fa-shield-virus"></i></div>
+                        <div>
+                            <div class="stat-val">{{ $bcgVaccinatedCount }}</div>
+                            <div class="stat-lbl">BCG Vaccinated (&lt;24hrs)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="area-pills">
+                    <span class="pill-label"><i class="fa-solid fa-filter"></i> Filter Area:</span>
+                    <a href="{{ route($prefix . 'children.index', array_filter(['search' => $search])) }}" class="area-pill {{ empty($areaFilter) ? 'active' : '' }}">
+                        All Areas ({{ $totalChildren }})
+                    </a>
+                    @foreach($allAreas as $a)
+                        <a href="{{ route($prefix . 'children.index', array_filter(['area_id' => $a->area_id, 'search' => $search])) }}" class="area-pill {{ $areaFilter == $a->area_id ? 'active' : '' }}">
+                            {{ $a->area_name }}
+                        </a>
+                    @endforeach
+                </div>
+
+                @if($search)
+                    <div style="font-size:14px; color:#64748b;">
+                        Showing search results for "<strong>{{ $search }}</strong>" —
+                        <a href="{{ route($prefix . 'children.index') }}" style="color:#00c853; font-weight:700;">Clear search</a>
+                    </div>
+                @endif
+
+                @foreach($areas as $area)
+                    <div class="area-section">
+                        <div class="area-header">
+                            <div class="area-info">
+                                <div class="area-avatar"><i class="fa-solid fa-hospital"></i></div>
+                                <div>
+                                    <h2 class="area-name">{{ $area->area_name }}</h2>
+                                    <div class="area-midwives">
+                                        <i class="fa-solid fa-user-nurse" style="color:#00c853;"></i>
+                                        <span>
+                                            Assigned Midwives: 
+                                            @if($area->midwives->count() > 0)
+                                                {{ $area->midwives->pluck('midwife_name')->join(', ') }}
+                                            @else
+                                                None Assigned
+                                            @endif
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="area-count-badge">
+                                <i class="fa-solid fa-baby"></i> {{ $area->filtered_children->count() }} Children
+                            </div>
+                        </div>
+
+                        @if($area->filtered_children->count() > 0)
+                            <div class="children-grid">
+                                @foreach($area->filtered_children as $child)
+                                    <div class="child-card">
+                                        <div class="child-header">
+                                            <div class="child-main">
+                                                <div class="child-gender-avatar {{ $child->gender === 'Female' ? 'gender-female' : 'gender-male' }}">
+                                                    <i class="fa-solid {{ $child->gender === 'Female' ? 'fa-venus' : 'fa-mars' }}"></i>
+                                                </div>
+                                                <div>
+                                                    <h3 class="child-name">{{ $child->display_name }}</h3>
+                                                    <div class="child-meta">
+                                                        <span class="child-id-pill">ID: #{{ $child->child_id }}</span>
+                                                        <span>•</span>
+                                                        <span>{{ $child->age ?? 'Age N/A' }}</span>
+                                                        <span>•</span>
+                                                        <span>DOB: {{ \Carbon\Carbon::parse($child->date_of_birth)->format('M d, Y') }}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div>
+                                                @if($child->bcg_vaccinated_at_birth)
+                                                    <span class="bcg-pill bcg-done" title="BCG vaccinated before 24hrs from birth">
+                                                        <i class="fa-solid fa-check"></i> BCG Vaccinated
+                                                    </span>
+                                                @else
+                                                    <span class="bcg-pill bcg-pending" title="BCG not yet recorded">
+                                                        <i class="fa-solid fa-clock"></i> BCG Pending
+                                                    </span>
+                                                @endif
+                                            </div>
+                                        </div>
+
+                                        <div class="measure-chips">
+                                            <div class="chip">
+                                                <i class="fa-solid fa-weight-scale"></i>
+                                                <span>Wt: <strong>{{ $child->weight ? $child->weight . ' kg' : ($child->birth_weight ? $child->birth_weight . ' kg' : 'N/A') }}</strong></span>
+                                            </div>
+                                            <div class="chip">
+                                                <i class="fa-solid fa-ruler-vertical"></i>
+                                                <span>Ht: <strong>{{ $child->height ? $child->height . ' cm' : ($child->birth_length ? $child->birth_length . ' cm' : 'N/A') }}</strong></span>
+                                            </div>
+                                            @php
+                                                $idxBmi = $child->bmi ?: $child->calculateBmi();
+                                            @endphp
+                                            @if($idxBmi)
+                                            <div class="chip" style="background:#e0f2fe; color:#0369a1;">
+                                                <i class="fa-solid fa-chart-line"></i>
+                                                <span>BMI: <strong>{{ $idxBmi }}</strong></span>
+                                            </div>
+                                            @else
+                                            <div class="chip">
+                                                <i class="fa-solid fa-syringe"></i>
+                                                <span>Vaccines: <strong>{{ $child->immunizations->count() }}</strong></span>
+                                            </div>
+                                            @endif
+                                        </div>
+
+                                        <div class="mother-subcard">
+                                            <div class="mother-left">
+                                                <div class="mother-icon"><i class="fa-solid fa-person-breastfeeding"></i></div>
+                                                <div>
+                                                    <div class="mother-name-title">
+                                                        Mother: {{ $child->mother ? $child->mother->mother_name : 'Not Assigned' }}
+                                                    </div>
+                                                    <div class="mother-details-sub">
+                                                        <span>Mother ID: <strong>#{{ $child->mother_id }}</strong></span>
+                                                        @if($child->mother && $child->mother->phone_no)
+                                                            <span>• <i class="fa-solid fa-phone" style="font-size:10px;"></i> {{ $child->mother->phone_no }}</span>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            @if($child->mother)
+                                                <a href="{{ route($prefix . 'mothers.show', $child->mother_id) }}" class="mother-view-link" title="View Mother Profile">
+                                                    <span>Profile</span> <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                                                </a>
+                                            @endif
+                                        </div>
+
+                                        <div class="child-footer">
+                                            @if(in_array($role, ['admin', 'provider', 'midwife']))
+                                            <a href="{{ route($prefix . 'children.edit', $child->child_id) }}" class="btn-edit-child">
+                                                <i class="fa-solid fa-pen-to-square"></i> Edit
+                                            </a>
+                                            @endif
+                                            <a href="{{ route($prefix . 'children.show', $child->child_id) }}" class="btn-view-child">
+                                                <span>View Immunization Schedule</span>
+                                                <i class="fa-solid fa-arrow-right"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @else
+                            <div class="empty-area">
+                                <i class="fa-solid fa-baby-carriage" style="font-size:32px; color:#cbd5e1; margin-bottom:8px; display:block;"></i>
+                                No children currently registered in {{ $area->area_name }}.
+                                @if(in_array($role, ['admin', 'provider', 'midwife']))
+                                <div style="margin-top:10px;">
+                                    <a href="{{ route($prefix . 'children.create', ['area_id' => $area->area_id]) }}" style="color:#00c853; font-weight:700; text-decoration:none;">
+                                        + Register first child in this area
+                                    </a>
+                                </div>
+                                @endif
+                            </div>
+                        @endif
+                    </div>
+                @endforeach
+            @endif
         </main>
     </div>
+
+    
+    <script>
+        const allChildren = @json($allChildrenList ?? []);
+        const childSearchInput = document.getElementById('childSearch');
+        const childSuggestionsBox = document.getElementById('childSuggestions');
+
+        function escapeRegex(string) {
+            return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.innerText = text || '';
+            return div.innerHTML;
+        }
+
+        function renderChildSuggestions(query) {
+            if (!query || query.trim().length === 0) {
+                childSuggestionsBox.style.display = 'none';
+                childSuggestionsBox.innerHTML = '';
+                filterChildCards('');
+                return;
+            }
+
+            const q = query.trim().toLowerCase();
+            const matched = allChildren.filter(c => {
+                return (c.name && c.name.toLowerCase().includes(q)) ||
+                       (c.mother && c.mother.toLowerCase().includes(q)) ||
+                       (String(c.id) === q) ||
+                       (c.area && c.area.toLowerCase().includes(q));
+            });
+
+            if (matched.length === 0) {
+                childSuggestionsBox.innerHTML = `
+                    <div style="padding: 16px; text-align: center; color: #94a3b8; font-size: 13px;">
+                        <i class="fa-solid fa-circle-question" style="margin-bottom: 6px; font-size: 18px; display: block;"></i>
+                        No records found for "<strong>${escapeHtml(query)}</strong>"
+                    </div>`;
+                childSuggestionsBox.style.display = 'block';
+                filterChildCards(q);
+                return;
+            }
+
+            const regex = new RegExp(`(${escapeRegex(query.trim())})`, 'gi');
+            let html = `<div class="suggestions-count">${matched.length} ${matched.length === 1 ? 'Record Found' : 'Records Found'}</div>`;
+            
+            matched.slice(0, 10).forEach(item => {
+                const highlightedName = escapeHtml(item.name).replace(regex, '<mark>$1</mark>');
+                const initial = item.name ? item.name.charAt(0).toUpperCase() : 'C';
+                html += `
+                    <a href="${item.url}" class="suggestion-item">
+                        <div class="suggestion-item-main">
+                            <div class="suggestion-avatar">${initial}</div>
+                            <div>
+                                <div class="suggestion-name">${highlightedName}</div>
+                                <div class="suggestion-sub">${item.mother ? 'Mother: ' + escapeHtml(item.mother) + ' • ' : ''}${escapeHtml(item.area)}</div>
+                            </div>
+                        </div>
+                        <span class="suggestion-badge">ID #${item.id}</span>
+                    </a>
+                `;
+            });
+
+            childSuggestionsBox.innerHTML = html;
+            childSuggestionsBox.style.display = 'block';
+            filterChildCards(q);
+        }
+
+        function filterChildCards(q) {
+            const sections = document.querySelectorAll('.area-section');
+            if (!sections.length) return;
+
+            sections.forEach(section => {
+                const cards = section.querySelectorAll('.child-card');
+                let visibleCount = 0;
+                cards.forEach(card => {
+                    const text = card.textContent.toLowerCase();
+                    if (!q || text.includes(q)) {
+                        card.style.display = '';
+                        visibleCount++;
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+                if (!q || visibleCount > 0) {
+                    section.style.display = '';
+                } else {
+                    section.style.display = 'none';
+                }
+            });
+        }
+
+        if (childSearchInput && childSuggestionsBox) {
+            childSearchInput.addEventListener('input', function(e) {
+                renderChildSuggestions(e.target.value);
+            });
+
+            childSearchInput.addEventListener('focus', function(e) {
+                if (e.target.value.trim().length > 0) {
+                    renderChildSuggestions(e.target.value);
+                }
+            });
+
+            document.addEventListener('click', function(e) {
+                if (!childSearchInput.contains(e.target) && !childSuggestionsBox.contains(e.target)) {
+                    childSuggestionsBox.style.display = 'none';
+                }
+            });
+        }
+    </script>
 </body>
 </html>

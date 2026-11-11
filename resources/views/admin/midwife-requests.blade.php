@@ -5,12 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Midwife Requests - CareNest</title>
     
-    <!-- Google Fonts -->
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
-    <!-- FontAwesome Icons -->
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
@@ -44,7 +44,7 @@
             display: flex;
         }
 
-        /* ---- Sidebar ---- */
+        
         .sidebar {
             width: var(--sidebar-width);
             background: rgba(255,255,255,0.95);
@@ -141,7 +141,7 @@
 
         .logout-btn:hover { color: #ef4444; }
 
-        /* ---- Main Wrapper ---- */
+        
         .main-wrapper {
             margin-left: var(--sidebar-width);
             flex: 1;
@@ -150,7 +150,7 @@
             min-height: 100vh;
         }
 
-        /* Top Header */
+        
         .top-header {
             display: flex;
             justify-content: space-between;
@@ -207,7 +207,7 @@
             font-size: 16px;
         }
 
-        /* Content Container */
+        
         .content-container {
             padding: 36px 48px;
             max-width: 1250px;
@@ -245,7 +245,7 @@
             gap: 10px;
         }
 
-        /* Table Card */
+        
         .table-card {
             background: rgba(255, 255, 255, 0.9);
             backdrop-filter: blur(20px);
@@ -343,82 +343,12 @@
 </head>
 <body>
 
-    <!-- Sidebar Navigation -->
-    <aside class="sidebar">
-        <a href="{{ route('dashboard') }}" class="sidebar-brand">
-            <i class="fa-solid fa-leaf" style="color: #00c853;"></i>
-            <span>CareNest</span>
-        </a>
+    
+    @include('partials.sidebar')
 
-        <ul class="sidebar-menu">
-            <li class="nav-item {{ request()->routeIs('dashboard') || request()->routeIs('admin.dashboard') ? 'active' : '' }}">
-                <a href="{{ route('dashboard') }}">
-                    <i class="fa-solid fa-table-cells-large"></i>
-                    <span>Dashboard</span>
-                </a>
-            </li>
-            @if(Auth::check() && (Auth::user()->role === 'provider' || Auth::user()->role === 'admin'))
-            <li class="nav-item active">
-                <a href="{{ route('admin.midwife-requests') }}">
-                    <i class="fa-solid fa-user-check"></i>
-                    <span>Midwife Requests</span>
-                </a>
-            </li>
-            <li class="nav-item {{ request()->routeIs('admin.midwives.*') ? 'active' : '' }}">
-                <a href="{{ route('admin.midwives.index') }}">
-                    <i class="fa-solid fa-user-nurse"></i>
-                    <span>Manage Midwives</span>
-                </a>
-            </li>
-            @endif
-            <li class="nav-item {{ request()->routeIs('mothers.*') ? 'active' : '' }}">
-                <a href="{{ route('admin.mothers.index') }}">
-                    <i class="fa-solid fa-user-nurse"></i>
-                    <span>Mothers</span>
-                </a>
-            </li>
-            <li class="nav-item {{ request()->routeIs('children.*') ? 'active' : '' }}">
-                <a href="{{ route('admin.children.index') }}">
-                    <i class="fa-solid fa-baby"></i>
-                    <span>Children</span>
-                </a>
-            </li>
-            <li class="nav-item {{ request()->routeIs('immunizations.*') ? 'active' : '' }}">
-                <a href="{{ route('admin.immunizations.index') }}">
-                    <i class="fa-solid fa-syringe"></i>
-                    <span>Immunizations</span>
-                </a>
-            </li>
-            <li class="nav-item {{ request()->routeIs('alerts.*') ? 'active' : '' }}">
-                <a href="{{ route('admin.alerts.index') }}">
-                    <i class="fa-solid fa-triangle-exclamation"></i>
-                    <span>High-Risk Alerts</span>
-                </a>
-            </li>
-            <li class="nav-item {{ request()->routeIs('triposha.*') ? 'active' : '' }}">
-                <a href="{{ route('admin.triposha.index') }}">
-                    <i class="fa-solid fa-book-medical"></i>
-                    <span>Triposha Book</span>
-                </a>
-            </li>
-            <li class="nav-item {{ request()->routeIs('attendances.*') ? 'active' : '' }}">
-                <a href="{{ route('admin.attendances.index') }}">
-                    <i class="fa-solid fa-calendar-check"></i>
-                    <span>Clinic Attendances</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="#reports">
-                    <i class="fa-solid fa-file-invoice"></i>
-                    <span>Vaccine Reports</span>
-                </a>
-            </li>
-        </ul>
-    </aside>
-
-    <!-- Main Content Wrapper -->
+    
     <div class="main-wrapper">
-        <!-- Top Header -->
+        
         <header class="top-header">
             <div class="header-left">
                 <span>Midwife Requests</span>
@@ -428,7 +358,7 @@
             </div>
         </header>
 
-        <!-- Main Content -->
+        
         <main class="content-container">
             <h1 class="page-title">Midwife Registrations</h1>
             <p class="page-subtitle">Review and approve new midwife registration requests for the clinic.</p>

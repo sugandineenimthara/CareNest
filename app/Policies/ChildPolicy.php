@@ -8,23 +8,21 @@ use Illuminate\Auth\Access\Response;
 
 class ChildPolicy
 {
-    /**
-     * Determine whether the user can view any models.
-     */
+    
+
     public function viewAny(User $user): bool
     {
-        return in_array($user->role, ['provider', 'admin', 'midwife']);
+        return in_array($user->role, ['provider', 'admin', 'midwife', 'mother']);
     }
 
-    /**
-     * Determine whether the user can view the model.
-     */
+    
+
     public function view(User $user, Child $child): bool
     {
         if (in_array($user->role, ['provider', 'admin'])) return true;
 
         if ($user->role === 'midwife') {
-            // Midwife can see if they are assigned to the child's mother OR the child directly (assuming midwife_id on child)
+            
             if ($user->midwife && $child->midwife_id === $user->midwife->midwife_id) {
                 return true;
             }
@@ -41,17 +39,15 @@ class ChildPolicy
         return false;
     }
 
-    /**
-     * Determine whether the user can create models.
-     */
+    
+
     public function create(User $user): bool
     {
         return in_array($user->role, ['provider', 'admin', 'midwife']);
     }
 
-    /**
-     * Determine whether the user can update the model.
-     */
+    
+
     public function update(User $user, Child $child): bool
     {
         if (in_array($user->role, ['provider', 'admin'])) return true;
@@ -61,12 +57,11 @@ class ChildPolicy
             if ($user->midwife && $child->mother && $child->mother->midwife_id === $user->midwife->midwife_id) return true;
         }
 
-        return false; // Mother cannot update child clinical records directly.
+        return false; 
     }
 
-    /**
-     * Determine whether the user can delete the model.
-     */
+    
+
     public function delete(User $user, Child $child): bool
     {
         return in_array($user->role, ['provider', 'admin']);

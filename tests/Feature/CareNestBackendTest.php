@@ -45,8 +45,8 @@ class CareNestBackendTest extends TestCase
             'mother_name' => 'Kamala Silva',
             'phone_no' => '0771234567',
             'midwife_id' => $midwife->midwife_id,
-            'height' => 160.00, // 1.6m
-            'weight' => 64.00,  // BMI = 64 / (1.6^2) = 25.00
+            'height' => 160.00, 
+            'weight' => 64.00,  
             'date_of_birth' => '1995-05-15',
         ]);
 

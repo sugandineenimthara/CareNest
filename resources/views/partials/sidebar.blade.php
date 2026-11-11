@@ -3,33 +3,47 @@
     $prefix = $role === 'midwife' ? 'midwife.' : ($role === 'mother' ? 'mother.' : 'admin.');
 @endphp
 <aside class="sidebar">
-    <a href="{{ route($prefix . 'dashboard') }}" class="sidebar-brand">
+    <a href="{{ $role === 'mother' ? route('mother.profile') : route($prefix . 'dashboard') }}" class="sidebar-brand">
         <i class="fa-solid fa-leaf" style="color:#00c853;"></i>
         <span>CareNest</span>
     </a>
 
     <ul class="sidebar-menu">
+        @if($role !== 'mother')
         <li class="nav-item {{ request()->routeIs($prefix . 'dashboard') ? 'active' : '' }}">
             <a href="{{ route($prefix . 'dashboard') }}">
                 <i class="fa-solid fa-table-cells-large"></i>
                 <span>Dashboard</span>
             </a>
         </li>
+        @endif
 
         @if(in_array($role, ['provider', 'admin']))
-            <li class="nav-item {{ request()->routeIs('admin.midwives.*', 'admin.midwife-requests.*') ? 'active' : '' }}">
+            <li class="nav-item {{ request()->routeIs('admin.midwife-requests*') ? 'active' : '' }}">
+                <a href="{{ route('admin.midwife-requests') }}">
+                    <i class="fa-solid fa-user-check"></i>
+                    <span>Midwife Requests</span>
+                </a>
+            </li>
+            <li class="nav-item {{ request()->routeIs('admin.midwives.*') ? 'active' : '' }}">
                 <a href="{{ route('admin.midwives.index') }}">
                     <i class="fa-solid fa-user-nurse"></i>
-                    <span>Midwife Management</span>
+                    <span>Manage Midwives</span>
                 </a>
             </li>
         @endif
 
         @if(in_array($role, ['provider', 'admin', 'midwife']))
+            <li class="nav-item {{ request()->routeIs($prefix . 'mother-requests*') ? 'active' : '' }}">
+                <a href="{{ route($prefix . 'mother-requests.index') }}">
+                    <i class="fa-solid fa-user-clock"></i>
+                    <span>Mother Requests</span>
+                </a>
+            </li>
             <li class="nav-item {{ request()->routeIs($prefix . 'mothers.*') ? 'active' : '' }}">
                 <a href="{{ route($prefix . 'mothers.index') }}">
                     <i class="fa-solid fa-person-pregnant"></i>
-                    <span>Mothers</span>
+                    <span>Manage Mothers</span>
                 </a>
             </li>
             <li class="nav-item {{ request()->routeIs($prefix . 'children.*') ? 'active' : '' }}">
@@ -77,21 +91,31 @@
                 </a>
             </li>
         @endif
-        
-        <li class="nav-item">
-            <a href="#attendances">
+        @if(in_array($role, ['provider', 'admin', 'midwife']))
+        <li class="nav-item {{ request()->routeIs($prefix . 'triposha.*') ? 'active' : '' }}">
+            <a href="{{ route($prefix . 'triposha.index') }}">
+                <i class="fa-solid fa-book-medical"></i>
+                <span>Triposha Book</span>
+            </a>
+        </li>
+        <li class="nav-item {{ request()->routeIs($prefix . 'attendances.*') ? 'active' : '' }}">
+            <a href="{{ route($prefix . 'attendances.index') }}">
                 <i class="fa-solid fa-calendar-check"></i>
                 <span>Clinic Attendances</span>
             </a>
         </li>
+        @endif
+
+        @if(in_array($role, ['provider', 'admin', 'midwife']))
+        <li class="nav-item {{ request()->routeIs($prefix . 'vaccine-reports.*') ? 'active' : '' }}">
+            <a href="{{ route($prefix . 'vaccine-reports.index') }}">
+                <i class="fa-solid fa-file-invoice"></i>
+                <span>Vaccine Reports</span>
+            </a>
+        </li>
+        @endif
     </ul>
 
     <div class="sidebar-footer">
-        @if(in_array($role, ['provider', 'admin', 'midwife']))
-            <a href="{{ route($prefix . 'mothers.create') }}" class="btn-schedule" style="text-decoration:none;">
-                <i class="fa-solid fa-user-plus"></i>
-                <span>Register Mother</span>
-            </a>
-        @endif
     </div>
 </aside>

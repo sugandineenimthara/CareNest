@@ -53,7 +53,7 @@ class ForgotPasswordController extends Controller
             ->where('email', $email)
             ->first();
 
-        // If token is valid and user is logged in or arrived from change password identity flow
+        
         if ($record && Hash::check($token, $record->token)) {
             if (\Illuminate\Support\Facades\Auth::check() || $request->has('from_change_password')) {
                 session([
