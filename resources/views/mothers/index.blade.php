@@ -34,7 +34,7 @@
             display: flex;
         }
 
-        /* ---- Sidebar ---- */
+        
         .sidebar {
             width: var(--sidebar-width);
             background: rgba(255,255,255,0.95);
@@ -82,10 +82,10 @@
         }
         .logout-btn:hover { color: #ef4444; }
 
-        /* ---- Main Wrapper ---- */
+        
         .main-wrapper { margin-left: var(--sidebar-width); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
 
-        /* ---- Top Header ---- */
+        
         .top-header {
             display: flex; justify-content: space-between; align-items: center;
             padding: 20px 48px;
@@ -114,7 +114,7 @@
         .user-role-label { font-size: 13px; font-weight: 700; color: #334155; }
         .user-avatar { width: 38px; height: 38px; border-radius: 50%; background: #e2e8f0; display: flex; align-items: center; justify-content: center; color: #475569; font-size: 16px; }
 
-        /* ---- Content ---- */
+        
         .content-container { padding: 36px 48px; max-width: 1280px; width: 100%; margin: 0 auto; flex: 1; }
 
         .page-header {
@@ -133,7 +133,7 @@
         }
         .btn-register:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(27,94,32,0.35); }
 
-        /* Stats Row */
+        
         .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 36px; }
         .stat-chip {
             background: rgba(255,255,255,0.9); backdrop-filter: blur(16px);
@@ -154,14 +154,14 @@
         .stat-chip-num { font-family: var(--font-heading); font-size: 30px; font-weight: 800; color: #0f172a; line-height: 1; }
         .stat-chip-label { font-size: 12px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.8px; margin-top: 4px; }
 
-        /* Flash Message */
+        
         .flash-success {
             background: #d1fae5; border: 1px solid #6ee7b7; color: #065f46;
             padding: 14px 20px; border-radius: 16px; margin-bottom: 24px;
             display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 14px;
         }
 
-        /* Midwife Group Cards */
+        
         .midwife-group { margin-bottom: 36px; }
         .midwife-group-header {
             display: flex; align-items: center; gap: 14px; margin-bottom: 16px;
@@ -186,7 +186,7 @@
             font-size: 13px; font-weight: 700;
         }
 
-        /* Mother Cards Grid */
+        
         .mothers-grid {
             display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 16px;
@@ -257,6 +257,107 @@
         .no-results i { font-size: 48px; color: #cbd5e1; margin-bottom: 16px; }
         .no-results p { font-size: 16px; color: #94a3b8; }
 
+        
+        .area-pills {
+            display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 24px;
+        }
+        .area-pill {
+            padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 700;
+            text-decoration: none; border: 1.5px solid #cbd5e1; color: #475569; background: white;
+            transition: all 0.2s ease;
+        }
+        .area-pill:hover, .area-pill.active {
+            background: #1b4d3e; color: white; border-color: #1b4d3e;
+        }
+        .pill-label {
+            font-size: 13px; font-weight: 700; color: #64748b; margin-right: 4px;
+        }
+
+        
+        .search-box {
+            position: relative;
+        }
+        .search-suggestions-dropdown {
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            right: 0;
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.15);
+            border: 1px solid #e2e8f0;
+            z-index: 999;
+            max-height: 380px;
+            overflow-y: auto;
+            display: none;
+            padding: 8px;
+        }
+        .suggestion-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 14px;
+            border-radius: 12px;
+            text-decoration: none;
+            color: #1e293b;
+            transition: all 0.15s ease;
+            cursor: pointer;
+        }
+        .suggestion-item:hover, .suggestion-item.active {
+            background: #f0fdf4;
+            color: #15803d;
+        }
+        .suggestion-item-main {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .suggestion-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #e0f2fe;
+            color: #0284c7;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 12px;
+        }
+        .suggestion-name {
+            font-weight: 700;
+            font-size: 14px;
+        }
+        .suggestion-name mark {
+            background: #fef08a;
+            color: #854d0e;
+            padding: 0 2px;
+            border-radius: 2px;
+            font-weight: 800;
+        }
+        .suggestion-sub {
+            font-size: 12px;
+            color: #64748b;
+        }
+        .suggestion-badge {
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 10px;
+            background: #f1f5f9;
+            color: #475569;
+        }
+        .suggestions-count {
+            padding: 8px 12px 6px;
+            font-size: 11px;
+            font-weight: 800;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid #f1f5f9;
+            margin-bottom: 4px;
+        }
+
         @media (max-width: 1024px) {
             .sidebar { width: 80px; padding: 20px 10px; }
             .sidebar-brand span, .nav-item span, .btn-schedule span { display: none; }
@@ -266,98 +367,29 @@
     </style>
 </head>
 <body>
-    <!-- Sidebar -->
-    <aside class="sidebar">
-        <a href="{{ route('dashboard') }}" class="sidebar-brand">
-            <i class="fa-solid fa-leaf" style="color:#00c853;"></i>
-            <span>CareNest</span>
-        </a>
+    
+    @include('partials.sidebar')
 
-        <ul class="sidebar-menu">
-            <li class="nav-item">
-                <a href="{{ route('dashboard') }}">
-                    <i class="fa-solid fa-table-cells-large"></i>
-                    <span>Dashboard</span>
-                </a>
-            </li>
-            @if(Auth::check() && (Auth::user()->role === 'provider' || Auth::user()->role === 'admin'))
-            <li class="nav-item">
-                <a href="{{ route('admin.midwife-requests') }}">
-                    <i class="fa-solid fa-user-check"></i>
-                    <span>Midwife Requests</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="{{ route('admin.midwives.index') }}">
-                    <i class="fa-solid fa-user-nurse"></i>
-                    <span>Manage Midwives</span>
-                </a>
-            </li>
-            @endif
-            <li class="nav-item active">
-                <a href="{{ route('admin.mothers.index') }}">
-                    <i class="fa-solid fa-user-nurse"></i>
-                    <span>Mothers</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="{{ route('admin.children.index') }}">
-                    <i class="fa-solid fa-baby"></i>
-                    <span>Children</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="{{ route('admin.immunizations.index') }}">
-                    <i class="fa-solid fa-syringe"></i>
-                    <span>Immunizations</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="{{ route('admin.alerts.index') }}">
-                    <i class="fa-solid fa-triangle-exclamation"></i>
-                    <span>High-Risk Alerts</span>
-                </a>
-            </li>
-
-            <li class="nav-item">
-                <a href="{{ route('admin.triposha.index') }}">
-                    <i class="fa-solid fa-book-medical"></i>
-                    <span>Triposha Book</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="{{ route('admin.attendances.index') }}">
-                    <i class="fa-solid fa-calendar-check"></i>
-                    <span>Clinic Attendances</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="#reports">
-                    <i class="fa-solid fa-file-invoice"></i>
-                    <span>Vaccine Reports</span>
-                </a>
-            </li>
-        </ul>
-
-        <div class="sidebar-footer">
-            <a href="{{ route('admin.mothers.create') }}" class="btn-schedule" style="text-decoration:none;">
-                <i class="fa-solid fa-user-plus"></i>
-                <span>Register Mother</span>
-            </a>
-        </div>
-    </aside>
-
-    <!-- Main Content -->
+    
     <div class="main-wrapper">
-        <!-- Top Header -->
+        
         <header class="top-header">
             <div class="header-left">Mothers Registry</div>
 
-            <form method="GET" action="{{ route('admin.mothers.index') }}" class="search-box">
+            @php
+                $role = auth()->user()->role ?? 'admin';
+                $prefix = $role === 'midwife' ? 'midwife.' : 'admin.';
+            @endphp
+
+            <form method="GET" action="{{ route($prefix . 'mothers.index') }}" class="search-box" id="motherSearchForm" autocomplete="off">
+                @if(request('area_id'))
+                    <input type="hidden" name="area_id" value="{{ request('area_id') }}">
+                @endif
                 <i class="fa-solid fa-magnifying-glass search-icon"></i>
                 <input type="text" id="motherSearch" name="search" class="search-input"
                     placeholder="Search by name, phone, address..."
-                    value="{{ $search ?? '' }}">
+                    value="{{ $search ?? '' }}" autocomplete="off">
+                <div class="search-suggestions-dropdown" id="motherSuggestions"></div>
             </form>
 
             <div class="header-right">
@@ -365,20 +397,20 @@
             </div>
         </header>
 
-        <!-- Content -->
+        
         <main class="content-container">
             <div class="page-header">
                 <div>
                     <h1 class="page-title">Mothers Registry</h1>
                     <p class="page-sub">All registered mothers grouped by assigned midwife</p>
                 </div>
-                <a href="{{ route('admin.mothers.create') }}" class="btn-register">
+                <a href="{{ route($prefix . 'mothers.create') }}" class="btn-register">
                     <i class="fa-solid fa-user-plus"></i>
                     Register New Mother
                 </a>
             </div>
 
-            <!-- Stats -->
+            
             <div class="stats-row">
                 <div class="stat-chip">
                     <div class="stat-chip-icon icon-teal">
@@ -418,11 +450,33 @@
                 </div>
             @endif
 
+            
+            <div class="area-pills">
+                <span class="pill-label"><i class="fa-solid fa-filter"></i> Filter Area:</span>
+                <a href="{{ route($prefix . 'mothers.index', array_filter(['search' => $search])) }}" class="area-pill {{ empty($areaFilter) ? 'active' : '' }}">
+                    All Areas ({{ $totalMothers }})
+                </a>
+                @foreach($allAreas as $a)
+                    <a href="{{ route($prefix . 'mothers.index', array_filter(['area_id' => $a->area_id, 'search' => $search])) }}" class="area-pill {{ $areaFilter == $a->area_id ? 'active' : '' }}">
+                        {{ $a->area_name }}
+                    </a>
+                @endforeach
+            </div>
+
+            @if($search || $areaFilter)
+                <div style="font-size:14px; color:#64748b; margin-bottom: 20px;">
+                    Showing results
+                    @if($search) for "<strong>{{ $search }}</strong>"@endif
+                    @if($areaFilter && $allAreas->firstWhere('area_id', $areaFilter)) in area "<strong>{{ $allAreas->firstWhere('area_id', $areaFilter)->area_name }}</strong>"@endif
+                    — <a href="{{ route($prefix . 'mothers.index') }}" style="color:#00c853; font-weight:700;">Clear filters</a>
+                </div>
+            @endif
+
             @if($search && $midwives->every(fn($m) => $m->mothers->isEmpty()))
                 <div class="no-results">
                     <i class="fa-solid fa-magnifying-glass" style="display:block;"></i>
                     <p>No mothers found matching <strong>"{{ $search }}"</strong></p>
-                    <a href="{{ route('admin.mothers.index') }}" style="color:#00c853; font-weight:700; font-size:14px; margin-top:10px; display:inline-block;">Clear search</a>
+                    <a href="{{ route($prefix . 'mothers.index') }}" style="color:#00c853; font-weight:700; font-size:14px; margin-top:10px; display:inline-block;">Clear search</a>
                 </div>
             @else
                 @forelse($midwives as $midwife)
@@ -457,7 +511,7 @@
                                             $initials = collect(explode(' ', $mother->mother_name))->map(fn($w) => strtoupper(substr($w,0,1)))->take(2)->implode('');
                                             $latestPregnancy = $mother->pregnancyHistories->last();
                                         @endphp
-                                        <a href="{{ route('admin.mothers.show', $mother->mother_id) }}" class="mother-card">
+                                        <a href="{{ route($prefix . 'mothers.show', $mother->mother_id) }}" class="mother-card">
                                             <div class="mother-card-top">
                                                 <div class="mother-initials">{{ $initials }}</div>
                                                 <div class="mother-card-info">
@@ -483,6 +537,15 @@
                                                         BMI {{ $mother->bmi }}
                                                     </div>
                                                 @endif
+                                                @if($mother->blood_pressure)
+                                                    <div class="detail-tag" style="{{ $mother->isHighBloodPressure() ? 'background:#fee2e2; color:#dc2626; font-weight:800; border:1px solid #fca5a5;' : '' }}">
+                                                        <i class="fa-solid fa-heart-pulse" style="{{ $mother->isHighBloodPressure() ? 'color:#dc2626;' : '' }}"></i>
+                                                        BP {{ $mother->blood_pressure }}
+                                                        @if($mother->isHighBloodPressure())
+                                                            <span style="font-size:9px; background:#dc2626; color:white; border-radius:4px; padding:1px 4px; margin-left:3px;">High Risk</span>
+                                                        @endif
+                                                    </div>
+                                                @endif
                                                 @if($mother->husband_name)
                                                     <div class="detail-tag">
                                                         <i class="fa-solid fa-ring"></i>
@@ -502,7 +565,7 @@
                                                     <div class="edd-label">Expected Delivery</div>
                                                     <div class="edd-value">
                                                         @if($latestPregnancy && $latestPregnancy->expected_date_of_delivery)
-                                                            {{ \Carbon\Carbon::parse($latestPregnancy->expected_date_of_delivery)->format('d M Y') }}
+                                                             {{ \Carbon\Carbon::parse($latestPregnancy->expected_date_of_delivery)->format('d M Y') }}
                                                         @else
                                                             <span style="color:#94a3b8;">Not recorded</span>
                                                         @endif
@@ -527,5 +590,116 @@
             @endif
         </main>
     </div>
+
+    
+    <script>
+        const allMothers = @json($allMothersList ?? []);
+        const searchInput = document.getElementById('motherSearch');
+        const suggestionsBox = document.getElementById('motherSuggestions');
+
+        function escapeRegex(string) {
+            return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.innerText = text || '';
+            return div.innerHTML;
+        }
+
+        function renderSuggestions(query) {
+            if (!query || query.trim().length === 0) {
+                suggestionsBox.style.display = 'none';
+                suggestionsBox.innerHTML = '';
+                filterCards('');
+                return;
+            }
+
+            const q = query.trim().toLowerCase();
+            const matched = allMothers.filter(m => {
+                return (m.name && m.name.toLowerCase().includes(q)) ||
+                       (m.phone && m.phone.toLowerCase().includes(q)) ||
+                       (String(m.id) === q) ||
+                       (m.area && m.area.toLowerCase().includes(q));
+            });
+
+            if (matched.length === 0) {
+                suggestionsBox.innerHTML = `
+                    <div style="padding: 16px; text-align: center; color: #94a3b8; font-size: 13px;">
+                        <i class="fa-solid fa-circle-question" style="margin-bottom: 6px; font-size: 18px; display: block;"></i>
+                        No records found for "<strong>${escapeHtml(query)}</strong>"
+                    </div>`;
+                suggestionsBox.style.display = 'block';
+                filterCards(q);
+                return;
+            }
+
+            const regex = new RegExp(`(${escapeRegex(query.trim())})`, 'gi');
+            let html = `<div class="suggestions-count">${matched.length} ${matched.length === 1 ? 'Record Found' : 'Records Found'}</div>`;
+            
+            matched.slice(0, 10).forEach(item => {
+                const highlightedName = escapeHtml(item.name).replace(regex, '<mark>$1</mark>');
+                const initial = item.name ? item.name.charAt(0).toUpperCase() : 'M';
+                html += `
+                    <a href="${item.url}" class="suggestion-item">
+                        <div class="suggestion-item-main">
+                            <div class="suggestion-avatar">${initial}</div>
+                            <div>
+                                <div class="suggestion-name">${highlightedName}</div>
+                                <div class="suggestion-sub">${item.phone ? escapeHtml(item.phone) + ' • ' : ''}${escapeHtml(item.area)}</div>
+                            </div>
+                        </div>
+                        <span class="suggestion-badge">ID #${item.id}</span>
+                    </a>
+                `;
+            });
+
+            suggestionsBox.innerHTML = html;
+            suggestionsBox.style.display = 'block';
+            filterCards(q);
+        }
+
+        function filterCards(q) {
+            const groups = document.querySelectorAll('.midwife-group');
+            if (!groups.length) return;
+
+            groups.forEach(group => {
+                const cards = group.querySelectorAll('.mother-card');
+                let visibleInGroup = 0;
+                cards.forEach(card => {
+                    const text = card.textContent.toLowerCase();
+                    if (!q || text.includes(q)) {
+                        card.style.display = '';
+                        visibleInGroup++;
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+                if (!q || visibleInGroup > 0) {
+                    group.style.display = '';
+                } else {
+                    group.style.display = 'none';
+                }
+            });
+        }
+
+        if (searchInput && suggestionsBox) {
+            searchInput.addEventListener('input', function(e) {
+                renderSuggestions(e.target.value);
+            });
+
+            searchInput.addEventListener('focus', function(e) {
+                if (e.target.value.trim().length > 0) {
+                    renderSuggestions(e.target.value);
+                }
+            });
+
+            document.addEventListener('click', function(e) {
+                if (!searchInput.contains(e.target) && !suggestionsBox.contains(e.target)) {
+                    suggestionsBox.style.display = 'none';
+                }
+            });
+        }
+    </script>
 </body>
 </html>

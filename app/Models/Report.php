@@ -15,6 +15,7 @@ class Report extends Model
 
     protected $fillable = [
         'midwife_id',
+        'clinic_type',
         'batch_no',
         'date',
         'vaccine_used',

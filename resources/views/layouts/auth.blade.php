@@ -5,12 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'CareNest - Maternal & Pediatric Care System')</title>
 
-    <!-- Google Fonts -->
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-    <!-- FontAwesome Icons -->
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
@@ -45,7 +45,7 @@
             position: relative;
         }
 
-        /* Top Navbar */
+        
         .auth-header {
             display: flex;
             justify-content: space-between;
@@ -82,7 +82,7 @@
             opacity: 0.8;
         }
 
-        /* Layout Container */
+        
         .auth-container {
             flex: 1;
             display: flex;
@@ -94,7 +94,7 @@
             width: 100%;
         }
 
-        /* Glassmorphism Cards */
+        
         .glass-card {
             background: rgba(255, 255, 255, 0.88);
             backdrop-filter: blur(24px);
@@ -104,7 +104,7 @@
             box-shadow: 0 24px 60px rgba(0, 0, 0, 0.05);
         }
 
-        /* Custom Input Groups */
+        
         .input-label {
             display: block;
             font-size: 11px;
@@ -150,7 +150,7 @@
             pointer-events: none;
         }
 
-        /* Primary Button */
+        
         .btn-emerald {
             width: 100%;
             padding: 16px;
@@ -180,7 +180,7 @@
             transform: translateY(0);
         }
 
-        /* Soft Pink Button */
+        
         .btn-pink {
             width: 100%;
             padding: 16px;
@@ -204,7 +204,7 @@
             transform: translateY(-2px);
         }
 
-        /* Footer */
+        
         .auth-footer {
             display: flex;
             justify-content: space-between;

@@ -17,7 +17,7 @@
         max-width: 1100px;
     }
 
-    /* Left Side Content */
+    
     .hero-title {
         font-family: var(--font-heading);
         font-size: 52px;
@@ -73,7 +73,7 @@
         border: 1px solid rgba(255, 255, 255, 0.8);
     }
 
-    /* Right Side Glass Form */
+    
     .register-card {
         padding: 44px;
         max-width: 480px;
@@ -105,7 +105,7 @@
         margin-bottom: 28px;
     }
 
-    /* Segmented Role Switcher */
+    
     .role-section {
         margin-bottom: 24px;
     }
@@ -172,7 +172,7 @@
 
 @section('content')
 <div class="register-grid">
-    <!-- Left Hero Column -->
+    
     <div>
         <h1 class="hero-title">Start your <span class="highlight">nurturing</span> journey.</h1>
         <p class="hero-subtitle">A safe, ethereal space designed for mothers and healthcare professionals to connect, grow, and provide the best care.</p>
@@ -185,7 +185,7 @@
         </div>
     </div>
 
-    <!-- Right Glassmorphism Form -->
+    
     <div class="glass-card register-card">
         <span class="badge-sub">REGISTRATION</span>
         <h2 class="card-title">Welcome</h2>
@@ -194,7 +194,7 @@
         <form action="{{ route('register') }}" method="POST">
             @csrf
 
-            <!-- Role Selector -->
+            
             <div class="role-section">
                 <label class="input-label">I AM A...</label>
                 <div class="role-switcher">
@@ -205,7 +205,7 @@
                 @error('role') <div class="error-msg">{{ $message }}</div> @enderror
             </div>
 
-            <!-- Full Name -->
+            
             <div class="input-wrapper">
                 <label class="input-label">FULL NAME</label>
                 <input type="text" name="name" class="input-field" placeholder="Enter Your Name" value="{{ old('name') }}" required>
@@ -213,7 +213,7 @@
                 @error('name') <div class="error-msg">{{ $message }}</div> @enderror
             </div>
 
-            <!-- Email Address -->
+            
             <div class="input-wrapper">
                 <label class="input-label">EMAIL ADDRESS</label>
                 <input type="email" name="email" class="input-field" placeholder="Enter a valid email address" value="{{ old('email') }}" required>
@@ -221,7 +221,7 @@
                 @error('email') <div class="error-msg">{{ $message }}</div> @enderror
             </div>
 
-            <!-- Password -->
+            
             <div class="input-wrapper">
                 <label class="input-label">PASSWORD</label>
                 <input type="password" name="password" class="input-field" placeholder="••••••••" required>
@@ -229,12 +229,12 @@
                 @error('password') <div class="error-msg">{{ $message }}</div> @enderror
             </div>
 
-            <!-- Submit Button -->
+            
             <button type="submit" class="btn-emerald">
                 Create Account <i class="fa-solid fa-arrow-right"></i>
             </button>
 
-            <!-- Login Link -->
+            
             <div class="login-redirect">
                 Already have an account? <a href="{{ route('login') }}">Login</a>
             </div>

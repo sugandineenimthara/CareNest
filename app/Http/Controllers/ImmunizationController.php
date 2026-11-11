@@ -13,22 +13,140 @@ use Illuminate\Support\Facades\Auth;
 
 class ImmunizationController extends Controller
 {
-    /**
-     * Display the immunization dashboard with separate tabs for child and mother vaccination.
-     */
+    
+
     public function index(Request $request)
     {
         $this->authorize('viewAny', Immunization::class);
 
         $user = Auth::user();
-        $tab = $request->query('tab', 'children'); // 'children' or 'mothers'
+        $tab = $request->query('tab', 'children'); 
         $search = $request->query('search');
         $areaFilter = $request->query('area_id');
+
+        if ($user->role === 'mother') {
+            if (!$user->mother) {
+                abort(403, 'Your mother profile is not linked or incomplete. Please contact the administrator.');
+            }
+
+            $mother = $user->mother;
+            $mother->load(['immunizations.midwife', 'children.immunizations.midwife', 'pregnancyHistories', 'midwife.area']);
+
+            $motherPastVaccines = $mother->immunizations->sortBy('immunization_date');
+
+            $receivedDosesCount = $mother->immunizations->filter(function ($imm) {
+                return stripos($imm->vaccine_name, 'tetanus') !== false || stripos($imm->vaccine_name, 'tt') !== false;
+            })->count();
+
+            $nextDoseNum = $receivedDosesCount + 1;
+            $motherFutureVaccines = collect();
+
+            if (!$mother->isTetanusSafe() && $nextDoseNum <= 5) {
+                if ($receivedDosesCount === 0) {
+                    $lmp = $mother->pregnancyHistories->last()?->last_menstrual_period;
+                    $mDueDate = $lmp ? Carbon::parse($lmp)->addWeeks(12) : Carbon::parse($mother->created_at)->addWeeks(2);
+                } elseif ($receivedDosesCount === 1) {
+                    $firstDose = $mother->immunizations->sortBy('immunization_date')->first();
+                    $mDueDate = $firstDose ? Carbon::parse($firstDose->immunization_date)->addWeeks(6) : now()->addDays(7);
+                } else {
+                    $lastDose = $mother->immunizations->sortByDesc('immunization_date')->first();
+                    $mDueDate = $lastDose ? Carbon::parse($lastDose->immunization_date)->addMonths(6) : now()->addDays(7);
+                }
+
+                $diffDays = now()->startOfDay()->diffInDays($mDueDate->copy()->startOfDay(), false);
+                $isWeekNotice = $diffDays >= 0 && $diffDays <= 7;
+
+                $motherFutureVaccines->push((object)[
+                    'vaccine_name' => 'Tetanus Toxoid (TT) Dose ' . $nextDoseNum,
+                    'dose' => 'Dose ' . $nextDoseNum,
+                    'target_period' => $nextDoseNum === 1 ? '12 Weeks Gestation' : ($nextDoseNum === 2 ? '20-24 Weeks Gestation' : 'Booster Dose'),
+                    'due_date' => $mDueDate,
+                    'time' => '09:00 AM',
+                    'venue' => 'Ja-Ela District Hospital',
+                    'status' => $mDueDate->isPast() ? 'Due Now' : ($isWeekNotice ? 'Due Within 1 Week' : 'Upcoming'),
+                    'is_upcoming_week' => $isWeekNotice,
+                ]);
+            }
+
+            $standardSchedule = Child::getVaccinationSchedule();
+            $myChildren = $mother->children->map(function ($child) use ($standardSchedule) {
+                $dob = Carbon::parse($child->date_of_birth);
+                $pastVaccines = $child->immunizations->sortBy('immunization_date');
+
+                $futureVaccines = collect();
+                foreach ($standardSchedule as $vac) {
+                    $recorded = $child->immunizations->first(function ($imm) use ($vac) {
+                        $prefix = explode(' ', $vac['vaccine_name'])[0];
+                        return stripos($imm->vaccine_name, $prefix) !== false;
+                    });
+
+                    if (!$recorded) {
+                        $cDueDate = $dob->copy()->addMonths($vac['months_due']);
+                        $diffDays = now()->startOfDay()->diffInDays($cDueDate->copy()->startOfDay(), false);
+                        $isWeekNotice = $diffDays >= 0 && $diffDays <= 7;
+
+                        $futureVaccines->push((object)[
+                            'vaccine_name' => $vac['vaccine_name'],
+                            'dose' => $vac['dose'],
+                            'target_period' => $vac['target_period'],
+                            'description' => $vac['description'],
+                            'due_date' => $cDueDate,
+                            'time' => '09:00 AM',
+                            'venue' => 'Ja-Ela District Hospital',
+                            'status' => $cDueDate->isPast() ? 'Overdue / Due' : ($isWeekNotice ? 'Due Within 1 Week' : 'Upcoming'),
+                            'is_upcoming_week' => $isWeekNotice,
+                        ]);
+                    }
+                }
+
+                $child->past_vaccines = $pastVaccines;
+                $child->future_vaccines = $futureVaccines;
+                return $child;
+            });
+
+            $upcomingNotifications = collect();
+
+            foreach ($motherFutureVaccines as $mf) {
+                if ($mf->is_upcoming_week) {
+                    $upcomingNotifications->push((object)[
+                        'recipient' => $mother->mother_name . ' (Mother)',
+                        'vaccine_name' => $mf->vaccine_name,
+                        'due_date' => $mf->due_date,
+                        'time' => $mf->time,
+                        'venue' => $mf->venue,
+                        'message' => "Upcoming Immunization for {$mother->mother_name}: {$mf->vaccine_name} scheduled on " . $mf->due_date->format('d M Y') . " at {$mf->time} at {$mf->venue}.",
+                    ]);
+                }
+            }
+
+            foreach ($myChildren as $ch) {
+                foreach ($ch->future_vaccines as $cf) {
+                    if ($cf->is_upcoming_week) {
+                        $upcomingNotifications->push((object)[
+                            'recipient' => $ch->display_name . ' (Child)',
+                            'vaccine_name' => $cf->vaccine_name,
+                            'due_date' => $cf->due_date,
+                            'time' => $cf->time,
+                            'venue' => $cf->venue,
+                            'message' => "Upcoming Immunization for {$ch->display_name}: {$cf->vaccine_name} scheduled on " . $cf->due_date->format('d M Y') . " at {$cf->time} at {$cf->venue}.",
+                        ]);
+                    }
+                }
+            }
+
+            return view('immunizations.index', compact(
+                'user',
+                'mother',
+                'motherPastVaccines',
+                'motherFutureVaccines',
+                'myChildren',
+                'upcomingNotifications'
+            ));
+        }
 
         $allAreas = Area::all();
         $midwives = Midwife::with('area')->get();
 
-        // 1. CHILDREN VACCINATION DATA
         $childrenQuery = Child::with(['mother', 'midwife.area', 'area', 'immunizations']);
 
         if ($areaFilter) {
@@ -38,10 +156,7 @@ class ImmunizationController extends Controller
             });
         }
 
-        if ($user->role === 'mother') {
-            if (!$user->mother) abort(403, 'Your mother profile is not linked or incomplete. Please contact the administrator.');
-            $childrenQuery->where('mother_id', $user->mother->mother_id);
-        } elseif ($user->role === 'midwife' && $user->midwife) {
+        if ($user->role === 'midwife' && $user->midwife) {
             $childrenQuery->where(function($q) use ($user) {
                 $q->where('midwife_id', $user->midwife->midwife_id)
                   ->orWhereHas('mother', fn ($mq) => $mq->where('midwife_id', $user->midwife->midwife_id));
@@ -58,10 +173,10 @@ class ImmunizationController extends Controller
 
         $children = $childrenQuery->orderBy('date_of_birth', 'desc')->get();
 
-        // Standard Schedule definition
+        
         $standardSchedule = Child::getVaccinationSchedule();
 
-        // Compute vaccination status summary for each child
+        
         $childrenWithSchedule = $children->map(function ($child) use ($standardSchedule) {
             $dob = Carbon::parse($child->date_of_birth);
             $completedCount = 0;
@@ -108,24 +223,21 @@ class ImmunizationController extends Controller
             return $child;
         });
 
-        // Recent child immunizations list
+        
         $recentChildImmunizations = Immunization::with(['child.mother', 'midwife'])
             ->whereNotNull('child_id')
             ->orderBy('immunization_date', 'desc')
             ->limit(20)
             ->get();
 
-        // 2. MOTHER VACCINATION DATA (TETANUS)
+        
         $mothersQuery = Mother::with(['midwife.area', 'previousPregnancyHistories', 'immunizations']);
 
         if ($areaFilter) {
             $mothersQuery->whereHas('midwife', fn ($mq) => $mq->where('area_id', $areaFilter));
         }
 
-        if ($user->role === 'mother') {
-            if (!$user->mother) abort(403, 'Your mother profile is not linked or incomplete. Please contact the administrator.');
-            $mothersQuery->where('mother_id', $user->mother->mother_id);
-        } elseif ($user->role === 'midwife' && $user->midwife) {
+        if ($user->role === 'midwife' && $user->midwife) {
             $mothersQuery->where('midwife_id', $user->midwife->midwife_id);
         }
 
@@ -141,7 +253,7 @@ class ImmunizationController extends Controller
             $pregNo = $mother->pregnancy_number;
             $isSafe = $pregNo > 4;
 
-            // Check if Tetanus / TT vaccine is recorded for this mother
+            
             $tetanusRecord = $mother->immunizations->first(function ($imm) {
                 return stripos($imm->vaccine_name, 'tetanus') !== false || stripos($imm->vaccine_name, 'tt') !== false;
             });
@@ -164,14 +276,14 @@ class ImmunizationController extends Controller
             return $mother;
         });
 
-        // Recent mother immunizations list
+        
         $recentMotherImmunizations = Immunization::with(['mother.midwife', 'midwife'])
             ->whereNotNull('mother_id')
             ->orderBy('immunization_date', 'desc')
             ->limit(20)
             ->get();
 
-        // Summary counts
+        
         $totalChildVaccinesGiven = Immunization::whereNotNull('child_id')->count();
         $totalMotherVaccinesGiven = Immunization::whereNotNull('mother_id')->count();
         $mothersSafeCount = $allMothers->where('is_tetanus_safe', true)->count();
@@ -196,9 +308,8 @@ class ImmunizationController extends Controller
         ));
     }
 
-    /**
-     * Store a child immunization dose with batch number and date vaccinated.
-     */
+    
+
     public function storeChildVaccine(Request $request)
     {
         $this->authorize('create', Immunization::class);
@@ -231,7 +342,7 @@ class ImmunizationController extends Controller
             'remarks'           => $validated['remarks'] ?? null,
         ]);
 
-        // If BCG, update child flag
+        
         if (stripos($validated['vaccine_name'], 'bcg') !== false) {
             $child->update([
                 'bcg_vaccinated_at_birth' => true,
@@ -243,9 +354,8 @@ class ImmunizationController extends Controller
         return redirect()->back()->with('success', 'Vaccine ' . $validated['vaccine_name'] . ' (Batch #' . $validated['batch_no'] . ') recorded successfully for ' . $child->display_name . '!');
     }
 
-    /**
-     * Store a mother Tetanus immunization with batch number and date vaccinated.
-     */
+    
+
     public function storeMotherVaccine(Request $request)
     {
         $this->authorize('create', Immunization::class);

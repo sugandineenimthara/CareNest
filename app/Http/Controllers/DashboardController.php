@@ -35,7 +35,7 @@ class DashboardController extends Controller
             $patientCount = Mother::whereIn('midwife_id', $midwifeIds)->count() + Child::whereIn('midwife_id', $midwifeIds)->count();
             
             $area->patient_count = $patientCount > 0 ? $patientCount : '-';
-            $area->staff_on_duty = $area->midwives_count > 0 ? $area->midwives_count : '-';
+            $area->staff_on_duty = max(1, (int) $area->midwives_count);
             $area->active_alerts = '-';
             return $area;
         });
@@ -46,7 +46,7 @@ class DashboardController extends Controller
             if ($user->mother) {
                 $attendancesQuery->where('mother_id', $user->mother->mother_id);
             } else {
-                // If no mother profile, return empty
+                
                 $attendancesQuery->where('mother_id', -1);
             }
         } elseif ($user->role === 'midwife' && $user->midwife) {
@@ -55,28 +55,20 @@ class DashboardController extends Controller
         
         $recentAttendances = $attendancesQuery->latest()->take(5)->get();
 
-        // Get mothers with high blood pressure from family health history
-        $highBPMothers = \App\Models\FamilyHealthHistory::with(['mother.user', 'mother.midwife.area'])
-            ->whereNotNull('high_blood_pressure')
-            ->where('high_blood_pressure', '!=', 'no')
-            ->where('high_blood_pressure', '!=', 'No')
-            ->where('high_blood_pressure', '!=', 'false')
-            ->where('high_blood_pressure', '!=', '0')
-            ->where('high_blood_pressure', '!=', '')
-            ->latest()
-            ->take(5)
-            ->get();
+        $role = $user->role;
+        $prefix = ($role === 'midwife') ? 'midwife.' : ($role === 'mother' ? 'mother.' : 'admin.');
 
         return view('dashboard', compact(
             'user',
+            'role',
+            'prefix',
             'registeredMothersCount',
             'childrenEnrolledCount',
             'highRiskCount',
             'immunizationsDueCount',
             'triposhaPacketsCount',
             'clinicAreas',
-            'recentAttendances',
-            'highBPMothers'
+            'recentAttendances'
         ));
     }
 }

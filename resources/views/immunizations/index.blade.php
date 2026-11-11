@@ -34,7 +34,7 @@
             display: flex;
         }
 
-        /* Sidebar */
+        
         .sidebar {
             width: var(--sidebar-width);
             background: rgba(255,255,255,0.95);
@@ -68,7 +68,7 @@
         }
         .logout-btn:hover { color: #ef4444; }
 
-        /* Main */
+        
         .main-wrapper { margin-left: var(--sidebar-width); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
         .top-header {
             display: flex; justify-content: space-between; align-items: center;
@@ -93,7 +93,7 @@
             display: flex; align-items: center; gap: 10px;
         }
 
-        /* Top Bar & Big Tabs Switcher (SEPARATED AS REQUIRED) */
+        
         .tab-switcher-card {
             background: white; border: 1px solid #e2e8f0; border-radius: 20px;
             padding: 6px; display: inline-flex; gap: 6px; box-shadow: 0 4px 15px rgba(0,0,0,0.03);
@@ -112,7 +112,7 @@
             background: #f1f5f9; color: var(--text-dark);
         }
 
-        /* Header Row */
+        
         .section-header-row {
             display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;
         }
@@ -128,7 +128,7 @@
         }
         .btn-record-main:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(0,200,83,0.4); }
 
-        /* Stats Grid */
+        
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
         .stat-card {
             background: rgba(255,255,255,0.85); backdrop-filter: blur(12px);
@@ -143,7 +143,7 @@
         .stat-val { font-family: var(--font-heading); font-size: 24px; font-weight: 800; color: #1b4d3e; }
         .stat-lbl { font-size: 12px; font-weight: 600; color: var(--text-muted); }
 
-        /* Protocol Alert Box for Mothers */
+        
         .protocol-card {
             background: linear-gradient(135deg, #f0fdf4 0%, #e0f2fe 100%);
             border: 1.5px solid #a7f3d0; border-radius: 20px;
@@ -157,7 +157,7 @@
         .protocol-title { font-family: var(--font-heading); font-size: 16px; font-weight: 800; color: #064e3b; }
         .protocol-text { font-size: 13px; color: #334155; line-height: 1.6; margin-top: 4px; }
 
-        /* Table Card */
+        
         .table-card {
             background: rgba(255,255,255,0.9); backdrop-filter: blur(16px);
             border: 1px solid rgba(226,232,240,0.9); border-radius: 24px;
@@ -178,7 +178,7 @@
         }
         .custom-table tr:hover td { background: #f8fafc; }
 
-        /* Badges */
+        
         .badge {
             display: inline-flex; align-items: center; gap: 6px; font-size: 12px;
             font-weight: 700; padding: 4px 12px; border-radius: 20px;
@@ -187,7 +187,7 @@
         .badge-vaccinated { background: #e0f2fe; color: #0369a1; border: 1px solid #7dd3fc; }
         .badge-due { background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; }
 
-        /* Child Vaccine Schedule Chips */
+        
         .schedule-flow { display: flex; gap: 8px; flex-wrap: wrap; }
         .flow-chip {
             padding: 4px 8px; border-radius: 8px; font-size: 11px; font-weight: 700;
@@ -203,7 +203,7 @@
         }
         .btn-log-small:hover { background: #009624; }
 
-        /* Modal */
+        
         .modal-overlay {
             display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(15,23,42,0.6); backdrop-filter: blur(4px);
@@ -233,38 +233,17 @@
     </style>
 </head>
 <body>
-    <!-- Sidebar -->
-    <aside class="sidebar">
-        <a href="{{ route('dashboard') }}" class="sidebar-brand">
-            <i class="fa-solid fa-leaf" style="color:#00c853;"></i>
-            <span>CareNest</span>
-        </a>
-        <ul class="sidebar-menu">
-            <li class="nav-item"><a href="{{ route('dashboard') }}"><i class="fa-solid fa-table-cells-large"></i><span>Dashboard</span></a></li>
-            @if(Auth::check() && (Auth::user()->role === 'provider' || Auth::user()->role === 'admin'))
-            <li class="nav-item"><a href="{{ route('admin.midwife-requests') }}"><i class="fa-solid fa-user-check"></i><span>Midwife Requests</span></a></li>
-            <li class="nav-item"><a href="{{ route('admin.midwives.index') }}"><i class="fa-solid fa-user-nurse"></i><span>Manage Midwives</span></a></li>
-            @endif
-            <li class="nav-item"><a href="{{ route('admin.mothers.index') }}"><i class="fa-solid fa-user-nurse"></i><span>Mothers</span></a></li>
-            <li class="nav-item"><a href="{{ route('admin.children.index') }}"><i class="fa-solid fa-baby"></i><span>Children</span></a></li>
-            <li class="nav-item active"><a href="{{ route('admin.immunizations.index') }}"><i class="fa-solid fa-syringe"></i><span>Immunizations</span></a></li>
-            <li class="nav-item"><a href="{{ route('admin.alerts.index') }}"><i class="fa-solid fa-triangle-exclamation"></i><span>High-Risk Alerts</span></a></li>
+    @php
+        $role = auth()->user()->role ?? 'admin';
+        $prefix = $role === 'midwife' ? 'midwife.' : ($role === 'mother' ? 'mother.' : 'admin.');
+    @endphp
+    
+    @include('partials.sidebar')
 
-            <li class="nav-item"><a href="{{ route('admin.triposha.index') }}"><i class="fa-solid fa-book-medical"></i><span>Triposha Book</span></a></li>
-            <li class="nav-item"><a href="{{ route('admin.attendances.index') }}"><i class="fa-solid fa-calendar-check"></i><span>Clinic Attendances</span></a></li>
-            <li class="nav-item"><a href="#reports"><i class="fa-solid fa-file-invoice"></i><span>Vaccine Reports</span></a></li>
-        </ul>
-    </aside>
-
-    <!-- Main Content -->
+    
     <div class="main-wrapper">
         <header class="top-header">
-            <div class="header-left">Immunization Management</div>
-            <form method="GET" action="{{ route('admin.immunizations.index') }}" class="search-box">
-                <input type="hidden" name="tab" value="{{ $tab }}">
-                <i class="fa-solid fa-magnifying-glass search-icon"></i>
-                <input type="text" name="search" class="search-input" placeholder="{{ $tab === 'mothers' ? 'Search mother name, ID...' : 'Search child or mother...' }}" value="{{ $search }}">
-            </form>
+            <div class="header-left">{{ $role === 'mother' ? 'My Immunizations' : 'Immunization Management' }}</div>
             <div class="header-right">
                 @include('partials.top-header-user')
             </div>
@@ -278,32 +257,342 @@
                 </div>
             @endif
 
-            <!-- SEPARATED TABS FOR MOTHER AND CHILD VACCINATION (REQUIRED) -->
+            @if($role === 'mother')
+                @if($upcomingNotifications->isNotEmpty())
+                    <div style="background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); border: 1.5px solid #fde68a; border-radius: 20px; padding: 22px 26px; margin-bottom: 24px; box-shadow: 0 4px 18px rgba(217, 119, 6, 0.08);">
+                        <div style="display:flex; align-items:flex-start; gap:16px;">
+                            <div style="width:44px; height:44px; border-radius:12px; background:#d97706; color:white; display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0;">
+                                <i class="fa-solid fa-bell"></i>
+                            </div>
+                            <div style="flex:1;">
+                                <div style="font-family:var(--font-heading); font-size:17px; font-weight:800; color:#92400e; margin-bottom:6px;">
+                                    Upcoming Immunization Notice (Within 1 Week)
+                                </div>
+                                <div style="display:flex; flex-direction:column; gap:8px;">
+                                    @foreach($upcomingNotifications as $n)
+                                        <div style="font-size:14px; color:#78350f; background:rgba(255,255,255,0.7); padding:10px 14px; border-radius:12px; border:1px solid #fde68a;">
+                                            <i class="fa-solid fa-syringe" style="color:#d97706; margin-right:6px;"></i>
+                                            <strong>{{ $n->recipient }}:</strong> {{ $n->vaccine_name }} on <strong>{{ $n->due_date->format('d M Y') }}</strong> at <strong>{{ $n->time }}</strong>.
+                                            Venue: <span style="background:#fef3c7; color:#92400e; font-weight:800; padding:2px 8px; border-radius:6px; border:1px solid #f59e0b;">{{ $n->venue }}</span>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+
+                <div class="table-card" style="margin-bottom:28px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+                        <div>
+                            <h2 style="font-family:var(--font-heading); font-size:22px; font-weight:800; color:#1e293b; display:flex; align-items:center; gap:10px;">
+                                <i class="fa-solid fa-person-breastfeeding" style="color:#00c853;"></i>
+                                <span>My Maternal Immunization Records</span>
+                            </h2>
+                            <p style="font-size:13px; color:#64748b; margin-top:4px;">
+                                Details of maternal vaccines received and upcoming vaccination dates
+                            </p>
+                        </div>
+                        <div>
+                            @if($mother->isTetanusSafe())
+                                <span class="badge badge-safe">
+                                    <i class="fa-solid fa-shield-check"></i> Safe from Tetanus (&gt;4th Pregnancy)
+                                </span>
+                            @else
+                                <span class="badge badge-vaccinated">
+                                    <i class="fa-solid fa-circle-check"></i> Maternal Tetanus Toxoid Protocol
+                                </span>
+                            @endif
+                        </div>
+                    </div>
+
+                    <div style="margin-top:16px;">
+                        <h3 style="font-family:var(--font-heading); font-size:15px; font-weight:700; color:#0f172a; margin-bottom:10px; display:flex; align-items:center; gap:8px;">
+                            <i class="fa-solid fa-circle-check" style="color:#16a34a;"></i>
+                            <span>Vaccines Received</span>
+                        </h3>
+                        @if($motherPastVaccines->count() > 0)
+                            <div style="overflow-x:auto;">
+                                <table class="custom-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Vaccine Name</th>
+                                            <th>Dose Milestone</th>
+                                            <th>Batch Number</th>
+                                            <th>Date Received</th>
+                                            <th>Administered By</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($motherPastVaccines as $imm)
+                                            <tr>
+                                                <td style="font-weight:700; color:#1e293b;">{{ $imm->vaccine_name }}</td>
+                                                <td>{{ $imm->dose ?? 'Standard Dose' }}</td>
+                                                <td><code style="background:#f1f5f9; padding:2px 8px; border-radius:6px; font-weight:700;">{{ $imm->batch_no }}</code></td>
+                                                <td>{{ $imm->immunization_date ? $imm->immunization_date->format('d M Y') : '—' }}</td>
+                                                <td>{{ $imm->midwife->midwife_name ?? 'Clinic Midwife' }}</td>
+                                                <td>
+                                                    <span class="badge badge-safe">
+                                                        <i class="fa-solid fa-check"></i> Received
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        @else
+                            <div style="padding:16px 20px; background:#f8fafc; border-radius:12px; color:#64748b; font-size:13px;">
+                                No maternal vaccination history recorded yet.
+                            </div>
+                        @endif
+                    </div>
+
+                    <div style="margin-top:24px;">
+                        <h3 style="font-family:var(--font-heading); font-size:15px; font-weight:700; color:#0f172a; margin-bottom:10px; display:flex; align-items:center; gap:8px;">
+                            <i class="fa-solid fa-calendar-check" style="color:#0284c7;"></i>
+                            <span>Future Scheduled Vaccines</span>
+                        </h3>
+                        @if($motherFutureVaccines->count() > 0)
+                            <div style="overflow-x:auto;">
+                                <table class="custom-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Vaccine Name</th>
+                                            <th>Dose Milestone</th>
+                                            <th>Scheduled Date</th>
+                                            <th>Time</th>
+                                            <th>Venue</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($motherFutureVaccines as $mf)
+                                            <tr>
+                                                <td style="font-weight:700; color:#1e293b;">{{ $mf->vaccine_name }}</td>
+                                                <td>{{ $mf->target_period }}</td>
+                                                <td style="font-weight:700; color:#1b4d3e;">{{ $mf->due_date->format('d M Y') }}</td>
+                                                <td>{{ $mf->time }}</td>
+                                                <td>
+                                                    <span style="background:#e0f2fe; color:#0369a1; padding:3px 10px; border-radius:8px; font-weight:700; font-size:12px;">
+                                                        <i class="fa-solid fa-hospital" style="margin-right:4px;"></i> {{ $mf->venue }}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    @if($mf->is_upcoming_week)
+                                                        <span class="badge badge-due">
+                                                            <i class="fa-solid fa-bell"></i> Due Within 1 Week
+                                                        </span>
+                                                    @else
+                                                        <span class="badge badge-vaccinated">
+                                                            <i class="fa-solid fa-clock"></i> {{ $mf->status }}
+                                                        </span>
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        @else
+                            <div style="padding:16px 20px; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:12px; color:#166534; font-size:13px; display:flex; align-items:center; gap:8px;">
+                                <i class="fa-solid fa-circle-check"></i>
+                                All scheduled maternal vaccinations are up to date or protected by previous doses.
+                            </div>
+                        @endif
+                    </div>
+                </div>
+
+                <div class="section-header-row" style="margin-bottom:16px;">
+                    <div>
+                        <h2 style="font-family:var(--font-heading); font-size:24px; font-weight:800; color:#1e293b; display:flex; align-items:center; gap:10px;">
+                            <i class="fa-solid fa-baby" style="color:#0284c7;"></i>
+                            <span>My Children's Immunization Details</span>
+                        </h2>
+                        <p style="font-size:13px; color:#64748b; margin-top:2px;">
+                            Separately tracking vaccines received and future scheduled dates for your children
+                        </p>
+                    </div>
+                </div>
+
+                @if($myChildren->count() > 0)
+                    @foreach($myChildren as $child)
+                        <div class="table-card" style="margin-bottom:24px;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; padding-bottom:16px; border-bottom:1.5px solid #f1f5f9;">
+                                <div style="display:flex; align-items:center; gap:14px;">
+                                    <div class="child-gender-avatar {{ $child->gender === 'Female' ? 'gender-female' : 'gender-male' }}" style="width:44px; height:44px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:18px;">
+                                        <i class="fa-solid {{ $child->gender === 'Female' ? 'fa-venus' : 'fa-mars' }}"></i>
+                                    </div>
+                                    <div>
+                                        <h3 style="font-family:var(--font-heading); font-size:18px; font-weight:800; color:#0f172a;">
+                                            {{ $child->display_name }}
+                                        </h3>
+                                        <div style="font-size:12px; color:#64748b; margin-top:2px;">
+                                            Child ID: <strong>#{{ $child->child_id }}</strong> • DOB: {{ \Carbon\Carbon::parse($child->date_of_birth)->format('d M Y') }} • Age: {{ $child->age ?? 'N/A' }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    @if($child->bcg_vaccinated_at_birth)
+                                        <span class="bcg-pill bcg-done"><i class="fa-solid fa-check"></i> BCG Vaccinated</span>
+                                    @else
+                                        <span class="bcg-pill bcg-pending"><i class="fa-solid fa-clock"></i> BCG Pending</span>
+                                    @endif
+                                </div>
+                            </div>
+
+                            <div style="margin-top:16px;">
+                                <h4 style="font-family:var(--font-heading); font-size:14px; font-weight:700; color:#1e293b; margin-bottom:10px; display:flex; align-items:center; gap:8px;">
+                                    <i class="fa-solid fa-circle-check" style="color:#16a34a;"></i>
+                                    <span>Vaccines Received (Past)</span>
+                                </h4>
+                                @if($child->past_vaccines->count() > 0)
+                                    <div style="overflow-x:auto;">
+                                        <table class="custom-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Vaccine Name</th>
+                                                    <th>Dose</th>
+                                                    <th>Batch Number</th>
+                                                    <th>Date Administered</th>
+                                                    <th>Status</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach($child->past_vaccines as $cim)
+                                                    <tr>
+                                                        <td style="font-weight:700; color:#1e293b;">{{ $cim->vaccine_name }}</td>
+                                                        <td>{{ $cim->dose ?? 'Standard Dose' }}</td>
+                                                        <td><code style="background:#f1f5f9; padding:2px 8px; border-radius:6px; font-weight:700;">{{ $cim->batch_no }}</code></td>
+                                                        <td>{{ $cim->immunization_date ? $cim->immunization_date->format('d M Y') : '—' }}</td>
+                                                        <td>
+                                                            <span class="badge badge-safe">
+                                                                <i class="fa-solid fa-check"></i> Completed
+                                                            </span>
+                                                        </td>
+                                                    </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                @else
+                                    <div style="padding:14px 18px; background:#f8fafc; border-radius:12px; color:#64748b; font-size:13px;">
+                                        No past childhood vaccines recorded yet.
+                                    </div>
+                                @endif
+                            </div>
+
+                            <div style="margin-top:24px;">
+                                <h4 style="font-family:var(--font-heading); font-size:14px; font-weight:700; color:#1e293b; margin-bottom:10px; display:flex; align-items:center; gap:8px;">
+                                    <i class="fa-solid fa-calendar-check" style="color:#0284c7;"></i>
+                                    <span>Future Scheduled Vaccines</span>
+                                </h4>
+                                @if($child->future_vaccines->count() > 0)
+                                    <div style="overflow-x:auto;">
+                                        <table class="custom-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Vaccine Name</th>
+                                                    <th>Target Age / Period</th>
+                                                    <th>Scheduled Date</th>
+                                                    <th>Time</th>
+                                                    <th>Venue</th>
+                                                    <th>Status</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach($child->future_vaccines as $cf)
+                                                    <tr>
+                                                        <td style="font-weight:700; color:#1e293b;">
+                                                            {{ $cf->vaccine_name }}
+                                                            <div style="font-size:11px; color:#94a3b8; font-weight:normal;">{{ $cf->description }}</div>
+                                                        </td>
+                                                        <td>{{ $cf->target_period }}</td>
+                                                        <td style="font-weight:700; color:#1b4d3e;">{{ $cf->due_date->format('d M Y') }}</td>
+                                                        <td>{{ $cf->time }}</td>
+                                                        <td>
+                                                            <span style="background:#e0f2fe; color:#0369a1; padding:3px 10px; border-radius:8px; font-weight:700; font-size:12px;">
+                                                                <i class="fa-solid fa-hospital" style="margin-right:4px;"></i> {{ $cf->venue }}
+                                                            </span>
+                                                        </td>
+                                                        <td>
+                                                            @if($cf->is_upcoming_week)
+                                                                <span class="badge badge-due">
+                                                                    <i class="fa-solid fa-bell"></i> Due Within 1 Week
+                                                                </span>
+                                                            @else
+                                                                <span class="badge badge-vaccinated">
+                                                                    <i class="fa-solid fa-clock"></i> {{ $cf->status }}
+                                                                </span>
+                                                            @endif
+                                                        </td>
+                                                    </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                @else
+                                    <div style="padding:14px 18px; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:12px; color:#166534; font-size:13px; display:flex; align-items:center; gap:8px;">
+                                        <i class="fa-solid fa-circle-check"></i>
+                                        All childhood vaccinations completed according to the National Immunization Schedule.
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    @endforeach
+                @else
+                    <div style="background:white; border-radius:24px; padding:40px 24px; text-align:center; border:1px solid #e2e8f0;">
+                        <i class="fa-solid fa-baby-carriage" style="font-size:36px; color:#cbd5e1; display:block; margin-bottom:12px;"></i>
+                        <h4 style="font-family:var(--font-heading); font-size:16px; font-weight:800; color:#1e293b; margin-bottom:4px;">No Children Registered Under Profile</h4>
+                        <p style="color:#64748b; font-size:13px;">Your child's vaccination records will automatically appear here once registered by your midwife.</p>
+                    </div>
+                @endif
+            @else
             <div class="tab-switcher-card">
-                <a href="{{ route('admin.immunizations.index', ['tab' => 'children']) }}" class="tab-btn {{ $tab === 'children' ? 'active' : '' }}">
+                <a href="{{ route($prefix . 'immunizations.index', ['tab' => 'children']) }}" class="tab-btn {{ $tab === 'children' ? 'active' : '' }}">
                     <i class="fa-solid fa-baby"></i>
                     <span>Children Immunization</span>
                 </a>
-                <a href="{{ route('admin.immunizations.index', ['tab' => 'mothers']) }}" class="tab-btn {{ $tab === 'mothers' ? 'active' : '' }}">
+                <a href="{{ route($prefix . 'immunizations.index', ['tab' => 'mothers']) }}" class="tab-btn {{ $tab === 'mothers' ? 'active' : '' }}">
                     <i class="fa-solid fa-person-breastfeeding"></i>
                     <span>Mother Vaccination (Tetanus)</span>
                 </a>
             </div>
 
-            <!-- TAB 1: CHILDREN VACCINATION -->
+            
             @if($tab === 'children')
                 <div class="section-header-row">
                     <div>
                         <h1 class="section-title">Children Immunization Registry</h1>
-                        <p class="section-sub">Standard National Schedule: BCG, Penta, Polio, FITV, MMR, JE, DPT, DT</p>
                     </div>
+                    @if(in_array($role, ['admin', 'provider', 'midwife']))
                     <button type="button" class="btn-record-main" onclick="openChildModal('', '')">
                         <i class="fa-solid fa-plus"></i>
                         <span>Record Child Vaccine</span>
                     </button>
+                    @endif
                 </div>
 
-                <!-- Stats -->
+                
+                @php
+                    $selectedArea = request('area_id');
+                @endphp
+                <div class="area-pills" style="display:flex; flex-wrap:wrap; gap:8px; align-items:center;">
+                    <span style="font-size:13px; font-weight:700; color:#64748b;"><i class="fa-solid fa-filter"></i> Filter by Area:</span>
+                    <a href="{{ route($prefix . 'immunizations.index', ['tab' => 'children']) }}" 
+                       style="padding:6px 16px; border-radius:20px; font-size:13px; font-weight:700; text-decoration:none; border:1.5px solid {{ empty($selectedArea) ? '#00c853' : '#e2e8f0' }}; background:{{ empty($selectedArea) ? '#00c853' : 'white' }}; color:{{ empty($selectedArea) ? 'white' : '#64748b' }};">
+                        All Areas
+                    </a>
+                    @foreach($allAreas as $a)
+                        <a href="{{ route($prefix . 'immunizations.index', ['tab' => 'children', 'area_id' => $a->area_id]) }}"
+                           style="padding:6px 16px; border-radius:20px; font-size:13px; font-weight:700; text-decoration:none; border:1.5px solid {{ $selectedArea == $a->area_id ? '#00c853' : '#e2e8f0' }}; background:{{ $selectedArea == $a->area_id ? '#00c853' : 'white' }}; color:{{ $selectedArea == $a->area_id ? 'white' : '#64748b' }};">
+                            {{ $a->area_name }}
+                        </a>
+                    @endforeach
+                </div>
+
+                
                 <div class="stats-grid">
                     <div class="stat-card">
                         <div class="stat-icon" style="background:#e0f2fe; color:#0284c7;"><i class="fa-solid fa-syringe"></i></div>
@@ -326,16 +615,9 @@
                             <div class="stat-lbl">Overdue Milestones</div>
                         </div>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-icon" style="background:#fef3c7; color:#d97706;"><i class="fa-solid fa-clock"></i></div>
-                        <div>
-                            <div class="stat-val">{{ $childrenWithSchedule->sum('due_now_vaccines') }}</div>
-                            <div class="stat-lbl">Due for Vaccination Now</div>
-                        </div>
-                    </div>
                 </div>
 
-                <!-- Schedule Table -->
+                
                 <div class="table-card">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
                         <h2 style="font-family:var(--font-heading); font-size:18px; font-weight:800; color:#1e293b;">
@@ -361,7 +643,7 @@
                                     <tr>
                                         <td>
                                             <div style="font-weight:800; color:#1e293b;">
-                                                <a href="{{ route('admin.children.show', $c->child_id) }}" style="color:#1b4d3e; text-decoration:none;">
+                                                <a href="{{ route($prefix . 'children.show', $c->child_id) }}" style="color:#1b4d3e; text-decoration:none;">
                                                     {{ $c->display_name }}
                                                 </a>
                                             </div>
@@ -372,7 +654,7 @@
                                         <td>
                                             @if($c->mother)
                                                 <div style="font-weight:700; color:#14532d;">
-                                                    <a href="{{ route('admin.mothers.show', $c->mother_id) }}" style="color:#059669; text-decoration:none;">
+                                                    <a href="{{ route($prefix . 'mothers.show', $c->mother_id) }}" style="color:#059669; text-decoration:none;">
                                                         <i class="fa-solid fa-person-breastfeeding"></i> {{ $c->mother->mother_name }}
                                                     </a>
                                                 </div>
@@ -411,7 +693,7 @@
                                                 <button type="button" class="btn-log-small" onclick="openChildModal('{{ $c->child_id }}', '')">
                                                     <i class="fa-solid fa-syringe"></i> Log Dose
                                                 </button>
-                                                <a href="{{ route('admin.children.show', $c->child_id) }}" style="padding:6px 10px; background:#f1f5f9; border-radius:10px; color:#475569; text-decoration:none; font-size:12px; font-weight:700;">
+                                                <a href="{{ route($prefix . 'children.show', $c->child_id) }}" style="padding:6px 10px; background:#f1f5f9; border-radius:10px; color:#475569; text-decoration:none; font-size:12px; font-weight:700;">
                                                     Schedule
                                                 </a>
                                             </div>
@@ -429,59 +711,7 @@
                     </div>
                 </div>
 
-                <!-- Recent Logs Table -->
-                <div class="table-card">
-                    <h3 style="font-family:var(--font-heading); font-size:17px; font-weight:800; color:#1e293b;">
-                        <i class="fa-solid fa-clock-rotate-left" style="color:#00c853;"></i> Recently Administered Child Vaccines
-                    </h3>
-                    <div style="overflow-x:auto;">
-                        <table class="custom-table">
-                            <thead>
-                                <tr>
-                                    <th>Date Vaccinated</th>
-                                    <th>Child Name</th>
-                                    <th>Vaccine</th>
-                                    <th>Batch Number *</th>
-                                    <th>Administered By</th>
-                                    <th>Mother</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse($recentChildImmunizations as $ri)
-                                    <tr>
-                                        <td style="font-weight:700;">
-                                            {{ \Carbon\Carbon::parse($ri->immunization_date)->format('M d, Y') }}
-                                        </td>
-                                        <td>
-                                            <a href="{{ route('admin.children.show', $ri->child_id) }}" style="font-weight:700; color:#1b4d3e; text-decoration:none;">
-                                                {{ $ri->child ? $ri->child->display_name : ('Child #' . $ri->child_id) }}
-                                            </a>
-                                        </td>
-                                        <td>
-                                            <span style="font-weight:800; color:#0369a1;">{{ $ri->vaccine_name }}</span>
-                                            @if($ri->dose) <span style="font-size:11px; color:#64748b;">({{ $ri->dose }})</span> @endif
-                                        </td>
-                                        <td>
-                                            <span style="font-family:monospace; font-weight:700; background:#f1f5f9; padding:2px 8px; border-radius:6px;">
-                                                {{ $ri->batch_no }}
-                                            </span>
-                                        </td>
-                                        <td>{{ $ri->midwife ? $ri->midwife->midwife_name : 'Clinic Midwife' }}</td>
-                                        <td>{{ $ri->child?->mother ? $ri->child->mother->mother_name : 'N/A' }}</td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="6" style="text-align:center; padding:20px; color:#94a3b8;">
-                                            No vaccine records yet. Use "Record Child Vaccine" to log doses.
-                                        </td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-            <!-- TAB 2: MOTHER VACCINATION (TETANUS) -->
+            
             @elseif($tab === 'mothers')
                 <div class="section-header-row">
                     <div>
@@ -494,19 +724,25 @@
                     </button>
                 </div>
 
-                <!-- SRI LANKA MOH TETANUS PROTOCOL ALERT (REQUIRED POLICY) -->
-                <div class="protocol-card">
-                    <div class="protocol-icon"><i class="fa-solid fa-shield-heart"></i></div>
-                    <div>
-                        <div class="protocol-title">Maternal Tetanus Vaccination Guidelines</div>
-                        <div class="protocol-text">
-                            Pregnant mothers are vaccinated against <strong>Tetanus Toxoid (TT)</strong> during their <strong>1st, 2nd, 3rd, and 4th pregnancies</strong> to prevent maternal and neonatal tetanus. 
-                            <strong>After the 4th pregnancy</strong> (5th pregnancy onwards), the mother has acquired full lifelong immunity and is <strong>Safe from Tetanus</strong>.
-                        </div>
-                    </div>
+                
+                @php
+                    $selectedArea = request('area_id');
+                @endphp
+                <div class="area-pills" style="display:flex; flex-wrap:wrap; gap:8px; align-items:center;">
+                    <span style="font-size:13px; font-weight:700; color:#64748b;"><i class="fa-solid fa-filter"></i> Filter by Area:</span>
+                    <a href="{{ route($prefix . 'immunizations.index', ['tab' => 'mothers']) }}" 
+                       style="padding:6px 16px; border-radius:20px; font-size:13px; font-weight:700; text-decoration:none; border:1.5px solid {{ empty($selectedArea) ? '#00c853' : '#e2e8f0' }}; background:{{ empty($selectedArea) ? '#00c853' : 'white' }}; color:{{ empty($selectedArea) ? 'white' : '#64748b' }};">
+                        All Areas
+                    </a>
+                    @foreach($allAreas as $a)
+                        <a href="{{ route($prefix . 'immunizations.index', ['tab' => 'mothers', 'area_id' => $a->area_id]) }}"
+                           style="padding:6px 16px; border-radius:20px; font-size:13px; font-weight:700; text-decoration:none; border:1.5px solid {{ $selectedArea == $a->area_id ? '#00c853' : '#e2e8f0' }}; background:{{ $selectedArea == $a->area_id ? '#00c853' : 'white' }}; color:{{ $selectedArea == $a->area_id ? 'white' : '#64748b' }};">
+                            {{ $a->area_name }}
+                        </a>
+                    @endforeach
                 </div>
 
-                <!-- Stats -->
+                
                 <div class="stats-grid">
                     <div class="stat-card">
                         <div class="stat-icon" style="background:#e0f2fe; color:#0284c7;"><i class="fa-solid fa-person-breastfeeding"></i></div>
@@ -529,16 +765,9 @@
                             <div class="stat-lbl">Tetanus Dose Due (1st-4th Preg)</div>
                         </div>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-icon" style="background:#ecfdf5; color:#059669;"><i class="fa-solid fa-syringe"></i></div>
-                        <div>
-                            <div class="stat-val">{{ $totalMotherVaccinesGiven }}</div>
-                            <div class="stat-lbl">Maternal Doses Administered</div>
-                        </div>
-                    </div>
                 </div>
 
-                <!-- Mothers Table -->
+                
                 <div class="table-card">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
                         <h2 style="font-family:var(--font-heading); font-size:18px; font-weight:800; color:#1e293b;">
@@ -564,7 +793,7 @@
                                     <tr>
                                         <td>
                                             <div style="font-weight:800; color:#1e293b;">
-                                                <a href="{{ route('admin.mothers.show', $mother->mother_id) }}" style="color:#1b4d3e; text-decoration:none;">
+                                                <a href="{{ route($prefix . 'mothers.show', $mother->mother_id) }}" style="color:#1b4d3e; text-decoration:none;">
                                                     {{ $mother->mother_name }}
                                                 </a>
                                             </div>
@@ -641,64 +870,20 @@
                     </div>
                 </div>
 
-                <!-- Recent Maternal Tetanus Vaccinations -->
-                <div class="table-card">
-                    <h3 style="font-family:var(--font-heading); font-size:17px; font-weight:800; color:#1e293b;">
-                        <i class="fa-solid fa-clock-rotate-left" style="color:#00c853;"></i> Recently Administered Maternal Tetanus Vaccines
-                    </h3>
-                    <div style="overflow-x:auto;">
-                        <table class="custom-table">
-                            <thead>
-                                <tr>
-                                    <th>Date Vaccinated</th>
-                                    <th>Mother Name</th>
-                                    <th>Dose Milestone</th>
-                                    <th>Batch Number *</th>
-                                    <th>Administered By</th>
-                                    <th>Remarks</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse($recentMotherImmunizations as $rm)
-                                    <tr>
-                                        <td style="font-weight:700;">{{ \Carbon\Carbon::parse($rm->immunization_date)->format('M d, Y') }}</td>
-                                        <td>
-                                            <a href="{{ route('admin.mothers.show', $rm->mother_id) }}" style="font-weight:700; color:#1b4d3e; text-decoration:none;">
-                                                {{ $rm->mother ? $rm->mother->mother_name : ('Mother #' . $rm->mother_id) }}
-                                            </a>
-                                        </td>
-                                        <td><span style="font-weight:700; color:#0369a1;">{{ $rm->dose ?? 'Tetanus Toxoid' }}</span></td>
-                                        <td>
-                                            <span style="font-family:monospace; font-weight:700; background:#f1f5f9; padding:2px 8px; border-radius:6px;">
-                                                {{ $rm->batch_no }}
-                                            </span>
-                                        </td>
-                                        <td>{{ $rm->midwife ? $rm->midwife->midwife_name : 'Clinic Midwife' }}</td>
-                                        <td style="font-size:12px; color:#64748b;">{{ $rm->remarks ?? 'N/A' }}</td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="6" style="text-align:center; padding:20px; color:#94a3b8;">
-                                            No maternal tetanus records yet.
-                                        </td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+            @endif
             @endif
         </div>
     </div>
 
-    <!-- Modal: Record Child Vaccination -->
+    @if(in_array($role, ['admin', 'provider', 'midwife']))
+    
     <div class="modal-overlay" id="childModal">
         <div class="modal-card">
             <div class="modal-header">
                 <h3 class="modal-title"><i class="fa-solid fa-syringe" style="color:#00c853;"></i> Record Child Vaccine Dose</h3>
                 <button type="button" class="close-btn" onclick="closeChildModal()"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <form action="{{ route('admin.immunizations.child.store') }}" method="POST">
+            <form action="{{ route($prefix . 'immunizations.child.store') }}" method="POST">
                 @csrf
                 <div class="form-group">
                     <label class="form-label" for="child_id">Select Child *</label>
@@ -764,14 +949,14 @@
         </div>
     </div>
 
-    <!-- Modal: Record Mother Tetanus Dose -->
+    
     <div class="modal-overlay" id="motherModal">
         <div class="modal-card">
             <div class="modal-header">
                 <h3 class="modal-title"><i class="fa-solid fa-person-breastfeeding" style="color:#00c853;"></i> Record Mother Tetanus Vaccine</h3>
                 <button type="button" class="close-btn" onclick="closeMotherModal()"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <form action="{{ route('admin.immunizations.mother.store') }}" method="POST">
+            <form action="{{ route($prefix . 'immunizations.mother.store') }}" method="POST">
                 @csrf
                 <div class="form-group">
                     <label class="form-label" for="mother_id">Select Mother *</label>
@@ -821,19 +1006,23 @@
             </form>
         </div>
     </div>
+    @endif
 
     <script>
         function openChildModal(childId, vaccineName) {
             const modal = document.getElementById('childModal');
+            if (!modal) return;
             if (childId) {
                 document.getElementById('modal_child_id').value = childId;
             }
             if (vaccineName) {
                 const sel = document.getElementById('modal_vac_name');
-                for (let i = 0; i < sel.options.length; i++) {
-                    if (sel.options[i].value.toLowerCase().includes(vaccineName.toLowerCase().split(' ')[0])) {
-                        sel.selectedIndex = i;
-                        break;
+                if (sel) {
+                    for (let i = 0; i < sel.options.length; i++) {
+                        if (sel.options[i].value.toLowerCase().includes(vaccineName.toLowerCase().split(' ')[0])) {
+                            sel.selectedIndex = i;
+                            break;
+                        }
                     }
                 }
             }
@@ -841,11 +1030,13 @@
         }
 
         function closeChildModal() {
-            document.getElementById('childModal').classList.remove('open');
+            const modal = document.getElementById('childModal');
+            if (modal) modal.classList.remove('open');
         }
 
         function openMotherModal(motherId, pregNo) {
             const modal = document.getElementById('motherModal');
+            if (!modal) return;
             if (motherId) {
                 document.getElementById('modal_mother_id').value = motherId;
             }
@@ -856,15 +1047,22 @@
         }
 
         function closeMotherModal() {
-            document.getElementById('motherModal').classList.remove('open');
+            const modal = document.getElementById('motherModal');
+            if (modal) modal.classList.remove('open');
         }
 
-        document.getElementById('childModal').addEventListener('click', function(e) {
-            if (e.target === this) closeChildModal();
-        });
-        document.getElementById('motherModal').addEventListener('click', function(e) {
-            if (e.target === this) closeMotherModal();
-        });
+        const cModal = document.getElementById('childModal');
+        if (cModal) {
+            cModal.addEventListener('click', function(e) {
+                if (e.target === this) closeChildModal();
+            });
+        }
+        const mModal = document.getElementById('motherModal');
+        if (mModal) {
+            mModal.addEventListener('click', function(e) {
+                if (e.target === this) closeMotherModal();
+            });
+        }
     </script>
 </body>
 </html>

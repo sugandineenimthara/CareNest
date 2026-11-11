@@ -28,7 +28,7 @@ class PasswordChangeTest extends TestCase
         $response = $this->actingAs($user)->get(route('password.change'));
         $response->assertStatus(200);
         $response->assertSee('Change Password');
-        $response->assertSee('Admin'); // Displays 'Admin' for provider/admin role
+        $response->assertSee('Admin'); 
     }
 
     public function test_verify_current_password_with_wrong_password_fails()
@@ -106,7 +106,7 @@ class PasswordChangeTest extends TestCase
             'password' => Hash::make('secret123'),
         ]);
 
-        // Request reset link
+        
         $this->actingAs($user)->post(route('password.email'), [
             'email' => $user->email,
             'from' => 'change-password',
@@ -115,9 +115,9 @@ class PasswordChangeTest extends TestCase
         $tokenRecord = DB::table('password_reset_tokens')->where('email', $user->email)->first();
         $this->assertNotNull($tokenRecord);
 
-        // Click reset link (which authenticates identity)
-        // Note: the raw token in link matches hash in DB
-        // Let's set a known token:
+        
+        
+        
         $rawToken = 'test-token-123456';
         DB::table('password_reset_tokens')->updateOrInsert(
             ['email' => $user->email],
@@ -133,7 +133,7 @@ class PasswordChangeTest extends TestCase
         $response->assertRedirect(route('password.change'));
         $response->assertSessionHas('identity_authenticated', true);
 
-        // Now update password without providing current_password
+        
         $updateResponse = $this->actingAs($user)->post(route('password.update_auth'), [
             'password' => 'brandnewpassword999',
             'password_confirmation' => 'brandnewpassword999',

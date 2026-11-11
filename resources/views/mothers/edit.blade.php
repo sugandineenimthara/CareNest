@@ -61,29 +61,16 @@
     </style>
 </head>
 <body>
-    <aside class="sidebar">
-        <a href="{{ route('dashboard') }}" class="sidebar-brand"><i class="fa-solid fa-leaf" style="color:#00c853;"></i><span>CareNest</span></a>
-        <ul class="sidebar-menu">
-            <li class="nav-item"><a href="{{ route('dashboard') }}"><i class="fa-solid fa-table-cells-large"></i><span>Dashboard</span></a></li>
-            @if(Auth::check() && (Auth::user()->role === 'provider' || Auth::user()->role === 'admin'))
-            <li class="nav-item"><a href="{{ route('admin.midwife-requests') }}"><i class="fa-solid fa-user-check"></i><span>Midwife Requests</span></a></li>
-            <li class="nav-item"><a href="{{ route('admin.midwives.index') }}"><i class="fa-solid fa-user-nurse"></i><span>Manage Midwives</span></a></li>
-            @endif
-            <li class="nav-item active"><a href="{{ route('admin.mothers.index') }}"><i class="fa-solid fa-user-nurse"></i><span>Mothers</span></a></li>
-            <li class="nav-item"><a href="{{ route('admin.children.index') }}"><i class="fa-solid fa-baby"></i><span>Children</span></a></li>
-            <li class="nav-item"><a href="{{ route('admin.immunizations.index') }}"><i class="fa-solid fa-syringe"></i><span>Immunizations</span></a></li>
-            <li class="nav-item"><a href="{{ route('admin.alerts.index') }}"><i class="fa-solid fa-triangle-exclamation"></i><span>High-Risk Alerts</span></a></li>
-
-            <li class="nav-item"><a href="{{ route('admin.triposha.index') }}"><i class="fa-solid fa-book-medical"></i><span>Triposha Book</span></a></li>
-            <li class="nav-item"><a href="{{ route('admin.attendances.index') }}"><i class="fa-solid fa-calendar-check"></i><span>Clinic Attendances</span></a></li>
-            <li class="nav-item"><a href="#reports"><i class="fa-solid fa-file-invoice"></i><span>Vaccine Reports</span></a></li>
-        </ul>
-    </aside>
+    @php
+        $role = auth()->user()->role ?? 'admin';
+        $prefix = $role === 'midwife' ? 'midwife.' : ($role === 'mother' ? 'mother.' : 'admin.');
+    @endphp
+    @include('partials.sidebar')
 
     <div class="main-wrapper">
         <header class="top-header">
             <div class="header-left">
-                <a href="{{ route('admin.mothers.show', $mother->mother_id) }}" class="back-btn"><i class="fa-solid fa-arrow-left"></i></a>
+                <a href="{{ route($prefix . 'mothers.show', $mother->mother_id) }}" class="back-btn"><i class="fa-solid fa-arrow-left"></i></a>
                 Edit Mother Record
             </div>
             <div class="header-right">
@@ -106,7 +93,7 @@
                 </div>
             @endif
 
-            <form action="{{ route('admin.mothers.update', $mother->mother_id) }}" method="POST">
+            <form action="{{ route($prefix . 'mothers.update', $mother->mother_id) }}" method="POST">
                 @csrf
                 @method('PUT')
 
@@ -192,7 +179,7 @@
                 </div>
 
                 <div class="form-actions">
-                    <a href="{{ route('admin.mothers.show', $mother->mother_id) }}" class="btn-cancel">Cancel</a>
+                    <a href="{{ route($prefix . 'mothers.show', $mother->mother_id) }}" class="btn-cancel">Cancel</a>
                     <button type="submit" class="btn-submit">
                         <i class="fa-solid fa-floppy-disk"></i> Save Changes
                     </button>

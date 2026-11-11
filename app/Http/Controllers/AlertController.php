@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\FamilyHealthHistory;
+use App\Models\Mother;
 use App\Models\TestDone;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class AlertController extends Controller
@@ -12,7 +14,136 @@ class AlertController extends Controller
     {
         $user = auth()->user();
 
-        // 1. High Blood Pressure Alerts (from Family Health History)
+        if ($user->role === 'mother') {
+            if (!$user->mother) {
+                abort(403, 'Your mother profile is not linked or incomplete. Please contact the administrator.');
+            }
+
+            $mother = $user->mother;
+            $mother->load(['children.immunizations', 'immunizations', 'pregnancyHistories']);
+
+            $notifications = collect();
+
+            $receivedDosesCount = $mother->immunizations->filter(function ($imm) {
+                return stripos($imm->vaccine_name, 'tetanus') !== false || stripos($imm->vaccine_name, 'tt') !== false;
+            })->count();
+
+            $nextDoseNum = $receivedDosesCount + 1;
+            if (!$mother->isTetanusSafe() && $nextDoseNum <= 5) {
+                if ($receivedDosesCount === 0) {
+                    $lmp = $mother->pregnancyHistories->last()?->last_menstrual_period;
+                    $mDueDate = $lmp ? Carbon::parse($lmp)->addWeeks(12) : Carbon::parse($mother->created_at)->addWeeks(2);
+                } elseif ($receivedDosesCount === 1) {
+                    $firstDose = $mother->immunizations->sortBy('immunization_date')->first();
+                    $mDueDate = $firstDose ? Carbon::parse($firstDose->immunization_date)->addWeeks(6) : now()->addDays(7);
+                } else {
+                    $lastDose = $mother->immunizations->sortByDesc('immunization_date')->first();
+                    $mDueDate = $lastDose ? Carbon::parse($lastDose->immunization_date)->addMonths(6) : now()->addDays(7);
+                }
+
+                $diffDays = now()->startOfDay()->diffInDays($mDueDate->copy()->startOfDay(), false);
+                $isWithinWeek = $diffDays >= 0 && $diffDays <= 7;
+
+                $notifications->push((object)[
+                    'type' => 'Maternal Immunization',
+                    'title' => 'Upcoming Immunization: Tetanus Toxoid (TT) Dose ' . $nextDoseNum,
+                    'beneficiary' => $mother->mother_name . ' (Mother)',
+                    'vaccine_name' => 'Tetanus Toxoid (TT) Dose ' . $nextDoseNum,
+                    'date' => $mDueDate->format('d M Y'),
+                    'time' => '09:00 AM',
+                    'venue' => 'Ja-Ela District Hospital',
+                    'is_within_week' => $isWithinWeek,
+                    'status_label' => $isWithinWeek ? 'Upcoming within 1 week' : ($mDueDate->isPast() ? 'Due Now' : 'Upcoming'),
+                    'severity' => $isWithinWeek ? 'warning' : 'info',
+                    'icon' => 'fa-syringe',
+                    'message' => "Upcoming immunization for {$mother->mother_name}: Tetanus Toxoid Dose {$nextDoseNum} is scheduled on {$mDueDate->format('d M Y')} at 09:00 AM. Venue: Ja-Ela District Hospital.",
+                    'created_at' => $mDueDate->copy()->subDays(7),
+                ]);
+            }
+
+            $standardSchedule = \App\Models\Child::getVaccinationSchedule();
+            foreach ($mother->children as $child) {
+                $dob = Carbon::parse($child->date_of_birth);
+                foreach ($standardSchedule as $vac) {
+                    $recorded = $child->immunizations->first(function ($imm) use ($vac) {
+                        $prefix = explode(' ', $vac['vaccine_name'])[0];
+                        return stripos($imm->vaccine_name, $prefix) !== false;
+                    });
+
+                    if (!$recorded) {
+                        $cDueDate = $dob->copy()->addMonths($vac['months_due']);
+                        $diffDays = now()->startOfDay()->diffInDays($cDueDate->copy()->startOfDay(), false);
+                        $isWithinWeek = $diffDays >= 0 && $diffDays <= 7;
+
+                        $notifications->push((object)[
+                            'type' => 'Child Immunization',
+                            'title' => 'Upcoming Immunization: ' . $vac['vaccine_name'],
+                            'beneficiary' => $child->display_name . ' (Child)',
+                            'vaccine_name' => $vac['vaccine_name'],
+                            'date' => $cDueDate->format('d M Y'),
+                            'time' => '09:00 AM',
+                            'venue' => 'Ja-Ela District Hospital',
+                            'is_within_week' => $isWithinWeek,
+                            'status_label' => $isWithinWeek ? 'Upcoming within 1 week' : ($cDueDate->isPast() ? 'Due Now' : 'Upcoming'),
+                            'severity' => $isWithinWeek ? 'warning' : 'info',
+                            'icon' => 'fa-syringe',
+                            'message' => "Upcoming immunization for {$child->display_name}: {$vac['vaccine_name']} is scheduled on {$cDueDate->format('d M Y')} at 09:00 AM. Venue: Ja-Ela District Hospital.",
+                            'created_at' => $cDueDate->copy()->subDays(7),
+                        ]);
+                    }
+                }
+            }
+
+            if ($mother->isHighBloodPressure()) {
+                $notifications->push((object)[
+                    'type' => 'Health Advisory',
+                    'title' => 'Elevated Blood Pressure Notice',
+                    'beneficiary' => $mother->mother_name,
+                    'vaccine_name' => 'Clinical Monitoring',
+                    'date' => now()->format('d M Y'),
+                    'time' => '09:00 AM',
+                    'venue' => 'Ja-Ela District Hospital',
+                    'is_within_week' => false,
+                    'status_label' => 'Medical Attention',
+                    'severity' => 'danger',
+                    'icon' => 'fa-heart-pulse',
+                    'message' => "Recorded Blood Pressure ({$mother->blood_pressure} mmHg) is elevated. Please visit Ja-Ela District Hospital or contact your area midwife.",
+                    'created_at' => $mother->updated_at ?? now(),
+                ]);
+            }
+
+            $motherNotifications = $notifications->sortBy(function ($item) {
+                return $item->is_within_week ? 0 : 1;
+            });
+
+            return view('alerts.index', compact('motherNotifications', 'user'));
+        }
+
+        $mothersQuery = Mother::with(['user', 'midwife.area'])
+            ->whereNotNull('blood_pressure')
+            ->where('blood_pressure', '!=', '');
+
+        if ($user->role === 'midwife' && $user->midwife) {
+            $mothersQuery->where('midwife_id', $user->midwife->midwife_id);
+        }
+
+        $clinicalHighBPMothers = $mothersQuery->get()
+            ->filter(fn($mother) => $mother->isHighBloodPressure())
+            ->map(function ($mother) {
+                return (object)[
+                    'type' => 'High Risk Blood Pressure (> 140/90)',
+                    'severity' => 'danger',
+                    'icon' => 'fa-heart-pulse',
+                    'mother_name' => $mother->mother_name ?? 'Unknown',
+                    'contact_no' => $mother->phone_no ?? '-',
+                    'condition_text' => 'Recorded BP: ' . $mother->blood_pressure . ' mmHg (Exceeds 140/90 Threshold)',
+                    'area' => $mother->midwife->area->area_name ?? '-',
+                    'midwife' => $mother->midwife->midwife_name ?? '-',
+                    'created_at' => $mother->updated_at ?? $mother->created_at,
+                ];
+            });
+
+        
         $highBPQuery = FamilyHealthHistory::with(['mother.user', 'mother.midwife.area'])
             ->whereNotNull('high_blood_pressure')
             ->whereNotIn('high_blood_pressure', ['no', 'No', 'false', '0', '']);
@@ -27,19 +158,19 @@ class AlertController extends Controller
         $highBPMothers = $highBPQuery->get()
             ->map(function ($history) {
                 return (object)[
-                    'type' => 'High Blood Pressure',
+                    'type' => 'High Blood Pressure (History)',
                     'severity' => 'danger',
                     'icon' => 'fa-heart-pulse',
-                    'mother_name' => $history->mother->user->name ?? 'Unknown',
-                    'contact_no' => $history->mother->telephone ?? '-',
+                    'mother_name' => $history->mother->mother_name ?? 'Unknown',
+                    'contact_no' => $history->mother->phone_no ?? '-',
                     'condition_text' => $history->high_blood_pressure,
                     'area' => $history->mother->midwife->area->area_name ?? '-',
-                    'midwife' => $history->mother->midwife->user->name ?? '-',
+                    'midwife' => $history->mother->midwife->midwife_name ?? '-',
                     'created_at' => $history->created_at
                 ];
             });
 
-        // 2. Low Haemoglobin Alerts (from Tests Done)
+        
         $lowHbQuery = TestDone::with(['mother.user', 'mother.midwife.area'])
             ->where('Haemoglobin', '<', 11.0);
 
@@ -56,16 +187,16 @@ class AlertController extends Controller
                     'type' => 'Low Haemoglobin',
                     'severity' => 'warning',
                     'icon' => 'fa-droplet',
-                    'mother_name' => $test->mother->user->name ?? 'Unknown',
-                    'contact_no' => $test->mother->telephone ?? '-',
+                    'mother_name' => $test->mother->mother_name ?? 'Unknown',
+                    'contact_no' => $test->mother->phone_no ?? '-',
                     'condition_text' => 'Hb Level: ' . $test->Haemoglobin,
                     'area' => $test->mother->midwife->area->area_name ?? '-',
-                    'midwife' => $test->mother->midwife->user->name ?? '-',
+                    'midwife' => $test->mother->midwife->midwife_name ?? '-',
                     'created_at' => $test->created_at
                 ];
             });
 
-        // 3. High Blood Sugar Alerts (from Tests Done)
+        
         $highSugarQuery = TestDone::with(['mother.user', 'mother.midwife.area'])
             ->where(function($q) {
                 $q->where('urine_sugar_level', '!=', 'Negative')
@@ -85,17 +216,18 @@ class AlertController extends Controller
                     'type' => 'High Blood/Urine Sugar',
                     'severity' => 'danger',
                     'icon' => 'fa-cubes-stacked',
-                    'mother_name' => $test->mother->user->name ?? 'Unknown',
-                    'contact_no' => $test->mother->telephone ?? '-',
+                    'mother_name' => $test->mother->mother_name ?? 'Unknown',
+                    'contact_no' => $test->mother->phone_no ?? '-',
                     'condition_text' => 'Sugar: ' . ($test->blood_sugar ?? $test->urine_sugar_level),
                     'area' => $test->mother->midwife->area->area_name ?? '-',
-                    'midwife' => $test->mother->midwife->user->name ?? '-',
+                    'midwife' => $test->mother->midwife->midwife_name ?? '-',
                     'created_at' => $test->created_at
                 ];
             });
 
-        // Merge all alerts and sort by newest
+        
         $allAlerts = collect()
+            ->merge($clinicalHighBPMothers)
             ->merge($highBPMothers)
             ->merge($lowHbMothers)
             ->merge($highSugarMothers)

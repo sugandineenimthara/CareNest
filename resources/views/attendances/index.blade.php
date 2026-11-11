@@ -30,7 +30,7 @@
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: var(--font-main); background: var(--bg-gradient); background-attachment: fixed; color: var(--text-dark); min-height: 100vh; display: flex; }
 
-        /* ── Sidebar ── */
+        
         .sidebar { width: var(--sidebar-width); background: rgba(255,255,255,0.95); backdrop-filter: blur(20px); border-right: 1px solid rgba(226,232,240,0.8); display: flex; flex-direction: column; padding: 30px 20px; position: fixed; top: 0; bottom: 0; left: 0; z-index: 100; }
         .sidebar-brand { display: flex; align-items: center; gap: 10px; font-family: var(--font-heading); font-size: 24px; font-weight: 800; color: #1b4d3e; text-decoration: none; margin-bottom: 36px; padding-left: 10px; }
         .sidebar-menu { list-style: none; display: flex; flex-direction: column; gap: 6px; flex: 1; overflow-y: auto; }
@@ -44,7 +44,7 @@
         .logout-btn { display: flex; align-items: center; gap: 10px; background: transparent; border: none; padding: 10px 18px; font-family: var(--font-main); font-size: 14px; font-weight: 600; color: #64748b; cursor: pointer; width: 100%; }
         .logout-btn:hover { color: #ef4444; }
 
-        /* ── Main ── */
+        
         .main-wrapper { margin-left: var(--sidebar-width); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
         .top-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 48px; min-height: 76px; box-sizing: border-box; background: rgba(255,255,255,0.7); backdrop-filter: blur(16px); border-bottom: 1px solid rgba(226,232,240,0.6); position: sticky; top: 0; z-index: 90; }
         .header-left { font-family: var(--font-heading); font-size: 22px; font-weight: 800; color: #1b4d3e; display: flex; align-items: center; gap: 12px; }
@@ -53,19 +53,19 @@
 
         .content { padding: 32px 48px; display: flex; flex-direction: column; gap: 28px; }
 
-        /* ── Alerts ── */
+        
         .alert { padding: 14px 20px; border-radius: 14px; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 10px; }
         .alert-success { background: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; }
         .alert-error   { background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; }
 
-        /* ── Stats ── */
+        
         .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
         .stat-card { background: white; border: 1px solid #e2e8f0; border-radius: 20px; padding: 22px; display: flex; align-items: center; gap: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); }
         .stat-icon { width: 50px; height: 50px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
         .stat-val { font-family: var(--font-heading); font-size: 28px; font-weight: 800; color: var(--text-dark); }
         .stat-lbl { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.6px; margin-top: 2px; }
 
-        /* ── Clinic Entry Card ── */
+        
         .entry-card { background: white; border: 1px solid #e2e8f0; border-radius: 24px; padding: 28px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
         .entry-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
         .entry-title-wrap { display: flex; align-items: center; gap: 14px; }
@@ -73,24 +73,24 @@
         .entry-title { font-family: var(--font-heading); font-size: 20px; font-weight: 800; color: var(--text-dark); }
         .entry-sub { font-size: 13px; color: var(--text-muted); }
 
-        /* Clinic Type Selector Pills */
+        
         .type-selector { display: flex; gap: 10px; background: #f1f5f9; padding: 5px; border-radius: 14px; }
         .type-btn { padding: 9px 20px; border-radius: 10px; border: none; font-family: var(--font-main); font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 8px; color: var(--text-muted); background: transparent; }
         .type-btn.active.mother { background: var(--mother-purple); color: white; box-shadow: 0 4px 12px rgba(124,58,237,0.3); }
         .type-btn.active.pediatric { background: var(--child-blue); color: white; box-shadow: 0 4px 12px rgba(29,78,216,0.3); }
 
-        /* Clinic Parameters Bar */
+        
         .clinic-bar { display: grid; grid-template-columns: 180px 1.5fr 1fr auto; gap: 16px; align-items: end; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 16px; padding: 20px; margin-bottom: 24px; }
         .form-group label { font-size: 12px; font-weight: 800; color: #475569; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px; display: block; }
         .form-input, .form-select { width: 100%; padding: 11px 14px; background: white; border: 1.5px solid #e2e8f0; border-radius: 12px; font-family: var(--font-main); font-size: 14px; color: var(--text-dark); outline: none; transition: border-color 0.2s; }
         .form-input:focus, .form-select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(0,200,83,0.12); }
 
-        /* Total Attendance Live Counter Banner */
+        
         .count-banner { display: flex; align-items: center; justify-content: space-between; background: linear-gradient(135deg, #f0fdf4, #e0f2fe); border: 1.5px solid #bbf7d0; border-radius: 16px; padding: 16px 24px; margin-bottom: 20px; }
         .count-left { display: flex; align-items: center; gap: 12px; font-size: 14px; font-weight: 700; color: #1b4d3e; }
         .count-badge { display: inline-flex; align-items: center; gap: 8px; background: #065f46; color: white; font-family: var(--font-heading); font-size: 20px; font-weight: 800; padding: 6px 18px; border-radius: 12px; box-shadow: 0 4px 12px rgba(6,95,70,0.25); }
 
-        /* Batch Table */
+        
         .batch-table-wrapper { border: 1.5px solid #e2e8f0; border-radius: 16px; overflow: hidden; margin-bottom: 18px; }
         .batch-table { width: 100%; border-collapse: collapse; }
         .batch-table thead th { background: linear-gradient(135deg, #1b5e20, #00695c); color: white; padding: 13px 16px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.7px; text-align: left; }
@@ -106,24 +106,24 @@
         .btn-del-row { background: #fee2e2; border: none; color: #dc2626; width: 32px; height: 32px; border-radius: 8px; cursor: pointer; font-size: 14px; transition: all 0.2s; display: flex; align-items: center; justify-content: center; }
         .btn-del-row:hover { background: #fecaca; transform: scale(1.1); }
 
-        /* Actions */
+        
         .table-actions { display: flex; align-items: center; gap: 14px; }
         .btn-add-row { display: flex; align-items: center; gap: 8px; padding: 11px 22px; background: #f0fdf4; border: 1.5px dashed #86efac; border-radius: 12px; color: #16a34a; font-weight: 700; font-size: 14px; cursor: pointer; transition: all 0.2s; }
         .btn-add-row:hover { background: #dcfce7; border-color: var(--primary); }
         .btn-save { display: flex; align-items: center; gap: 10px; padding: 12px 30px; background: linear-gradient(135deg, #00c853, #00a843); border: none; border-radius: 14px; color: white; font-family: var(--font-heading); font-size: 15px; font-weight: 700; cursor: pointer; box-shadow: 0 6px 20px rgba(0,200,83,0.35); transition: all 0.25s; }
         .btn-save:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(0,200,83,0.45); }
 
-        /* ── History Section ── */
+        
         .section-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
         .section-title { font-family: var(--font-heading); font-size: 20px; font-weight: 800; color: var(--text-dark); display: flex; align-items: center; gap: 10px; }
 
-        /* Filter bar */
+        
         .filter-bar { display: flex; gap: 12px; align-items: center; background: white; border: 1px solid #e2e8f0; border-radius: 16px; padding: 14px 20px; margin-bottom: 20px; }
         .filter-bar input, .filter-bar select { padding: 9px 14px; border: 1.5px solid #e2e8f0; border-radius: 10px; font-family: var(--font-main); font-size: 13px; outline: none; }
         .filter-bar input:focus, .filter-bar select:focus { border-color: var(--primary); }
         .btn-filter { padding: 9px 18px; background: var(--primary-dark); color: white; border: none; border-radius: 10px; font-weight: 700; font-size: 13px; cursor: pointer; }
 
-        /* Clinic Session History Cards */
+        
         .session-card { background: white; border: 1px solid #e2e8f0; border-radius: 20px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.04); margin-bottom: 18px; }
         .session-card-head { display: flex; justify-content: space-between; align-items: center; padding: 18px 24px; cursor: pointer; transition: background 0.2s; border-bottom: 1px solid #f1f5f9; }
         .session-card-head.mother-session { background: linear-gradient(135deg, #faf5ff, #f3e8ff); border-bottom-color: #e9d5ff; }
@@ -153,33 +153,15 @@
     </style>
 </head>
 <body>
+    @php
+        $role = auth()->user()->role ?? 'admin';
+        $prefix = $role === 'midwife' ? 'midwife.' : ($role === 'mother' ? 'mother.' : 'admin.');
+    @endphp
 
-<!-- ═══════════════════════════ SIDEBAR ═══════════════════════════ -->
-<aside class="sidebar">
-    <a href="{{ route('dashboard') }}" class="sidebar-brand">
-        <i class="fa-solid fa-leaf" style="color:#00c853;"></i>
-        <span>CareNest</span>
-    </a>
+@include('partials.sidebar')
 
-    <ul class="sidebar-menu">
-        <li class="nav-item"><a href="{{ route('dashboard') }}"><i class="fa-solid fa-table-cells-large"></i><span>Dashboard</span></a></li>
-        @if(Auth::check() && (Auth::user()->role === 'provider' || Auth::user()->role === 'admin'))
-        <li class="nav-item"><a href="{{ route('admin.midwife-requests') }}"><i class="fa-solid fa-user-check"></i><span>Midwife Requests</span></a></li>
-        <li class="nav-item"><a href="{{ route('admin.midwives.index') }}"><i class="fa-solid fa-user-nurse"></i><span>Manage Midwives</span></a></li>
-        @endif
-        <li class="nav-item"><a href="{{ route('admin.mothers.index') }}"><i class="fa-solid fa-user-nurse"></i><span>Mothers</span></a></li>
-        <li class="nav-item"><a href="{{ route('admin.children.index') }}"><i class="fa-solid fa-baby"></i><span>Children</span></a></li>
-        <li class="nav-item"><a href="{{ route('admin.immunizations.index') }}"><i class="fa-solid fa-syringe"></i><span>Immunizations</span></a></li>
-        <li class="nav-item"><a href="{{ route('admin.alerts.index') }}"><i class="fa-solid fa-triangle-exclamation"></i><span>High-Risk Alerts</span></a></li>
-        <li class="nav-item"><a href="{{ route('admin.triposha.index') }}"><i class="fa-solid fa-box-open"></i><span>Thriposha Book</span></a></li>
-        <li class="nav-item active"><a href="{{ route('admin.attendances.index') }}"><i class="fa-solid fa-calendar-check"></i><span>Clinic Attendances</span></a></li>
-        <li class="nav-item"><a href="#reports"><i class="fa-solid fa-file-invoice"></i><span>Vaccine Reports</span></a></li>
-    </ul>
-</aside>
-
-<!-- ═══════════════════════════ MAIN CONTENT ═══════════════════════════ -->
 <div class="main-wrapper">
-    <!-- Header -->
+    
     <header class="top-header">
         <div class="header-left">
             <i class="fa-solid fa-calendar-check" style="color:#00c853;"></i>
@@ -192,7 +174,13 @@
 
     <div class="content">
 
-        {{-- Flash Messages --}}
+        
+        @if(session('high_risk_alert'))
+        <div class="alert" style="background:#fee2e2; border:1.5px solid #ef4444; color:#991b1b; padding:16px 20px; border-radius:14px; font-weight:700; display:flex; align-items:center; gap:12px; box-shadow:0 4px 14px rgba(239,68,68,0.2);">
+            <i class="fa-solid fa-triangle-exclamation" style="font-size:22px; color:#dc2626;"></i>
+            <div>{{ session('high_risk_alert') }}</div>
+        </div>
+        @endif
         @if(session('success'))
         <div class="alert alert-success"><i class="fa-solid fa-circle-check"></i>{{ session('success') }}</div>
         @endif
@@ -210,39 +198,7 @@
         </div>
         @endif
 
-        {{-- Stats Grid --}}
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-icon" style="background:#dcfce7; color:#16a34a;"><i class="fa-solid fa-calendar-check"></i></div>
-                <div>
-                    <div class="stat-val">{{ $totalClinicsEver }}</div>
-                    <div class="stat-lbl">Clinic Sessions Held</div>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon" style="background:#e0f2fe; color:#0369a1;"><i class="fa-solid fa-users"></i></div>
-                <div>
-                    <div class="stat-val">{{ number_format($totalAttendancesEver) }}</div>
-                    <div class="stat-lbl">Total Attendances</div>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon" style="background:var(--mother-bg); color:var(--mother-purple);"><i class="fa-solid fa-person-dress"></i></div>
-                <div>
-                    <div class="stat-val">{{ number_format($totalMotherAttendances) }}</div>
-                    <div class="stat-lbl">Mother Clinic Attendances</div>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon" style="background:var(--child-bg); color:var(--child-blue);"><i class="fa-solid fa-baby"></i></div>
-                <div>
-                    <div class="stat-val">{{ number_format($totalPediatricAttendances) }}</div>
-                    <div class="stat-lbl">Pediatric Clinic Attendances</div>
-                </div>
-            </div>
-        </div>
-
-        {{-- ══════════════ RECORD CLINIC ATTENDANCE FORM ══════════════ --}}
+        
         <div class="entry-card">
             <div class="entry-header">
                 <div class="entry-title-wrap">
@@ -253,7 +209,7 @@
                     </div>
                 </div>
 
-                {{-- Clinic Type Toggle --}}
+                
                 <div class="type-selector">
                     <button type="button" class="type-btn active mother" id="btn-type-mother" onclick="switchClinicType('mother')">
                         <i class="fa-solid fa-person-dress"></i> Mother Clinic
@@ -264,13 +220,13 @@
                 </div>
             </div>
 
-            <form id="attendanceBatchForm" method="POST" action="{{ route('admin.attendances.store.batch') }}">
+            <form id="attendanceBatchForm" method="POST" action="{{ route($prefix . 'attendances.store.batch') }}">
                 @csrf
 
-                {{-- Hidden input for clinic type --}}
+                
                 <input type="hidden" name="clinic_type" id="clinic_type_input" value="mother">
 
-                {{-- Clinic Parameters Bar --}}
+                
                 <div class="clinic-bar">
                     <div class="form-group">
                         <label for="clinic_date"><i class="fa-solid fa-calendar-day"></i> Clinic Date <span style="color:#ef4444;">*</span></label>
@@ -311,7 +267,7 @@
                     </div>
                 </div>
 
-                {{-- Total Attendance Live Counter --}}
+                
                 <div class="count-banner">
                     <div class="count-left">
                         <i class="fa-solid fa-users-viewfinder" style="font-size:22px; color:#16a34a;"></i>
@@ -330,19 +286,27 @@
                     </div>
                 </div>
 
-                {{-- Attendees Table --}}
+                
                 <div class="batch-table-wrapper">
                     <table class="batch-table">
                         <thead>
                             <tr id="table-head-row">
                                 <th style="width:45px;">#</th>
                                 <th id="participant-col-heading" style="width:40%;">Participated Mother Name</th>
-                                <th>Remarks / Checkup Notes</th>
+                                <th id="col-heading-bp">
+                                    <i class="fa-solid fa-heart-pulse"></i> Blood Pressure Rate (mmHg)
+                                </th>
+                                <th id="col-heading-height" style="display:none; width:25%;">
+                                    <i class="fa-solid fa-ruler-vertical"></i> Height (cm)
+                                </th>
+                                <th id="col-heading-weight" style="display:none; width:25%;">
+                                    <i class="fa-solid fa-weight-scale"></i> Weight (kg)
+                                </th>
                                 <th style="width:50px;"></th>
                             </tr>
                         </thead>
                         <tbody id="attendeeRows">
-                            {{-- Dynamically populated rows --}}
+                            
                         </tbody>
                     </table>
                 </div>
@@ -359,7 +323,7 @@
             </form>
         </div>
 
-        {{-- ══════════════ CLINIC ATTENDANCE HISTORY ══════════════ --}}
+        
         <div>
             <div class="section-header-row">
                 <div class="section-title">
@@ -368,8 +332,8 @@
                 </div>
             </div>
 
-            {{-- Filters --}}
-            <form method="GET" action="{{ route('admin.attendances.index') }}" class="filter-bar">
+            
+            <form method="GET" action="{{ route($prefix . 'attendances.index') }}" class="filter-bar">
                 <i class="fa-solid fa-magnifying-glass" style="color:#94a3b8;"></i>
                 <input type="text" name="search" placeholder="Search by participant name, clinic name, or notes..." value="{{ $search }}" style="flex:1;">
 
@@ -384,7 +348,7 @@
 
                 <button type="submit" class="btn-filter"><i class="fa-solid fa-filter"></i> Filter</button>
                 @if($search || $clinicType || $dateFrom || $dateTo)
-                <a href="{{ route('admin.attendances.index') }}" style="font-size:13px; color:#64748b; font-weight:600; text-decoration:none;">Clear</a>
+                <a href="{{ route($prefix . 'attendances.index') }}" style="font-size:13px; color:#64748b; font-weight:600; text-decoration:none;">Clear</a>
                 @endif
             </form>
 
@@ -400,7 +364,7 @@
             <div style="display:flex; flex-direction:column; gap:16px;">
                 @foreach($clinicSessions as $idx => $session)
                 <div class="session-card">
-                    {{-- Card Header --}}
+                    
                     <div class="session-card-head {{ $session['clinic_type'] === 'mother' ? 'mother-session' : 'pediatric-session' }}" onclick="toggleClinicSession({{ $idx }})">
                         <div style="display:flex; align-items:center; gap:16px;">
                             <div style="font-size:24px; color:{{ $session['clinic_type'] === 'mother' ? 'var(--mother-purple)' : 'var(--child-blue)' }};">
@@ -419,13 +383,13 @@
                         </div>
 
                         <div class="session-pills">
-                            {{-- Clinic Type Badge --}}
+                            
                             <span class="clinic-type-badge {{ $session['clinic_type'] === 'mother' ? 'mother' : 'pediatric' }}">
                                 <i class="fa-solid {{ $session['clinic_type'] === 'mother' ? 'fa-person-dress' : 'fa-baby' }}"></i>
                                 {{ $session['clinic_type'] === 'mother' ? 'Mother Clinic' : 'Pediatric Clinic' }}
                             </span>
 
-                            {{-- Total Attendances Counter (Requirement: "the no of total attendances should be counted for a particular clinic") --}}
+                            
                             <span class="total-count-pill" title="Total attendances recorded for this clinic">
                                 <i class="fa-solid fa-users" style="color:{{ $session['clinic_type'] === 'mother' ? 'var(--mother-purple)' : 'var(--child-blue)' }};"></i>
                                 <span>{{ $session['total_attendance'] }} Attendances</span>
@@ -435,7 +399,7 @@
                         </div>
                     </div>
 
-                    {{-- Card Body (List of Attendees) --}}
+                    
                     <div class="session-card-body" id="session-body-{{ $idx }}">
                         <table class="hist-table">
                             <thead>
@@ -443,7 +407,13 @@
                                     <th style="width:40px;">#</th>
                                     <th>{{ $session['clinic_type'] === 'mother' ? 'Mother Name & ID' : 'Child Name & ID' }}</th>
                                     <th>{{ $session['clinic_type'] === 'mother' ? 'Area & Contact' : 'Mother Linked & Area' }}</th>
-                                    <th>Checkup Notes / Remarks</th>
+                                    @if($session['clinic_type'] === 'mother')
+                                        <th>Blood Pressure Rate (mmHg)</th>
+                                    @else
+                                        <th>Height (cm)</th>
+                                        <th>Weight (kg)</th>
+                                        <th>BMI Value</th>
+                                    @endif
                                     <th>Recorded Time</th>
                                     <th style="width:40px;"></th>
                                 </tr>
@@ -454,36 +424,80 @@
                                     <td style="font-weight:700; color:#94a3b8;">{{ $j + 1 }}</td>
                                     <td style="font-weight:700;">
                                         @if($session['clinic_type'] === 'mother')
-                                            <i class="fa-solid fa-person-dress" style="color:var(--mother-purple); margin-right:6px;"></i>
-                                            {{ $att->mother?->mother_name ?? 'Mother #' . $att->mother_id }}
+                                            <a href="{{ route($prefix . 'mothers.show', $att->mother_id) }}" style="text-decoration:none; color:inherit;">
+                                                <i class="fa-solid fa-person-dress" style="color:var(--mother-purple); margin-right:6px;"></i>
+                                                {{ $att->mother?->mother_name ?? 'Mother #' . $att->mother_id }}
+                                            </a>
                                             <div style="font-size:11px; color:#94a3b8; font-weight:600;">Mother ID: #{{ $att->mother_id }}</div>
                                         @else
-                                            <i class="fa-solid fa-baby" style="color:var(--child-blue); margin-right:6px;"></i>
-                                            {{ $att->child?->display_name ?? 'Child #' . $att->child_id }}
+                                            <a href="{{ route($prefix . 'children.show', $att->child_id) }}" style="text-decoration:none; color:inherit;">
+                                                <i class="fa-solid fa-baby" style="color:var(--child-blue); margin-right:6px;"></i>
+                                                {{ $att->child?->display_name ?? 'Child #' . $att->child_id }}
+                                            </a>
                                             <div style="font-size:11px; color:#94a3b8; font-weight:600;">Child ID: #{{ $att->child_id }}</div>
                                         @endif
                                     </td>
                                     <td style="color:#475569;">
                                         @if($session['clinic_type'] === 'mother')
                                             <div>{{ $att->mother?->midwife?->area?->area_name ?? 'Area ' . ($att->mother?->area_id ?? 'N/A') }}</div>
-                                            <div style="font-size:11px; color:#94a3b8;">{{ $att->mother?->mobile_number ?? $att->mother?->phone_number ?? 'No Phone' }}</div>
+                                            <div style="font-size:11px; color:#94a3b8;">{{ $att->mother?->phone_no ?? $att->mother?->mobile_number ?? 'No Phone' }}</div>
                                         @else
                                             <div><strong>Mother:</strong> {{ $att->mother?->mother_name ?? $att->child?->mother?->mother_name ?? '—' }}</div>
                                             <div style="font-size:11px; color:#94a3b8;">{{ $att->child?->midwife?->area?->area_name ?? 'Area ' . ($att->child?->area_id ?? 'N/A') }}</div>
                                         @endif
                                     </td>
-                                    <td style="color:#334155;">
-                                        @if($att->remarks)
-                                            <span style="background:#f1f5f9; padding:4px 10px; border-radius:6px; font-size:12px; font-weight:600;">{{ $att->remarks }}</span>
-                                        @else
-                                            <span style="color:#94a3b8; font-style:italic;">Routine Attendance</span>
-                                        @endif
-                                    </td>
+                                    @if($session['clinic_type'] === 'mother')
+                                        <td>
+                                            @php
+                                                $bp = $att->blood_pressure ?: $att->remarks;
+                                                $isHighBP = $att->isHighBloodPressure();
+                                            @endphp
+                                            @if($bp)
+                                                @if($isHighBP)
+                                                    <span style="display:inline-flex; align-items:center; gap:6px; background:#fee2e2; border:1.5px solid #f87171; color:#991b1b; padding:5px 12px; border-radius:12px; font-weight:800; font-size:12px;">
+                                                        <i class="fa-solid fa-triangle-exclamation" style="color:#dc2626;"></i>
+                                                        {{ $bp }} mmHg — High Risk Alert (&gt;140/90)
+                                                    </span>
+                                                @else
+                                                    <span style="display:inline-flex; align-items:center; gap:6px; background:#f0fdf4; border:1px solid #86efac; color:#166534; padding:5px 12px; border-radius:12px; font-weight:700; font-size:12px;">
+                                                        <i class="fa-solid fa-heart-pulse" style="color:#00c853;"></i>
+                                                        {{ $bp }} mmHg
+                                                    </span>
+                                                @endif
+                                            @else
+                                                <span style="color:#94a3b8; font-style:italic;">Routine Checkup</span>
+                                            @endif
+                                        </td>
+                                    @else
+                                        <td>
+                                            <span style="font-weight:700; color:#1e293b;">
+                                                {{ $att->height ? $att->height . ' cm' : ($att->child?->height ? $att->child->height . ' cm' : '—') }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span style="font-weight:700; color:#1e293b;">
+                                                {{ $att->weight ? $att->weight . ' kg' : ($att->child?->weight ? $att->child->weight . ' kg' : '—') }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            @php
+                                                $cBmi = $att->bmi ?? $att->child?->bmi;
+                                            @endphp
+                                            @if($cBmi)
+                                                <span style="display:inline-flex; align-items:center; gap:5px; background:#e0f2fe; border:1px solid #7dd3fc; color:#0369a1; padding:3px 10px; border-radius:10px; font-weight:800; font-size:12px;">
+                                                    <i class="fa-solid fa-chart-line"></i>
+                                                    BMI: {{ $cBmi }}
+                                                </span>
+                                            @else
+                                                <span style="color:#94a3b8;">—</span>
+                                            @endif
+                                        </td>
+                                    @endif
                                     <td style="font-size:12px; color:#94a3b8;">
                                         {{ $att->created_at ? $att->created_at->format('h:i A') : '—' }}
                                     </td>
                                     <td>
-                                        <form method="POST" action="{{ route('admin.attendances.destroy', $att->id) }}" onsubmit="return confirm('Remove this attendance record?')">
+                                        <form method="POST" action="{{ route($prefix . 'attendances.destroy', $att->id) }}" onsubmit="return confirm('Remove this attendance record?')">
                                             @csrf @method('DELETE')
                                             <button type="submit" class="btn-del-record" title="Delete">
                                                 <i class="fa-solid fa-trash"></i>
@@ -501,10 +515,9 @@
             @endif
         </div>
 
-    </div>{{-- /content --}}
-</div>{{-- /main-wrapper --}}
+    </div>
+</div>
 
-{{-- ═══════════════════════════ JAVASCRIPT ═══════════════════════════ --}}
 <script>
 const mothersList  = @json($mothersList);
 const childrenList = @json($childrenList);
@@ -516,17 +529,23 @@ function switchClinicType(type) {
     currentClinicType = type;
     document.getElementById('clinic_type_input').value = type;
 
-    const btnMother    = document.getElementById('btn-type-mother');
-    const btnPediatric = document.getElementById('btn-type-pediatric');
-    const colHeading   = document.getElementById('participant-col-heading');
-    const counterHead  = document.getElementById('counter-heading');
-    const addBtnLbl    = document.getElementById('add-btn-label');
-    const clinicNameInp= document.getElementById('clinic_name');
+    const btnMother       = document.getElementById('btn-type-mother');
+    const btnPediatric    = document.getElementById('btn-type-pediatric');
+    const colHeading      = document.getElementById('participant-col-heading');
+    const colBp           = document.getElementById('col-heading-bp');
+    const colHeight       = document.getElementById('col-heading-height');
+    const colWeight       = document.getElementById('col-heading-weight');
+    const counterHead     = document.getElementById('counter-heading');
+    const addBtnLbl       = document.getElementById('add-btn-label');
+    const clinicNameInp   = document.getElementById('clinic_name');
 
     if (type === 'mother') {
         btnMother.classList.add('active');
         btnPediatric.classList.remove('active');
         colHeading.textContent = 'Participated Mother Name';
+        colBp.style.display = '';
+        colHeight.style.display = 'none';
+        colWeight.style.display = 'none';
         counterHead.textContent = 'Total Attendance for this Mother Clinic:';
         addBtnLbl.textContent = 'Add Another Mother';
         if (!clinicNameInp.value || clinicNameInp.value.includes('Child') || clinicNameInp.value.includes('Pediatric') || clinicNameInp.value.includes('Baby')) {
@@ -536,6 +555,9 @@ function switchClinicType(type) {
         btnPediatric.classList.add('active');
         btnMother.classList.remove('active');
         colHeading.textContent = 'Participated Child Name';
+        colBp.style.display = 'none';
+        colHeight.style.display = '';
+        colWeight.style.display = '';
         counterHead.textContent = 'Total Attendance for this Pediatric Clinic:';
         addBtnLbl.textContent = 'Add Another Child';
         if (!clinicNameInp.value || clinicNameInp.value.includes('Maternity') || clinicNameInp.value.includes('Mother')) {
@@ -543,7 +565,6 @@ function switchClinicType(type) {
         }
     }
 
-    // Rebuild existing rows according to the new type
     const tbody = document.getElementById('attendeeRows');
     tbody.innerHTML = '';
     rowCounter = 0;
@@ -566,41 +587,89 @@ function buildChildrenOptions(selectedId = '') {
     return opts;
 }
 
-function addAttendeeRow(entityId = '', remarks = '') {
+function checkBPInput(input, statusElId) {
+    const val = input.value.trim();
+    const statusEl = document.getElementById(statusElId);
+    if (!statusEl) return;
+
+    if (!val) {
+        statusEl.style.display = 'none';
+        input.style.borderColor = '#e2e8f0';
+        return;
+    }
+
+    const match = val.match(/(\d+)\s*[\/\-]\s*(\d+)/);
+    if (match) {
+        const sys = parseInt(match[1], 10);
+        const dia = parseInt(match[2], 10);
+        if (sys >= 140 || dia >= 90) {
+            statusEl.style.display = 'inline-flex';
+            statusEl.className = 'bp-high-badge';
+            statusEl.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> High Risk (&gt;140/90)';
+            statusEl.style.cssText = 'display:inline-flex; align-items:center; gap:4px; font-size:11px; font-weight:800; color:#dc2626; background:#fee2e2; border:1px solid #fca5a5; padding:2px 8px; border-radius:8px; margin-top:4px;';
+            input.style.borderColor = '#ef4444';
+        } else {
+            statusEl.style.display = 'inline-flex';
+            statusEl.innerHTML = '<i class="fa-solid fa-check"></i> Normal BP';
+            statusEl.style.cssText = 'display:inline-flex; align-items:center; gap:4px; font-size:11px; font-weight:700; color:#16a34a; background:#dcfce7; border:1px solid #86efac; padding:2px 8px; border-radius:8px; margin-top:4px;';
+            input.style.borderColor = '#22c55e';
+        }
+    } else {
+        statusEl.style.display = 'none';
+        input.style.borderColor = '#e2e8f0';
+    }
+}
+
+function addAttendeeRow(entityId = '', bpOrHeight = '', weightVal = '') {
     rowCounter++;
     const idx = rowCounter;
     const tbody = document.getElementById('attendeeRows');
     const tr = document.createElement('tr');
     tr.id = `att-row-${idx}`;
 
-    let selectHtml = '';
-    let defaultRemark = '';
-
     if (currentClinicType === 'mother') {
-        selectHtml = `<select class="td-select" name="attendees[${idx}][mother_id]" required onchange="updateLiveCount()">
-            ${buildMothersOptions(entityId)}
-        </select>`;
-        defaultRemark = 'Routine Antenatal Checkup';
+        tr.innerHTML = `
+            <td class="td-num">${tbody.rows.length + 1}</td>
+            <td>
+                <select class="td-select" name="attendees[${idx}][mother_id]" required onchange="updateLiveCount()">
+                    ${buildMothersOptions(entityId)}
+                </select>
+            </td>
+            <td>
+                <input type="text" class="td-input" name="attendees[${idx}][blood_pressure]"
+                       placeholder="e.g. 120/80 (BP rate)" value="${bpOrHeight}"
+                       oninput="checkBPInput(this, 'bp-status-${idx}')">
+                <div id="bp-status-${idx}" style="display:none;"></div>
+            </td>
+            <td>
+                <button type="button" class="btn-del-row" onclick="removeAttendeeRow(${idx})" title="Remove">
+                    <i class="fa-solid fa-times"></i>
+                </button>
+            </td>
+        `;
     } else {
-        selectHtml = `<select class="td-select" name="attendees[${idx}][child_id]" required onchange="updateLiveCount()">
-            ${buildChildrenOptions(entityId)}
-        </select>`;
-        defaultRemark = 'Routine Growth & Pediatric Checkup';
+        tr.innerHTML = `
+            <td class="td-num">${tbody.rows.length + 1}</td>
+            <td>
+                <select class="td-select" name="attendees[${idx}][child_id]" required onchange="updateLiveCount()">
+                    ${buildChildrenOptions(entityId)}
+                </select>
+            </td>
+            <td>
+                <input type="number" step="0.1" min="10" max="200" class="td-input" name="attendees[${idx}][height]"
+                       placeholder="Height (cm) e.g. 75.0" value="${bpOrHeight}">
+            </td>
+            <td>
+                <input type="number" step="0.01" min="0.5" max="100" class="td-input" name="attendees[${idx}][weight]"
+                       placeholder="Weight (kg) e.g. 9.5" value="${weightVal}">
+            </td>
+            <td>
+                <button type="button" class="btn-del-row" onclick="removeAttendeeRow(${idx})" title="Remove">
+                    <i class="fa-solid fa-times"></i>
+                </button>
+            </td>
+        `;
     }
-
-    tr.innerHTML = `
-        <td class="td-num">${tbody.rows.length + 1}</td>
-        <td>${selectHtml}</td>
-        <td>
-            <input type="text" class="td-input" name="attendees[${idx}][remarks]"
-                   placeholder="e.g. ${defaultRemark}" value="${remarks}">
-        </td>
-        <td>
-            <button type="button" class="btn-del-row" onclick="removeAttendeeRow(${idx})" title="Remove">
-                <i class="fa-solid fa-times"></i>
-            </button>
-        </td>
-    `;
 
     tbody.appendChild(tr);
     renumberAttendeeRows();
@@ -633,7 +702,6 @@ function updateLiveCount() {
         }
     });
 
-    // Count is total attendees configured
     const totalRows = rows.length;
     document.getElementById('live-attendance-count').textContent = totalRows;
     document.getElementById('btn-count').textContent = totalRows;

@@ -14,9 +14,8 @@ use Illuminate\Support\Facades\DB;
 
 class ChildController extends Controller
 {
-    /**
-     * Display all children records separated by clinic areas.
-     */
+    
+
     public function index(Request $request)
     {
         $this->authorize('viewAny', Child::class);
@@ -25,9 +24,29 @@ class ChildController extends Controller
         $search = $request->query('search');
         $areaFilter = $request->query('area_id');
 
+        if ($user->role === 'mother') {
+            if (!$user->mother) {
+                abort(403, 'Your mother profile is not linked or incomplete. Please contact the administrator.');
+            }
+
+            $myChildrenQuery = Child::with(['mother.midwife', 'midwife.area', 'area', 'immunizations'])
+                ->where('mother_id', $user->mother->mother_id);
+
+            if ($search) {
+                $myChildrenQuery->where(function ($q) use ($search) {
+                    $q->where('child_id', 'like', "%{$search}%")
+                      ->orWhere('child_name', 'like', "%{$search}%")
+                      ->orWhere('gender', 'like', "%{$search}%");
+                });
+            }
+
+            $myChildren = $myChildrenQuery->orderBy('date_of_birth', 'desc')->get();
+
+            return view('children.index', compact('user', 'myChildren', 'search'));
+        }
+
         $allAreas = Area::all();
 
-        // Get areas and their children, with mothers and immunizations
         $areasQuery = Area::query();
         if ($areaFilter) {
             $areasQuery->where('area_id', $areaFilter);
@@ -59,7 +78,7 @@ class ChildController extends Controller
                 if (!$user->mother) abort(403, 'Your mother profile is not linked or incomplete. Please contact the administrator.');
                 $childrenQuery->where('mother_id', $user->mother->mother_id);
             } elseif ($user->role === 'midwife' && $user->midwife) {
-                // Midwife can only see children in their assigned area
+                
                 $childrenQuery->where(function($q) use ($user) {
                     $q->where('midwife_id', $user->midwife->midwife_id)
                       ->orWhereHas('mother', function ($mq) use ($user) {
@@ -72,12 +91,23 @@ class ChildController extends Controller
             return $area;
         });
 
-        // Summary Statistics
+        
         $totalChildren = Child::count();
         $totalAreas = Area::count();
         $maleChildren = Child::where('gender', 'Male')->count();
         $femaleChildren = Child::where('gender', 'Female')->count();
         $bcgVaccinatedCount = Child::where('bcg_vaccinated_at_birth', true)->count();
+        
+        $allChildrenList = Child::with(['mother', 'area', 'midwife.area'])->get()->map(function ($c) use ($user) {
+            $prefix = ($user && $user->role === 'midwife') ? 'midwife.' : ($user && $user->role === 'mother' ? 'mother.' : 'admin.');
+            return [
+                'id' => $c->child_id,
+                'name' => $c->child_name,
+                'mother' => $c->mother?->mother_name ?? '',
+                'area' => $c->area?->area_name ?? ($c->midwife?->area?->area_name ?? 'General'),
+                'url' => route($prefix . 'children.show', $c->child_id),
+            ];
+        });
 
         return view('children.index', compact(
             'user',
@@ -89,13 +119,13 @@ class ChildController extends Controller
             'totalAreas',
             'maleChildren',
             'femaleChildren',
-            'bcgVaccinatedCount'
+            'bcgVaccinatedCount',
+            'allChildrenList'
         ));
     }
 
-    /**
-     * Show registration form for a new child.
-     */
+    
+
     public function create(Request $request)
     {
         $this->authorize('create', Child::class);
@@ -109,12 +139,12 @@ class ChildController extends Controller
         return view('children.create', compact('user', 'mothers', 'midwives', 'areas', 'selectedMotherId'));
     }
 
-    /**
-     * Store a new child and optionally record BCG vaccination.
-     */
+    
+
     public function store(Request $request)
     {
         $this->authorize('create', Child::class);
+        $user = Auth::user();
 
         $validated = $request->validate([
             'mother_id' => 'required|exists:mothers,mother_id',
@@ -154,7 +184,7 @@ class ChildController extends Controller
                 'health_details' => $validated['health_details'] ?? null,
             ]);
 
-            // If BCG was vaccinated before 24 hrs from birth, also record into immunizations table
+            
             if ($bcgGiven) {
                 Immunization::create([
                     'child_id' => $child->child_id,
@@ -179,9 +209,8 @@ class ChildController extends Controller
         }
     }
 
-    /**
-     * Display a specific child record with linked mother details and immunization schedule.
-     */
+    
+
     public function show(int $id)
     {
         $child = Child::with(['mother.midwife.area', 'midwife.area', 'area', 'immunizations.midwife'])->findOrFail($id);
@@ -195,7 +224,7 @@ class ChildController extends Controller
 
         $scheduleStatus = [];
         foreach ($standardSchedule as $vaccine) {
-            // Find if immunization matches this vaccine name
+            
             $recorded = $child->immunizations->first(function ($imm) use ($vaccine) {
                 $targetPrefix = explode(' ', $vaccine['vaccine_name'])[0];
                 return stripos($imm->vaccine_name, $targetPrefix) !== false;
@@ -230,9 +259,8 @@ class ChildController extends Controller
         return view('children.show', compact('user', 'child', 'scheduleStatus', 'childAgeMonths', 'midwives'));
     }
 
-    /**
-     * Show form for editing child record.
-     */
+    
+
     public function edit(int $id)
     {
         $child = Child::with(['mother', 'midwife'])->findOrFail($id);
@@ -246,9 +274,8 @@ class ChildController extends Controller
         return view('children.edit', compact('user', 'child', 'mothers', 'midwives', 'areas'));
     }
 
-    /**
-     * Update child record.
-     */
+    
+
     public function update(Request $request, int $id)
     {
         $child = Child::findOrFail($id);
@@ -261,6 +288,8 @@ class ChildController extends Controller
             'date_of_birth' => 'required|date|before_or_equal:today',
             'birth_weight' => 'required|numeric|min:0.5|max:10',
             'birth_length' => 'nullable|numeric|min:20|max:80',
+            'height' => 'nullable|numeric|min:20|max:200',
+            'weight' => 'nullable|numeric|min:0.5|max:100',
             'midwife_id' => 'nullable|exists:midwives,midwife_id',
             'area_id' => 'nullable|exists:areas,area_id',
             'bcg_vaccinated_at_birth' => 'nullable|boolean',
@@ -272,14 +301,18 @@ class ChildController extends Controller
         $bcgGiven = !empty($request->bcg_vaccinated_at_birth);
         $validated['bcg_vaccinated_at_birth'] = $bcgGiven;
 
+        if (!empty($validated['height']) && !empty($validated['weight'])) {
+            $hInM = $validated['height'] > 3 ? ($validated['height'] / 100) : $validated['height'];
+            $validated['bmi'] = round($validated['weight'] / ($hInM * $hInM), 2);
+        }
+
         $child->update($validated);
 
         return redirect()->route($request->user()->role === 'midwife' ? 'midwife.children.show' : 'admin.children.show', $child->child_id)->with('success', 'Child details updated successfully.');
     }
 
-    /**
-     * Remove child record.
-     */
+    
+
     public function destroy(int $id)
     {
         $child = Child::findOrFail($id);

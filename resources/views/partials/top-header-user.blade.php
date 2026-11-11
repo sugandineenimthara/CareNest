@@ -14,7 +14,7 @@
         <i class="fa-solid fa-chevron-down user-dropdown-arrow"></i>
     </div>
 
-    <!-- Dropdown Menu -->
+    
     <div class="user-dropdown-menu" id="userDropdownMenu">
         <div class="dropdown-header">
             <div class="dropdown-name">{{ $displayName }}</div>

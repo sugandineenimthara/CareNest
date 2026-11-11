@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Area;
 use App\Models\FamilyHealthHistory;
 use App\Models\Midwife;
 use App\Models\Mother;
@@ -13,17 +14,19 @@ use Illuminate\Support\Facades\DB;
 
 class MotherController extends Controller
 {
-    /**
-     * Display all mothers grouped by midwife.
-     */
+    
+
     public function index(Request $request)
     {
         $this->authorize('viewAny', Mother::class);
 
         $user = Auth::user();
         $search = $request->query('search');
+        $areaFilter = $request->query('area_id');
 
-        $midwives = Midwife::with(['area', 'mothers' => function ($q) use ($search) {
+        $allAreas = Area::all();
+
+        $midwifeQuery = Midwife::with(['area', 'mothers' => function ($q) use ($search) {
             $q->with(['pregnancyHistories']);
             if ($search) {
                 $q->where(function ($sq) use ($search) {
@@ -32,17 +35,35 @@ class MotherController extends Controller
                        ->orWhere('address', 'like', "%{$search}%");
                 });
             }
-        }])->get();
+        }]);
+
+        if ($areaFilter) {
+            $midwifeQuery->where('area_id', $areaFilter);
+        }
+
+        $midwives = $midwifeQuery->get();
 
         $totalMothers = Mother::count();
         $totalMidwives = Midwife::count();
 
-        return view('mothers.index', compact('user', 'midwives', 'search', 'totalMothers', 'totalMidwives'));
+        
+        $allMothersList = Mother::with(['midwife.area'])->get()->map(function ($m) use ($user) {
+            $prefix = ($user && $user->role === 'midwife') ? 'midwife.' : 'admin.';
+            return [
+                'id' => $m->mother_id,
+                'name' => $m->mother_name,
+                'phone' => $m->phone_no ?? '',
+                'area' => $m->midwife?->area?->area_name ?? 'General',
+                'midwife' => $m->midwife?->midwife_name ?? '',
+                'url' => route($prefix . 'mothers.show', $m->mother_id),
+            ];
+        });
+
+        return view('mothers.index', compact('user', 'midwives', 'search', 'totalMothers', 'totalMidwives', 'allAreas', 'areaFilter', 'allMothersList'));
     }
 
-    /**
-     * Show the registration form for a new mother.
-     */
+    
+
     public function create()
     {
         $this->authorize('create', Mother::class);
@@ -52,26 +73,26 @@ class MotherController extends Controller
         return view('mothers.create', compact('user', 'midwives'));
     }
 
-    /**
-     * Store a new mother with pregnancy history and previous pregnancy records.
-     */
+    
+
     public function store(Request $request)
     {
         $this->authorize('create', Mother::class);
 
         $validated = $request->validate([
-            // Mother details
+            
             'mother_name'        => 'required|string|max:255',
             'phone_no'           => 'nullable|string|max:20',
             'midwife_id'         => 'required|exists:midwives,midwife_id',
             'date_of_birth'      => 'nullable|date|before:today',
             'height'             => 'nullable|numeric|min:50|max:250',
             'weight'             => 'nullable|numeric|min:20|max:300',
+            'blood_pressure'     => 'nullable|string|max:50',
             'husband_name'       => 'nullable|string|max:255',
             'husband_occupation' => 'nullable|string|max:255',
             'address'            => 'nullable|string|max:500',
 
-            // Current pregnancy history
+            
             'no_living_children'                   => 'nullable|integer|min:0',
             'age_of_youngest_child'                => 'nullable|integer|min:0',
             'last_menstrual_period'                => 'nullable|date',
@@ -80,13 +101,13 @@ class MotherController extends Controller
             'no_of_weeks_pregnant_at_registration' => 'nullable|integer|min:0|max:45',
             'first_fetal_movements_date'           => 'nullable|date',
 
-            // Family health history
+            
             'diabetes'               => 'nullable|string|max:255',
             'high_blood_pressure'    => 'nullable|string|max:255',
             'blood_related_diseases' => 'nullable|string|max:255',
             'other_health'           => 'nullable|string|max:1000',
 
-            // Previous pregnancy history (array)
+            
             'prev_pregnancy'                             => 'nullable|array',
             'prev_pregnancy.*.date_of_birth'             => 'nullable|date',
             'prev_pregnancy.*.birth_weight'              => 'nullable|numeric|min:0|max:10',
@@ -101,7 +122,7 @@ class MotherController extends Controller
         ]);
 
         DB::transaction(function () use ($validated) {
-            // 1. Create Mother
+            
             $mother = Mother::create([
                 'mother_name'        => $validated['mother_name'],
                 'phone_no'           => $validated['phone_no'] ?? null,
@@ -109,12 +130,13 @@ class MotherController extends Controller
                 'date_of_birth'      => $validated['date_of_birth'] ?? null,
                 'height'             => $validated['height'] ?? null,
                 'weight'             => $validated['weight'] ?? null,
+                'blood_pressure'     => $validated['blood_pressure'] ?? null,
                 'husband_name'       => $validated['husband_name'] ?? null,
                 'husband_occupation' => $validated['husband_occupation'] ?? null,
                 'address'            => $validated['address'] ?? null,
             ]);
 
-            // 2. Create current Pregnancy History
+            
             $hasPregnancyData = isset($validated['no_living_children'])
                 || !empty($validated['last_menstrual_period'])
                 || !empty($validated['expected_date_of_delivery'])
@@ -133,7 +155,7 @@ class MotherController extends Controller
                 ]);
             }
 
-            // 3. Create Family Health History
+            
             $hasFamilyHealth = !empty($validated['diabetes'])
                 || !empty($validated['high_blood_pressure'])
                 || !empty($validated['blood_related_diseases'])
@@ -150,7 +172,7 @@ class MotherController extends Controller
                 ]);
             }
 
-            // 4. Create Previous Pregnancy History records
+            
             if (!empty($validated['prev_pregnancy'])) {
                 foreach ($validated['prev_pregnancy'] as $prev) {
                     $hasData = !empty($prev['date_of_birth']) || !empty($prev['birth_weight'])
@@ -180,9 +202,8 @@ class MotherController extends Controller
             ->with('success', 'Mother registered successfully!');
     }
 
-    /**
-     * Display a single mother's profile.
-     */
+    
+
     public function show($id)
     {
         $mother = Mother::with([
@@ -203,9 +224,8 @@ class MotherController extends Controller
         return view('mothers.show', compact('user', 'mother'));
     }
 
-    /**
-     * Show edit form for a mother.
-     */
+    
+
     public function edit($id)
     {
         $mother = Mother::with([
@@ -223,9 +243,8 @@ class MotherController extends Controller
         return view('mothers.edit', compact('user', 'mother', 'midwives'));
     }
 
-    /**
-     * Update a mother record.
-     */
+    
+
     public function update(Request $request, $id)
     {
         $mother = Mother::findOrFail($id);
@@ -238,6 +257,7 @@ class MotherController extends Controller
             'date_of_birth'      => 'nullable|date|before:today',
             'height'             => 'nullable|numeric|min:50|max:250',
             'weight'             => 'nullable|numeric|min:20|max:300',
+            'blood_pressure'     => 'nullable|string|max:50',
             'husband_name'       => 'nullable|string|max:255',
             'husband_occupation' => 'nullable|string|max:255',
             'address'            => 'nullable|string|max:500',
@@ -249,9 +269,8 @@ class MotherController extends Controller
             ->with('success', 'Mother record updated successfully!');
     }
 
-    /**
-     * Display mother's own profile.
-     */
+    
+
     public function profile()
     {
         $user = Auth::user();

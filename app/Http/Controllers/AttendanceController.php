@@ -13,9 +13,8 @@ use Illuminate\Support\Facades\DB;
 
 class AttendanceController extends Controller
 {
-    /**
-     * Display attendance records grouped by clinic sessions with summary counters.
-     */
+    
+
     public function index(Request $request)
     {
         $user       = Auth::user();
@@ -39,13 +38,12 @@ class AttendanceController extends Controller
             $query->where(function ($q) use ($search) {
                 $q->where('clinic_name', 'like', "%{$search}%")
                   ->orWhere('remarks', 'like', "%{$search}%")
+                  ->orWhere('blood_pressure', 'like', "%{$search}%")
                   ->orWhereHas('mother', function ($mq) use ($search) {
                       $mq->where('mother_name', 'like', "%{$search}%");
                   })
                   ->orWhereHas('child', function ($cq) use ($search) {
-                      $cq->where('child_name', 'like', "%{$search}%")
-                         ->orWhere('first_name', 'like', "%{$search}%")
-                         ->orWhere('last_name', 'like', "%{$search}%");
+                      $cq->where('child_name', 'like', "%{$search}%");
                   });
             });
         }
@@ -62,7 +60,7 @@ class AttendanceController extends Controller
                             ->orderBy('id', 'desc')
                             ->get();
 
-        // Group attendances into clinic sessions: date + clinic_type + clinic_name
+        
         $clinicSessions = $allRecords->groupBy(function ($r) {
             return $r->clinic_date->format('Y-m-d') . '||' . $r->clinic_type . '||' . $r->clinic_name;
         })->map(function ($records, $key) {
@@ -71,22 +69,22 @@ class AttendanceController extends Controller
 
             return [
                 'clinic_date'      => Carbon::parse($date),
-                'clinic_type'      => $type, // 'mother' or 'pediatric'
+                'clinic_type'      => $type, 
                 'clinic_name'      => $name,
                 'midwife'          => $first?->midwife,
-                'total_attendance' => $records->count(), // Count of total attendances for this clinic
+                'total_attendance' => $records->count(), 
                 'records'          => $records,
             ];
         })->values();
 
-        // Overall summary statistics
+        
         $totalAttendancesEver      = Attendance::count();
         $totalMotherAttendances    = Attendance::where('clinic_type', 'mother')->count();
         $totalPediatricAttendances = Attendance::where('clinic_type', 'pediatric')->count();
         $totalClinicsEver          = Attendance::select('clinic_date', 'clinic_name', 'clinic_type')
                                               ->distinct()->count();
 
-        // Data for interactive recording form
+        
         $mothers = Mother::with('midwife.area')->orderBy('mother_name')->get();
         $children = Child::with('mother', 'midwife.area')->orderBy('child_id')->get();
         $midwives = Midwife::with('area')->get();
@@ -118,26 +116,28 @@ class AttendanceController extends Controller
         ));
     }
 
-    /**
-     * Store batch attendance for a clinic session.
-     */
+    
+
     public function storeBatch(Request $request)
     {
         $request->validate([
-            'clinic_date'         => 'required|date',
-            'clinic_type'         => 'required|in:mother,pediatric',
-            'clinic_name'         => 'required|string|max:255',
-            'midwife_id'          => 'nullable|exists:midwives,midwife_id',
-            'attendees'           => 'required|array|min:1',
-            'attendees.*.mother_id' => 'nullable|exists:mothers,mother_id',
-            'attendees.*.child_id'  => 'nullable|exists:children,child_id',
-            'attendees.*.remarks'   => 'nullable|string|max:500',
+            'clinic_date'                => 'required|date',
+            'clinic_type'                => 'required|in:mother,pediatric',
+            'clinic_name'                => 'required|string|max:255',
+            'midwife_id'                 => 'nullable|exists:midwives,midwife_id',
+            'attendees'                  => 'required|array|min:1',
+            'attendees.*.mother_id'      => 'nullable|exists:mothers,mother_id',
+            'attendees.*.child_id'       => 'nullable|exists:children,child_id',
+            'attendees.*.blood_pressure' => 'nullable|string|max:50',
+            'attendees.*.height'         => 'nullable|numeric|min:20|max:250',
+            'attendees.*.weight'         => 'nullable|numeric|min:0.5|max:150',
+            'attendees.*.remarks'        => 'nullable|string|max:500',
         ]);
 
         $user = Auth::user();
         $midwifeId = $request->midwife_id;
 
-        // Auto-assign midwife if logged in as midwife
+        
         if (!$midwifeId) {
             if ($user->role === 'midwife') {
                 $mw = Midwife::where('user_id', $user->id)->first();
@@ -152,6 +152,8 @@ class AttendanceController extends Controller
         DB::beginTransaction();
         try {
             $count = 0;
+            $highRiskAlerts = [];
+
             foreach ($request->attendees as $item) {
                 $motherId = null;
                 $childId  = null;
@@ -159,24 +161,80 @@ class AttendanceController extends Controller
                 if ($request->clinic_type === 'mother') {
                     if (empty($item['mother_id'])) continue;
                     $motherId = $item['mother_id'];
+                    $bpRate = trim($item['blood_pressure'] ?? ($item['remarks'] ?? ''));
+
+                    
+                    Attendance::create([
+                        'mother_id'      => $motherId,
+                        'child_id'       => null,
+                        'midwife_id'     => $midwifeId,
+                        'clinic_name'    => $request->clinic_name,
+                        'clinic_type'    => 'mother',
+                        'clinic_date'    => $request->clinic_date,
+                        'blood_pressure' => $bpRate ?: null,
+                        'remarks'        => $bpRate ?: null,
+                    ]);
+
+                    
+                    if (!empty($bpRate)) {
+                        $mother = Mother::find($motherId);
+                        if ($mother) {
+                            $mother->update(['blood_pressure' => $bpRate]);
+
+                            
+                            if (preg_match('/(\d+)\s*[\/\-]\s*(\d+)/', $bpRate, $m)) {
+                                $systolic = (int)$m[1];
+                                $diastolic = (int)$m[2];
+                                if ($systolic >= 140 || $diastolic >= 90) {
+                                    $highRiskAlerts[] = $mother->mother_name . " ({$bpRate} mmHg)";
+                                }
+                            }
+                        }
+                    }
+
+                    $count++;
                 } else {
                     if (empty($item['child_id'])) continue;
                     $childId = $item['child_id'];
                     $child = Child::find($childId);
                     $motherId = $child?->mother_id;
+
+                    $height = !empty($item['height']) ? (float)$item['height'] : null;
+                    $weight = !empty($item['weight']) ? (float)$item['weight'] : null;
+                    $bmi = null;
+
+                    if ($height && $weight && $height > 0) {
+                        $heightInM = $height > 3 ? ($height / 100) : $height;
+                        $bmi = round($weight / ($heightInM * $heightInM), 2);
+                    }
+
+                    
+                    Attendance::create([
+                        'mother_id'      => $motherId,
+                        'child_id'       => $childId,
+                        'midwife_id'     => $midwifeId,
+                        'clinic_name'    => $request->clinic_name,
+                        'clinic_type'    => 'pediatric',
+                        'clinic_date'    => $request->clinic_date,
+                        'height'         => $height,
+                        'weight'         => $weight,
+                        'bmi'            => $bmi,
+                        'remarks'        => ($height && $weight) ? "Ht: {$height}cm, Wt: {$weight}kg, BMI: {$bmi}" : ($item['remarks'] ?? null),
+                    ]);
+
+                    
+                    if ($child) {
+                        $childUpdates = [];
+                        if ($height !== null) $childUpdates['height'] = $height;
+                        if ($weight !== null) $childUpdates['weight'] = $weight;
+                        if ($bmi !== null)    $childUpdates['bmi'] = $bmi;
+                        if (!empty($childUpdates)) {
+                            $child->update($childUpdates);
+                        }
+                    }
+
+                    $count++;
                 }
-
-                Attendance::create([
-                    'mother_id'   => $motherId,
-                    'child_id'    => $childId,
-                    'midwife_id'  => $midwifeId,
-                    'clinic_name' => $request->clinic_name,
-                    'clinic_type' => $request->clinic_type,
-                    'clinic_date' => $request->clinic_date,
-                    'remarks'     => $item['remarks'] ?? null,
-                ]);
-
-                $count++;
             }
 
             if ($count === 0) {
@@ -189,17 +247,22 @@ class AttendanceController extends Controller
             $typeLabel = $request->clinic_type === 'mother' ? 'Mother Clinic' : 'Pediatric Clinic';
             $dateLabel = Carbon::parse($request->clinic_date)->format('d M Y');
 
-            return redirect()->route('attendances.index')
-                ->with('success', "✅ Clinic attendance recorded! {$count} attendees added for {$request->clinic_name} ({$typeLabel}) on {$dateLabel}.");
+            $routePrefix = ($user->role === 'midwife') ? 'midwife.' : 'admin.';
+
+            if (!empty($highRiskAlerts)) {
+                session()->flash('high_risk_alert', '🚨 HIGH RISK ALERT: Mother(s) ' . implode(', ', $highRiskAlerts) . ' recorded blood pressure exceeding 140/90 mmHg! High risk alert flagged in the system and profile updated.');
+            }
+
+            return redirect()->route($routePrefix . 'attendances.index')
+                ->with('success', "✅ Clinic attendance recorded! {$count} attendees added for {$request->clinic_name} ({$typeLabel}) on {$dateLabel}. Profile metrics successfully updated.");
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->withInput()->with('error', 'Failed to save attendance: ' . $e->getMessage());
         }
     }
 
-    /**
-     * Delete an individual attendance record.
-     */
+    
+
     public function destroy(int $id)
     {
         $attendance = Attendance::findOrFail($id);

@@ -42,7 +42,7 @@
 
         .content-container { padding:36px 48px; max-width:1200px; width:100%; margin:0 auto; }
 
-        /* Hero Profile Card */
+        
         .profile-hero {
             background:linear-gradient(135deg,#1b5e20 0%,#00695c 60%,#004d40 100%);
             border-radius:28px; padding:36px; margin-bottom:28px;
@@ -62,7 +62,7 @@
         .hero-stat-num { font-family:var(--font-heading); font-size:24px; font-weight:800; }
         .hero-stat-label { font-size:11px; opacity:0.7; text-transform:uppercase; letter-spacing:0.8px; margin-top:2px; }
 
-        /* Info Cards Grid */
+        
         .info-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:20px; }
         .info-card { background:rgba(255,255,255,0.92); backdrop-filter:blur(16px); border-radius:24px; padding:28px; border:1px solid rgba(255,255,255,0.8); box-shadow:0 8px 24px rgba(0,0,0,0.05); }
         .card-header { display:flex; align-items:center; gap:12px; margin-bottom:20px; padding-bottom:14px; border-bottom:1.5px solid #f1f5f9; }
@@ -86,10 +86,10 @@
         .bmi-high { background:#fee2e2; color:#991b1b; }
         .bmi-low { background:#fef3c7; color:#92400e; }
 
-        /* Full Width Cards */
+        
         .full-card { background:rgba(255,255,255,0.92); backdrop-filter:blur(16px); border-radius:24px; padding:28px; border:1px solid rgba(255,255,255,0.8); box-shadow:0 8px 24px rgba(0,0,0,0.05); margin-bottom:20px; }
 
-        /* Previous Pregnancy Table */
+        
         .preg-table { width:100%; border-collapse:collapse; }
         .preg-table th { font-size:10px; font-weight:800; color:#94a3b8; text-transform:uppercase; letter-spacing:0.8px; padding:8px 14px; text-align:left; border-bottom:1.5px solid #f1f5f9; }
         .preg-table td { padding:12px 14px; font-size:13px; color:#334155; border-bottom:1px solid #f8fafc; }
@@ -106,36 +106,28 @@
     </style>
 </head>
 <body>
-    <aside class="sidebar">
-        <a href="{{ route('dashboard') }}" class="sidebar-brand"><i class="fa-solid fa-leaf" style="color:#00c853;"></i><span>CareNest</span></a>
-        <ul class="sidebar-menu">
-            <li class="nav-item"><a href="{{ route('dashboard') }}"><i class="fa-solid fa-table-cells-large"></i><span>Dashboard</span></a></li>
-            @if(Auth::check() && (Auth::user()->role === 'provider' || Auth::user()->role === 'admin'))
-            <li class="nav-item"><a href="{{ route('admin.midwife-requests') }}"><i class="fa-solid fa-user-check"></i><span>Midwife Requests</span></a></li>
-            <li class="nav-item"><a href="{{ route('admin.midwives.index') }}"><i class="fa-solid fa-user-nurse"></i><span>Manage Midwives</span></a></li>
-            @endif
-            <li class="nav-item active"><a href="{{ route('admin.mothers.index') }}"><i class="fa-solid fa-user-nurse"></i><span>Mothers</span></a></li>
-            <li class="nav-item"><a href="{{ route('admin.children.index') }}"><i class="fa-solid fa-baby"></i><span>Children</span></a></li>
-            <li class="nav-item"><a href="{{ route('admin.immunizations.index') }}"><i class="fa-solid fa-syringe"></i><span>Immunizations</span></a></li>
-            <li class="nav-item"><a href="{{ route('admin.alerts.index') }}"><i class="fa-solid fa-triangle-exclamation"></i><span>High-Risk Alerts</span></a></li>
-
-
-            <li class="nav-item"><a href="{{ route('admin.triposha.index') }}"><i class="fa-solid fa-book-medical"></i><span>Triposha Book</span></a></li>
-            <li class="nav-item"><a href="{{ route('admin.attendances.index') }}"><i class="fa-solid fa-calendar-check"></i><span>Clinic Attendances</span></a></li>
-            <li class="nav-item"><a href="#reports"><i class="fa-solid fa-file-invoice"></i><span>Vaccine Reports</span></a></li>
-        </ul>
-    </aside>
+    @php
+        $role = auth()->user()->role ?? 'admin';
+        $prefix = $role === 'midwife' ? 'midwife.' : ($role === 'mother' ? 'mother.' : 'admin.');
+    @endphp
+    @include('partials.sidebar')
 
     <div class="main-wrapper">
         <header class="top-header">
             <div class="header-left">
-                <a href="{{ route('admin.mothers.index') }}" class="back-btn"><i class="fa-solid fa-arrow-left"></i></a>
+                @if($role === 'mother')
+                    <a href="{{ route('mother.profile') }}" class="back-btn"><i class="fa-solid fa-arrow-left"></i></a>
+                @else
+                    <a href="{{ route($prefix . 'mothers.index') }}" class="back-btn"><i class="fa-solid fa-arrow-left"></i></a>
+                @endif
                 Mother Profile
             </div>
             <div class="header-right">
-                <a href="{{ route('admin.mothers.edit', $mother->mother_id) }}" class="edit-btn">
+                @if(in_array($role, ['admin', 'provider', 'midwife']))
+                <a href="{{ route($prefix . 'mothers.edit', $mother->mother_id) }}" class="edit-btn">
                     <i class="fa-solid fa-pen"></i> Edit Record
                 </a>
+                @endif
                 @include('partials.top-header-user')
             </div>
         </header>
@@ -145,17 +137,38 @@
                 <div class="flash-success"><i class="fa-solid fa-circle-check"></i>{{ session('success') }}</div>
             @endif
 
+            @if($mother->isHighBloodPressure())
+                <div style="background:linear-gradient(135deg, #fef2f2, #fee2e2); border:1.5px solid #f87171; color:#991b1b; padding:18px 22px; border-radius:18px; margin-bottom:24px; display:flex; align-items:center; gap:16px; box-shadow:0 4px 18px rgba(220,38,38,0.12);">
+                    <div style="width:44px; height:44px; border-radius:12px; background:#dc2626; color:white; display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0;">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                    </div>
+                    <div>
+                        <div style="font-family:var(--font-heading); font-size:16px; font-weight:800; color:#7f1d1d;">
+                            HIGH RISK PATIENT ALERT — Elevated Blood Pressure ({{ $mother->blood_pressure }} mmHg)
+                        </div>
+                        <div style="font-size:13px; color:#b91c1c; margin-top:2px;">
+                            Patient's blood pressure rate exceeds the 140/90 threshold. Requires immediate clinical attention and frequent maternal monitoring.
+                        </div>
+                    </div>
+                </div>
+            @endif
+
             @php
                 $initials = collect(explode(' ', $mother->mother_name))->map(fn($w) => strtoupper(substr($w,0,1)))->take(2)->implode('');
                 $latestPregnancy = $mother->pregnancyHistories->last();
             @endphp
 
-            <!-- Hero -->
+            
             <div class="profile-hero">
                 <div class="hero-avatar">{{ $initials }}</div>
                 <div class="hero-info">
                     <div class="hero-name">{{ $mother->mother_name }}</div>
-                    <div class="hero-id">Mother ID #{{ $mother->mother_id }} &nbsp;·&nbsp; Registered {{ $mother->created_at->format('d M Y') }}</div>
+                    <div class="hero-id">
+                        <span style="background:#e8f5e9; color:#1b5e20; border:1px solid #a5d6a7; padding:4px 10px; border-radius:8px; font-weight:800; display:inline-flex; align-items:center; gap:6px;">
+                            <i class="fa-solid fa-id-card"></i> Unique Mother ID: #{{ $mother->mother_id }}
+                        </span>
+                        &nbsp;·&nbsp; Registered {{ $mother->created_at->format('d M Y') }}
+                    </div>
                     <div class="hero-tags">
                         <span class="hero-tag"><i class="fa-solid fa-stethoscope"></i> {{ $mother->midwife->midwife_name ?? 'Unassigned' }}</span>
                         <span class="hero-tag"><i class="fa-solid fa-location-dot"></i> {{ $mother->midwife->area->area_name ?? 'No Area' }}</span>
@@ -177,6 +190,10 @@
                         <div class="hero-stat-label">BMI</div>
                     </div>
                     <div class="hero-stat">
+                        <div class="hero-stat-num" style="{{ $mother->isHighBloodPressure() ? 'color:#dc2626;' : '' }}">{{ $mother->blood_pressure ?? '--' }}</div>
+                        <div class="hero-stat-label">Blood Press.</div>
+                    </div>
+                    <div class="hero-stat">
                         <div class="hero-stat-num">{{ $mother->children->count() }}</div>
                         <div class="hero-stat-label">Children</div>
                     </div>
@@ -187,15 +204,20 @@
                 </div>
             </div>
 
-            <!-- Info Grid -->
+            
             <div class="info-grid">
-                <!-- Personal Details -->
+                
                 <div class="info-card">
                     <div class="card-header">
                         <div class="card-icon ci-green"><i class="fa-solid fa-id-card"></i></div>
                         <div class="card-title">Personal Details</div>
                     </div>
                     <div class="info-rows">
+                        <div class="info-row">
+                            <span class="info-row-label">Unique Mother ID</span>
+                            <span class="info-row-value" style="font-weight:800; color:#1b5e20;">#{{ $mother->mother_id }}</span>
+                        </div>
+                        <div class="info-divider"></div>
                         <div class="info-row">
                             <span class="info-row-label">Full Name</span>
                             <span class="info-row-value">{{ $mother->mother_name }}</span>
@@ -228,7 +250,7 @@
                     </div>
                 </div>
 
-                <!-- Clinical Measurements -->
+                
                 <div class="info-card">
                     <div class="card-header">
                         <div class="card-icon ci-teal"><i class="fa-solid fa-weight-scale"></i></div>
@@ -261,6 +283,27 @@
                         </div>
                         <div class="info-divider"></div>
                         <div class="info-row">
+                            <span class="info-row-label">Blood Pressure</span>
+                            <span class="info-row-value">
+                                @if($mother->blood_pressure)
+                                    @if($mother->isHighBloodPressure())
+                                        <span style="display:inline-flex; align-items:center; gap:6px; background:#fee2e2; border:1.5px solid #f87171; color:#991b1b; padding:4px 12px; border-radius:12px; font-weight:800; font-size:13px;">
+                                            <i class="fa-solid fa-triangle-exclamation" style="color:#dc2626;"></i>
+                                            {{ $mother->blood_pressure }} mmHg — High Risk (&gt;140/90)
+                                        </span>
+                                    @else
+                                        <span style="display:inline-flex; align-items:center; gap:6px; background:#f0fdf4; border:1px solid #86efac; color:#166534; padding:4px 10px; border-radius:10px; font-weight:700; font-size:13px;">
+                                            <i class="fa-solid fa-heart-pulse" style="color:#00c853;"></i>
+                                            {{ $mother->blood_pressure }} mmHg
+                                        </span>
+                                    @endif
+                                @else
+                                    <span style="color:#94a3b8;">Not recorded yet</span>
+                                @endif
+                            </span>
+                        </div>
+                        <div class="info-divider"></div>
+                        <div class="info-row">
                             <span class="info-row-label">Assigned Midwife</span>
                             <span class="info-row-value">{{ $mother->midwife->midwife_name ?? '—' }}</span>
                         </div>
@@ -272,7 +315,7 @@
                     </div>
                 </div>
 
-                <!-- Current Pregnancy -->
+                
                 <div class="info-card">
                     <div class="card-header">
                         <div class="card-icon ci-blue"><i class="fa-solid fa-baby-carriage"></i></div>
@@ -320,7 +363,7 @@
                     @endif
                 </div>
 
-                <!-- Family Health History -->
+                
                 <div class="info-card">
                     <div class="card-header">
                         <div class="card-icon ci-rose"><i class="fa-solid fa-heart-pulse"></i></div>
@@ -355,7 +398,7 @@
                 </div>
             </div>
 
-            <!-- Previous Pregnancy History -->
+            
             <div class="full-card">
                 <div class="card-header">
                     <div class="card-icon ci-purple" style="width:40px;height:40px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;background:#ede7f6;color:#6d28d9;">

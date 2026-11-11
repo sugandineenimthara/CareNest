@@ -27,7 +27,7 @@
             display: flex;
         }
 
-        /* Sidebar */
+        
         .sidebar {
             width: var(--sidebar-width);
             background: #ffffff;
@@ -105,7 +105,7 @@
             text-align: center;
         }
 
-        /* Main Content */
+        
         .main-wrapper {
             margin-left: var(--sidebar-width);
             flex-grow: 1;
@@ -302,50 +302,10 @@
 </head>
 <body>
 
-    <!-- Sidebar Navigation -->
-    <aside class="sidebar">
-        <div class="sidebar-brand">
-            <div class="brand-icon"><i class="fa-solid fa-heart-pulse"></i></div>
-            <span>CareNest</span>
-        </div>
+    
+    @include('partials.sidebar')
 
-        <ul class="nav-list">
-            <li class="nav-item">
-                <a href="{{ route('admin.dashboard') }}"><i class="fa-solid fa-chart-pie"></i><span>Dashboard</span></a>
-            </li>
-            @if(in_array($role, ['provider', 'admin']))
-            <li class="nav-item">
-                <a href="{{ route('admin.midwife-requests') }}"><i class="fa-solid fa-user-clock"></i><span>Midwife Requests</span></a>
-            </li>
-            <li class="nav-item">
-                <a href="{{ route('admin.midwives.index') }}"><i class="fa-solid fa-user-nurse"></i><span>Manage Midwives</span></a>
-            </li>
-            @endif
-            <li class="nav-item">
-                <a href="{{ route('admin.mothers.index') }}"><i class="fa-solid fa-person-breastfeeding"></i><span>Mothers Registry</span></a>
-            </li>
-            <li class="nav-item">
-                <a href="{{ route('admin.children.index') }}"><i class="fa-solid fa-baby"></i><span>Children Registry</span></a>
-            </li>
-            <li class="nav-item">
-                <a href="{{ route('admin.immunizations.index') }}"><i class="fa-solid fa-syringe"></i><span>Immunizations</span></a>
-            </li>
-            <li class="nav-item">
-                <a href="{{ route('admin.alerts.index') }}"><i class="fa-solid fa-triangle-exclamation"></i><span>High-Risk Alerts</span></a>
-            </li>
-            <li class="nav-item">
-                <a href="{{ route('admin.triposha.index') }}"><i class="fa-solid fa-box-open"></i><span>Thriposha Book</span></a>
-            </li>
-            <li class="nav-item">
-                <a href="{{ route('admin.attendances.index') }}"><i class="fa-solid fa-calendar-check"></i><span>Clinic Attendances</span></a>
-            </li>
-            <li class="nav-item active" style="margin-top: 16px;">
-                <a href="{{ route('password.change') }}"><i class="fa-solid fa-key"></i><span>Change Password</span></a>
-            </li>
-        </ul>
-    </aside>
-
-    <!-- Main Content Area -->
+    
     <div class="main-wrapper">
         <header class="top-header">
             <div class="header-left">CareNest</div>
@@ -373,7 +333,7 @@
                 <form action="{{ route('password.update_auth') }}" method="POST" id="passwordForm">
                     @csrf
 
-                    <!-- Current Password Step -->
+                    
                     <div id="currentPasswordSection" style="{{ $identityVerified ? 'display: none;' : 'display: block;' }}">
                         <div class="form-group">
                             <div class="label-row">
@@ -400,7 +360,7 @@
                         </button>
                     </div>
 
-                    <!-- New Password Step (Visible only after verification) -->
+                    
                     <div id="newPasswordSection" style="{{ $identityVerified ? 'display: block;' : 'display: none;' }}">
                         <div class="form-group">
                             <label class="form-label" for="password">New Password</label>
@@ -488,7 +448,6 @@
                 const data = await res.json();
 
                 if (res.ok && data.success) {
-                    // Hide current password section and show new password section
                     document.getElementById('currentPasswordSection').style.display = 'none';
                     const newSection = document.getElementById('newPasswordSection');
                     newSection.style.display = 'block';

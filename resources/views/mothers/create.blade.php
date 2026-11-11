@@ -23,7 +23,7 @@
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: var(--font-main); background: var(--bg-gradient); background-attachment: fixed; color: var(--text-dark); min-height: 100vh; display: flex; }
 
-        /* Sidebar */
+        
         .sidebar { width: var(--sidebar-width); background: rgba(255,255,255,0.95); backdrop-filter: blur(20px); border-right: 1px solid rgba(226,232,240,0.8); display: flex; flex-direction: column; padding: 30px 20px; position: fixed; top:0; bottom:0; left:0; z-index:100; }
         .sidebar-brand { display:flex; align-items:center; gap:10px; font-family:var(--font-heading); font-size:24px; font-weight:800; color:#1b4d3e; text-decoration:none; margin-bottom:36px; padding-left:10px; }
         .sidebar-menu { list-style:none; display:flex; flex-direction:column; gap:6px; flex:1; overflow-y:auto; padding-right:4px; }
@@ -37,7 +37,7 @@
         .logout-btn { display:flex; align-items:center; gap:10px; background:transparent; border:none; padding:10px 18px; font-family:var(--font-main); font-size:14px; font-weight:600; color:#64748b; cursor:pointer; transition:color 0.2s ease; width:100%; }
         .logout-btn:hover { color:#ef4444; }
 
-        /* Main */
+        
         .main-wrapper { margin-left:var(--sidebar-width); flex:1; display:flex; flex-direction:column; min-height:100vh; }
         .top-header { display:flex; justify-content:space-between; align-items:center; padding:20px 48px; background:rgba(255,255,255,0.7); backdrop-filter:blur(16px); border-bottom:1px solid rgba(226,232,240,0.6); position:sticky; top:0; z-index:90; }
         .header-left { font-family:var(--font-heading); font-size:22px; font-weight:800; color:#1b4d3e; display:flex; align-items:center; gap:12px; }
@@ -48,12 +48,12 @@
         .user-role-label { font-size:13px; font-weight:700; color:#334155; }
         .user-avatar { width:38px; height:38px; border-radius:50%; background:#e2e8f0; display:flex; align-items:center; justify-content:center; color:#475569; font-size:16px; }
 
-        /* Content */
+        
         .content-container { padding: 40px 48px; max-width: 1100px; width: 100%; margin: 0 auto; }
         .page-title { font-family:var(--font-heading); font-size:34px; font-weight:800; color:#0f172a; margin-bottom:4px; }
         .page-sub { font-size:14px; color:var(--text-muted); margin-bottom:36px; }
 
-        /* Progress Steps */
+        
         .progress-steps { display:flex; align-items:center; gap:0; margin-bottom:40px; }
         .step-item { display:flex; align-items:center; gap:10px; flex:1; }
         .step-circle { width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:var(--font-heading); font-size:14px; font-weight:800; transition:all 0.3s; flex-shrink:0; }
@@ -65,7 +65,7 @@
         .step-connector { flex:1; height:2px; background:#e2e8f0; margin:0 12px; border-radius:2px; }
         .step-connector.done { background:#00c853; }
 
-        /* Form Sections */
+        
         .form-section {
             background: rgba(255,255,255,0.92); backdrop-filter:blur(16px);
             border-radius:28px; padding:36px;
@@ -82,7 +82,7 @@
         .section-title { font-family:var(--font-heading); font-size:20px; font-weight:800; color:#0f172a; }
         .section-desc { font-size:13px; color:#64748b; margin-top:2px; }
 
-        /* Grid Layouts */
+        
         .form-grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
         .form-grid-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:20px; }
         .form-grid-4 { display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:20px; }
@@ -90,7 +90,7 @@
         .span-3 { grid-column: span 3; }
         .span-4 { grid-column: span 4; }
 
-        /* Form Controls */
+        
         .form-group { display:flex; flex-direction:column; gap:6px; }
         .form-label { font-size:12px; font-weight:800; color:#475569; text-transform:uppercase; letter-spacing:0.8px; }
         .form-label span.req { color:#e11d48; }
@@ -104,7 +104,7 @@
         select.form-control { cursor:pointer; }
         textarea.form-control { resize:vertical; min-height:80px; }
 
-        /* Boolean Radio / Checkbox Groups */
+        
         .bool-group { display:flex; gap:10px; }
         .bool-option { flex:1; }
         .bool-option input[type="radio"] { display:none; }
@@ -116,10 +116,10 @@
         }
         .bool-option input[type="radio"]:checked + label { border-color:#00c853; background:#e8f5e9; color:#1b5e20; }
 
-        /* Error messages */
+        
         .field-error { font-size:11px; color:#ef4444; font-weight:600; margin-top:2px; }
 
-        /* Previous Pregnancy History */
+        
         .prev-preg-table { width:100%; border-collapse:collapse; margin-bottom:16px; }
         .prev-preg-table thead th { font-size:10px; font-weight:800; color:#94a3b8; text-transform:uppercase; letter-spacing:0.8px; padding:8px 12px; text-align:left; border-bottom:1.5px solid #f1f5f9; white-space:nowrap; }
         .prev-preg-table tbody tr { border-bottom:1px solid #f8fafc; }
@@ -139,21 +139,21 @@
         }
         .add-row-btn:hover { border-color:#00c853; color:#1b5e20; background:#f0fdf4; }
 
-        /* Family Health Checkboxes */
+        
         .health-check-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
         .health-check-item { display:flex; align-items:center; gap:10px; padding:12px 16px; border-radius:12px; border:1.5px solid #e2e8f0; background:#fafafa; cursor:pointer; transition:all 0.2s; }
         .health-check-item:hover { border-color:#00c853; background:#f0fdf4; }
         .health-check-item input[type="checkbox"] { width:18px; height:18px; accent-color:#00c853; cursor:pointer; flex-shrink:0; }
         .health-check-label { font-size:13px; font-weight:600; color:#475569; }
 
-        /* Action Buttons */
+        
         .form-actions { display:flex; justify-content:flex-end; gap:14px; margin-top:8px; }
         .btn-cancel { padding:13px 24px; border-radius:14px; border:1.5px solid #e2e8f0; background:#fff; font-family:var(--font-heading); font-size:15px; font-weight:700; color:#64748b; cursor:pointer; text-decoration:none; transition:all 0.2s; }
         .btn-cancel:hover { background:#f8fafc; border-color:#cbd5e1; }
         .btn-submit { padding:13px 32px; border-radius:14px; border:none; background:linear-gradient(135deg,#1b5e20,#00695c); font-family:var(--font-heading); font-size:15px; font-weight:700; color:#fff; cursor:pointer; box-shadow:0 8px 20px rgba(27,94,32,0.25); transition:all 0.25s ease; display:flex; align-items:center; gap:8px; }
         .btn-submit:hover { transform:translateY(-2px); box-shadow:0 12px 28px rgba(27,94,32,0.35); }
 
-        /* Alert / Error Box */
+        
         .error-box { background:#fef2f2; border:1px solid #fca5a5; border-radius:16px; padding:16px 20px; margin-bottom:24px; }
         .error-box-title { font-size:14px; font-weight:800; color:#dc2626; margin-bottom:8px; display:flex; align-items:center; gap:8px; }
         .error-box ul { list-style:none; display:flex; flex-direction:column; gap:4px; }
@@ -170,55 +170,18 @@
     </style>
 </head>
 <body>
-    <!-- Sidebar -->
-    <aside class="sidebar">
-        <a href="{{ route('dashboard') }}" class="sidebar-brand">
-            <i class="fa-solid fa-leaf" style="color:#00c853;"></i>
-            <span>CareNest</span>
-        </a>
-        <ul class="sidebar-menu">
-            <li class="nav-item">
-                <a href="{{ route('dashboard') }}">
-                    <i class="fa-solid fa-table-cells-large"></i>
-                    <span>Dashboard</span>
-                </a>
-            </li>
-            @if(Auth::check() && (Auth::user()->role === 'provider' || Auth::user()->role === 'admin'))
-            <li class="nav-item">
-                <a href="{{ route('admin.midwife-requests') }}">
-                    <i class="fa-solid fa-user-check"></i>
-                    <span>Midwife Requests</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="{{ route('admin.midwives.index') }}">
-                    <i class="fa-solid fa-user-nurse"></i>
-                    <span>Manage Midwives</span>
-                </a>
-            </li>
-            @endif
-            <li class="nav-item active">
-                <a href="{{ route('admin.mothers.index') }}">
-                    <i class="fa-solid fa-user-nurse"></i>
-                    <span>Mothers</span>
-                </a>
-            </li>
-            <li class="nav-item"><a href="{{ route('admin.children.index') }}"><i class="fa-solid fa-baby"></i><span>Children</span></a></li>
-            <li class="nav-item"><a href="{{ route('admin.immunizations.index') }}"><i class="fa-solid fa-syringe"></i><span>Immunizations</span></a></li>
-            <li class="nav-item"><a href="{{ route('admin.alerts.index') }}"><i class="fa-solid fa-triangle-exclamation"></i><span>High-Risk Alerts</span></a></li>
-
-
-            <li class="nav-item"><a href="{{ route('admin.triposha.index') }}"><i class="fa-solid fa-book-medical"></i><span>Triposha Book</span></a></li>
-            <li class="nav-item"><a href="{{ route('admin.attendances.index') }}"><i class="fa-solid fa-calendar-check"></i><span>Clinic Attendances</span></a></li>
-            <li class="nav-item"><a href="#reports"><i class="fa-solid fa-file-invoice"></i><span>Vaccine Reports</span></a></li>
-        </ul>
-    </aside>
+    @php
+        $role = auth()->user()->role ?? 'admin';
+        $prefix = $role === 'midwife' ? 'midwife.' : ($role === 'mother' ? 'mother.' : 'admin.');
+    @endphp
+    
+    @include('partials.sidebar')
 
     <div class="main-wrapper">
-        <!-- Header -->
+        
         <header class="top-header">
             <div class="header-left">
-                <a href="{{ route('admin.mothers.index') }}" class="back-btn" title="Back to Mothers">
+                <a href="{{ route($prefix . 'mothers.index') }}" class="back-btn" title="Back to Mothers">
                     <i class="fa-solid fa-arrow-left"></i>
                 </a>
                 Register New Mother
@@ -232,7 +195,7 @@
             <h1 class="page-title">Mother Registration</h1>
             <p class="page-sub">Fill in all sections below to register a new mother. Pregnancy history details are optional.</p>
 
-            <!-- Progress Indicator -->
+            
             <div class="progress-steps">
                 <div class="step-item">
                     <div class="step-circle active">1</div>
@@ -266,10 +229,10 @@
                 </div>
             @endif
 
-            <form action="{{ route('admin.mothers.store') }}" method="POST" id="motherRegistrationForm">
+            <form action="{{ route($prefix . 'mothers.store') }}" method="POST" id="motherRegistrationForm">
                 @csrf
 
-                <!-- ============ SECTION 1: Personal Details ============ -->
+                
                 <div class="form-section" id="section-personal">
                     <div class="section-header">
                         <div class="section-icon sec-green">
@@ -355,7 +318,7 @@
                     </div>
                 </div>
 
-                <!-- ============ SECTION 2: Current Pregnancy History ============ -->
+                
                 <div class="form-section" id="section-pregnancy">
                     <div class="section-header">
                         <div class="section-icon sec-teal">
@@ -426,7 +389,7 @@
                     </div>
                 </div>
 
-                <!-- ============ SECTION 3: Previous Pregnancy History ============ -->
+                
                 <div class="form-section" id="section-prev-pregnancy">
                     <div class="section-header">
                         <div class="section-icon sec-blue">
@@ -457,7 +420,7 @@
                                 </tr>
                             </thead>
                             <tbody id="prevPregBody">
-                                <!-- Rows added by JS -->
+                                
                             </tbody>
                         </table>
                     </div>
@@ -467,7 +430,7 @@
                     </button>
                 </div>
 
-                <!-- ============ SECTION 4: Family Health History ============ -->
+                
                 <div class="form-section" id="section-family-health">
                     <div class="section-header">
                         <div class="section-icon sec-rose">
@@ -525,9 +488,9 @@
                     </div>
                 </div>
 
-                <!-- Action Buttons -->
+                
                 <div class="form-actions">
-                    <a href="{{ route('admin.mothers.index') }}" class="btn-cancel">Cancel</a>
+                    <a href="{{ route($prefix . 'mothers.index') }}" class="btn-cancel">Cancel</a>
                     <button type="submit" class="btn-submit" id="submitBtn">
                         <i class="fa-solid fa-floppy-disk"></i>
                         Register Mother
@@ -538,7 +501,6 @@
     </div>
 
     <script>
-        // ---- Previous Pregnancy History dynamic rows ----
         let rowCount = 0;
 
         function addPrevPregRow() {
@@ -584,7 +546,6 @@
         function removeRow(id) {
             const el = document.getElementById(id);
             if (el) el.remove();
-            // Re-number visible rows
             document.querySelectorAll('#prevPregBody tr td:first-child').forEach((td, i) => {
                 td.textContent = i + 1;
             });
@@ -592,7 +553,6 @@
 
         document.getElementById('addPrevPregRow').addEventListener('click', addPrevPregRow);
 
-        // Auto-calculate EDD from LMP (280 days / 40 weeks)
         document.getElementById('last_menstrual_period').addEventListener('change', function () {
             if (this.value) {
                 const lmp = new Date(this.value);
@@ -601,7 +561,6 @@
             }
         });
 
-        // Loading state on submit
         document.getElementById('motherRegistrationForm').addEventListener('submit', function() {
             const btn = document.getElementById('submitBtn');
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Registering...';

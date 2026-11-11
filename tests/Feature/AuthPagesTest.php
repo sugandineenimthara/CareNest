@@ -15,6 +15,7 @@ class AuthPagesTest extends TestCase
         $response = $this->get('/login');
         $response->assertStatus(200);
         $response->assertSee('Welcome Back');
+        $response->assertSee(route('password.request'));
     }
 
     public function test_registration_page_renders(): void

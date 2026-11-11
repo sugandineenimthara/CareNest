@@ -8,17 +8,15 @@ use Illuminate\Auth\Access\Response;
 
 class ImmunizationPolicy
 {
-    /**
-     * Determine whether the user can view any models.
-     */
+    
+
     public function viewAny(User $user): bool
     {
-        return in_array($user->role, ['provider', 'admin', 'midwife']);
+        return in_array($user->role, ['provider', 'admin', 'midwife', 'mother']);
     }
 
-    /**
-     * Determine whether the user can create models.
-     */
+    
+
     public function create(User $user): bool
     {
         return in_array($user->role, ['provider', 'admin', 'midwife']);

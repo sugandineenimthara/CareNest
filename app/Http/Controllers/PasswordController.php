@@ -12,9 +12,8 @@ use Illuminate\Support\Str;
 
 class PasswordController extends Controller
 {
-    /**
-     * Show the Change Password view.
-     */
+    
+
     public function showChangePassword(Request $request)
     {
         $user = Auth::user();
@@ -25,9 +24,8 @@ class PasswordController extends Controller
         return view('auth.change-password', compact('user', 'role', 'prefix', 'identityVerified'));
     }
 
-    /**
-     * Verify the current password via AJAX or stepped validation.
-     */
+    
+
     public function verifyCurrentPassword(Request $request)
     {
         $request->validate([
@@ -50,16 +48,15 @@ class PasswordController extends Controller
         ], 422);
     }
 
-    /**
-     * Update the user password.
-     */
+    
+
     public function updatePassword(Request $request)
     {
         $user = Auth::user();
         $isIdentityVerified = session('identity_authenticated', false);
         $isCurrentVerified = session('current_password_verified', false);
 
-        // If identity wasn't authenticated via forgot password and current password wasn't verified
+        
         if (!$isIdentityVerified && !$isCurrentVerified) {
             $request->validate([
                 'current_password' => 'required|string',
@@ -77,11 +74,11 @@ class PasswordController extends Controller
             ]);
         }
 
-        // Update user password
+        
         $user->password = Hash::make($request->password);
         $user->save();
 
-        // Clear verification states and token
+        
         if ($user->email) {
             DB::table('password_reset_tokens')->where('email', $user->email)->delete();
         }
@@ -90,9 +87,8 @@ class PasswordController extends Controller
         return redirect()->route('password.change')->with('success', 'Your password has been changed successfully!');
     }
 
-    /**
-     * Send identity authentication link for the logged in user using Forgot Password logic.
-     */
+    
+
     public function sendIdentityAuthLink(Request $request)
     {
         $user = Auth::user();
