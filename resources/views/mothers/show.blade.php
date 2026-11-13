@@ -36,6 +36,8 @@
         .header-right { display:flex; align-items:center; gap:14px; }
         .edit-btn { display:flex; align-items:center; gap:8px; padding:9px 18px; border-radius:12px; background:#e8f5e9; color:#1b5e20; border:none; font-size:13px; font-weight:700; cursor:pointer; text-decoration:none; transition:all 0.2s; }
         .edit-btn:hover { background:#c8e6c9; }
+        .btn-delete { display:inline-flex; align-items:center; gap:8px; padding:9px 18px; border-radius:12px; background:#fef2f2; color:#dc2626; border:1px solid #fecaca; font-size:13px; font-weight:700; cursor:pointer; text-decoration:none; transition:all 0.2s ease; }
+        .btn-delete:hover { background:#dc2626; color:#ffffff; border-color:#dc2626; box-shadow:0 4px 12px rgba(220,38,38,0.25); }
         .user-badge-container { display:flex; align-items:center; gap:10px; padding-left:12px; border-left:1px solid #e2e8f0; }
         .user-role-label { font-size:13px; font-weight:700; color:#334155; }
         .user-avatar { width:38px; height:38px; border-radius:50%; background:#e2e8f0; display:flex; align-items:center; justify-content:center; color:#475569; font-size:16px; }
@@ -128,6 +130,11 @@
                     <i class="fa-solid fa-pen"></i> Edit Record
                 </a>
                 @endif
+                @can('delete', $mother)
+                <button type="button" class="btn-delete" onclick="openDeleteMotherModal()">
+                    <i class="fa-solid fa-trash-can"></i> Delete Mother
+                </button>
+                @endcan
                 @include('partials.top-header-user')
             </div>
         </header>
@@ -450,6 +457,51 @@
                     <div class="no-data"><i class="fa-solid fa-clock-rotate-left"></i>No previous pregnancy records.</div>
                 @endif
             </div>
+
+            @can('delete', $mother)
+            <!-- Delete Confirmation Modal -->
+            <div id="deleteMotherModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15,23,42,0.6); backdrop-filter:blur(4px); z-index:9999; align-items:center; justify-content:center;">
+                <div style="background:white; border-radius:24px; max-width:480px; width:90%; padding:32px; box-shadow:0 25px 50px -12px rgba(0,0,0,0.25); text-align:center;">
+                    <div style="width:64px; height:64px; border-radius:20px; background:#fef2f2; color:#dc2626; display:inline-flex; align-items:center; justify-content:center; font-size:28px; margin-bottom:20px;">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </div>
+                    <h2 style="font-family:var(--font-heading); font-size:22px; font-weight:800; color:#0f172a; margin-bottom:10px;">
+                        Delete Mother Record?
+                    </h2>
+                    <p style="font-size:14px; color:#64748b; line-height:1.6; margin-bottom:24px;">
+                        Are you sure you want to permanently delete <strong>{{ $mother->mother_name }}</strong> (ID #{{ $mother->mother_id }})? This action cannot be undone and all related records will be removed.
+                    </p>
+                    <div style="display:flex; gap:12px; justify-content:center;">
+                        <button type="button" onclick="closeDeleteMotherModal()" style="padding:12px 24px; border-radius:12px; background:#f1f5f9; color:#475569; border:none; font-weight:700; font-size:14px; cursor:pointer;">
+                            Cancel
+                        </button>
+                        <form action="{{ route($prefix . 'mothers.destroy', $mother->mother_id) }}" method="POST" style="margin:0;">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" style="padding:12px 24px; border-radius:12px; background:#dc2626; color:white; border:none; font-weight:700; font-size:14px; cursor:pointer; display:inline-flex; align-items:center; gap:8px;">
+                                <i class="fa-solid fa-trash-can"></i> Confirm Delete
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <script>
+                function openDeleteMotherModal() {
+                    const m = document.getElementById('deleteMotherModal');
+                    if (m) m.style.display = 'flex';
+                }
+                function closeDeleteMotherModal() {
+                    const m = document.getElementById('deleteMotherModal');
+                    if (m) m.style.display = 'none';
+                }
+                window.addEventListener('click', function(e) {
+                    const m = document.getElementById('deleteMotherModal');
+                    if (e.target === m) {
+                        m.style.display = 'none';
+                    }
+                });
+            </script>
+            @endcan
         </main>
     </div>
 </body>

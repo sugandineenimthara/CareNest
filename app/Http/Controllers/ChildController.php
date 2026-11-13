@@ -162,8 +162,8 @@ class ChildController extends Controller
         ]);
 
         $mother = Mother::with('midwife')->findOrFail($validated['mother_id']);
-        $midwifeId = $validated['midwife_id'] ?? ($mother->midwife_id ?? Midwife::first()->midwife_id);
-        $areaId = $validated['area_id'] ?? ($mother->midwife?->area_id ?? Midwife::find($midwifeId)?->area_id);
+        $midwifeId = $validated['midwife_id'] ?? ($mother->midwife_id ?? Midwife::query()->value('midwife_id'));
+        $areaId = $validated['area_id'] ?? ($mother->midwife?->area_id ?? (Midwife::find($midwifeId)?->area_id ?? Area::query()->value('area_id')));
 
         $bcgGiven = !empty($request->bcg_vaccinated_at_birth);
 
@@ -188,6 +188,7 @@ class ChildController extends Controller
             if ($bcgGiven) {
                 Immunization::create([
                     'child_id' => $child->child_id,
+                    'mother_id' => $mother->mother_id,
                     'midwife_id' => $midwifeId,
                     'batch_no' => $validated['bcg_batch_no'] ?? ('BCG-' . date('Ymd')),
                     'vaccine_name' => 'BCG',

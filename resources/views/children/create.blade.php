@@ -251,7 +251,7 @@
                 </div>
             @endif
 
-            <form action="{{ route('children.store') }}" method="POST" class="form-card" id="childRegistrationForm">
+            <form action="{{ route($prefix . 'children.store') }}" method="POST" class="form-card" id="childRegistrationForm">
                 @csrf
 
                 

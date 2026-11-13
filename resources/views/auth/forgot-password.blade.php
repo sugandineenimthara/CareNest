@@ -67,7 +67,7 @@
 @section('content')
 <div class="glass-card forgot-card">
     <h1 class="forgot-title">Forgot Password?</h1>
-    <p class="forgot-subtext">No worries! Enter your registered email address and we'll send you a password recovery link.</p>
+    <p class="forgot-subtext">Enter your registered email and we'll send you a 6-digit verification code.</p>
 
     @if (session('status'))
         <div class="status-alert">
@@ -94,7 +94,7 @@
         </div>
 
         <button type="submit" class="btn-emerald">
-            Send Reset Link <i class="fa-solid fa-paper-plane"></i>
+            Send Code <i class="fa-solid fa-paper-plane"></i>
         </button>
 
         @if(Auth::check())
