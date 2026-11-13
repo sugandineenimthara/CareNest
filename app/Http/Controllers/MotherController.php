@@ -293,4 +293,29 @@ class MotherController extends Controller
 
         return view('mothers.show', compact('user', 'mother'));
     }
+
+    public function destroy($id)
+    {
+        $mother = Mother::findOrFail($id);
+        $this->authorize('delete', $mother);
+
+        $motherName = $mother->mother_name;
+
+        DB::transaction(function () use ($mother) {
+            // Delete associated login user account if one exists for this mother
+            if ($mother->user_id) {
+                $user = $mother->user;
+                if ($user && $user->role === 'mother') {
+                    $user->delete();
+                }
+            }
+            $mother->delete();
+        });
+
+        $user = Auth::user();
+        $redirectRoute = ($user && $user->role === 'midwife') ? 'midwife.mothers.index' : 'admin.mothers.index';
+
+        return redirect()->route($redirectRoute)
+            ->with('success', "Mother record for {$motherName} (ID #{$id}) has been permanently deleted.");
+    }
 }

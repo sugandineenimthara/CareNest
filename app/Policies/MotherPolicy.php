@@ -61,6 +61,14 @@ class MotherPolicy
 
     public function delete(User $user, Mother $mother): bool
     {
-        return in_array($user->role, ['provider', 'admin']);
+        if (in_array($user->role, ['provider', 'admin'])) {
+            return true;
+        }
+
+        if ($user->role === 'midwife') {
+            return $user->midwife && (int)$user->midwife->midwife_id === (int)$mother->midwife_id;
+        }
+
+        return false;
     }
 }

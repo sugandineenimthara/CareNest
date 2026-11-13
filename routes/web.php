@@ -18,6 +18,10 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::get('/forgot-password', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
 Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
+Route::get('/verify-otp', [ForgotPasswordController::class, 'showOtpForm'])->name('password.otp.form');
+Route::post('/verify-otp', [ForgotPasswordController::class, 'verifyOtp'])->name('password.otp.verify');
+Route::get('/reset-via-otp', [ForgotPasswordController::class, 'showOtpResetForm'])->name('password.otp.reset');
+Route::post('/reset-via-otp', [ForgotPasswordController::class, 'resetViaOtp'])->name('password.otp.update');
 Route::get('/reset-password/{token}', [ForgotPasswordController::class, 'showResetForm'])->name('password.reset');
 Route::post('/reset-password', [ForgotPasswordController::class, 'resetPassword'])->name('password.update');
 
@@ -67,6 +71,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/mothers/{id}', [MotherController::class, 'show'])->name('mothers.show');
         Route::get('/mothers/{id}/edit', [MotherController::class, 'edit'])->name('mothers.edit');
         Route::put('/mothers/{id}', [MotherController::class, 'update'])->name('mothers.update');
+        Route::delete('/mothers/{id}', [MotherController::class, 'destroy'])->name('mothers.destroy');
 
         Route::get('/children', [\App\Http\Controllers\ChildController::class, 'index'])->name('children.index');
         Route::get('/children/create', [\App\Http\Controllers\ChildController::class, 'create'])->name('children.create');
@@ -109,6 +114,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/mothers/{id}', [MotherController::class, 'show'])->name('mothers.show');
         Route::get('/mothers/{id}/edit', [MotherController::class, 'edit'])->name('mothers.edit');
         Route::put('/mothers/{id}', [MotherController::class, 'update'])->name('mothers.update');
+        Route::delete('/mothers/{id}', [MotherController::class, 'destroy'])->name('mothers.destroy');
 
         Route::get('/children', [\App\Http\Controllers\ChildController::class, 'index'])->name('children.index');
         Route::get('/children/create', [\App\Http\Controllers\ChildController::class, 'create'])->name('children.create');
