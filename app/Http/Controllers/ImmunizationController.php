@@ -34,14 +34,12 @@ class ImmunizationController extends Controller
 
             $motherPastVaccines = $mother->immunizations->sortBy('immunization_date');
 
-            $receivedDosesCount = $mother->immunizations->filter(function ($imm) {
-                return stripos($imm->vaccine_name, 'tetanus') !== false || stripos($imm->vaccine_name, 'tt') !== false;
-            })->count();
+            $receivedDosesCount = $mother->tetanusDosesCount();
 
             $nextDoseNum = $receivedDosesCount + 1;
             $motherFutureVaccines = collect();
 
-            if (!$mother->isTetanusSafe() && $nextDoseNum <= 5) {
+            if (!$mother->isTetanusSafe() && $nextDoseNum <= 4) {
                 if ($receivedDosesCount === 0) {
                     $lmp = $mother->pregnancyHistories->last()?->last_menstrual_period;
                     $mDueDate = $lmp ? Carbon::parse($lmp)->addWeeks(12) : Carbon::parse($mother->created_at)->addWeeks(2);
@@ -251,26 +249,29 @@ class ImmunizationController extends Controller
 
         $allMothers = $mothersQuery->get()->map(function ($mother) {
             $pregNo = $mother->pregnancy_number;
-            $isSafe = $pregNo > 4;
-
-            
-            $tetanusRecord = $mother->immunizations->first(function ($imm) {
+            $ttRecords = $mother->immunizations->filter(function ($imm) {
                 return stripos($imm->vaccine_name, 'tetanus') !== false || stripos($imm->vaccine_name, 'tt') !== false;
-            });
+            })->sortBy('immunization_date')->values();
+
+            $dosesReceived = $ttRecords->count();
+            // After fourth pregnancy dose she should be counted and recorded as safe
+            $isSafe = $dosesReceived >= 4;
 
             $mother->current_preg_no = $pregNo;
             $mother->is_tetanus_safe = $isSafe;
-            $mother->tetanus_record = $tetanusRecord;
+            $mother->tetanus_records = $ttRecords;
+            $mother->tetanus_record = $ttRecords->last();
+            $mother->tt_doses_count = $dosesReceived;
 
             if ($isSafe) {
                 $mother->tetanus_status = 'Safe';
-                $mother->status_label = 'Safe from Tetanus (>4th Pregnancy)';
-            } elseif ($tetanusRecord) {
+                $mother->status_label = 'Safe from Tetanus (4 Doses Completed)';
+            } elseif ($dosesReceived >= min($pregNo, 4)) {
                 $mother->tetanus_status = 'Vaccinated';
-                $mother->status_label = 'Vaccinated (Batch: ' . $tetanusRecord->batch_no . ')';
+                $mother->status_label = 'Vaccinated for Pregnancy #' . $pregNo;
             } else {
                 $mother->tetanus_status = 'Due';
-                $mother->status_label = 'Tetanus Vaccination Required';
+                $mother->status_label = 'Tetanus Dose Required for Pregnancy #' . $pregNo;
             }
 
             return $mother;
@@ -370,10 +371,12 @@ class ImmunizationController extends Controller
             'remarks'           => 'nullable|string|max:500',
         ]);
 
-        $mother = Mother::with('midwife')->findOrFail($validated['mother_id']);
+        $mother = Mother::with(['midwife', 'immunizations'])->findOrFail($validated['mother_id']);
         $midwifeId = $validated['midwife_id'] ?? ($mother->midwife_id ?? Midwife::first()->midwife_id);
 
-        $doseName = $validated['dose'] ?? ('Pregnancy #' . $mother->pregnancy_number . ' Tetanus Dose');
+        $currentDosesCount = $mother->tetanusDosesCount();
+        $nextDoseNo = $currentDosesCount + 1;
+        $doseName = $validated['dose'] ?? ('Pregnancy #' . $mother->pregnancy_number . ' Tetanus Dose (Dose #' . $nextDoseNo . ')');
 
         Immunization::create([
             'child_id'          => null,
@@ -386,9 +389,15 @@ class ImmunizationController extends Controller
             'age'               => 'Adult (Mother)',
             'expiry_date'       => $validated['expiry_date'] ?? null,
             'status'            => 'Completed',
-            'remarks'           => $validated['remarks'] ?? ('Administered for Pregnancy #' . $mother->pregnancy_number),
+            'remarks'           => $validated['remarks'] ?? ('Administered for Pregnancy #' . $mother->pregnancy_number . ' (Dose #' . $nextDoseNo . ')'),
         ]);
 
-        return redirect()->back()->with('success', 'Tetanus vaccine (Batch #' . $validated['batch_no'] . ') recorded successfully for Mother ' . $mother->mother_name . ' (Pregnancy #' . $mother->pregnancy_number . ')!');
+        $isNowSafe = ($nextDoseNo >= 4);
+        $message = 'Tetanus vaccine (Batch #' . $validated['batch_no'] . ') recorded successfully for Mother ' . $mother->mother_name . ' (Pregnancy #' . $mother->pregnancy_number . ')!';
+        if ($isNowSafe) {
+            $message .= ' 4th pregnancy dose completed — Mother is now recorded as Safe from Tetanus.';
+        }
+
+        return redirect()->back()->with('success', $message);
     }
 }

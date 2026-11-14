@@ -26,6 +26,7 @@ class ForgotPasswordController extends Controller
         ]);
 
         $code = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+        $resetToken = \Illuminate\Support\Str::random(60);
 
         DB::table('password_otp_codes')->where('email', $request->email)->delete();
         DB::table('password_otp_codes')->insert([
@@ -34,6 +35,13 @@ class ForgotPasswordController extends Controller
             'expires_at' => Carbon::now()->addMinutes(10),
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now(),
+        ]);
+
+        DB::table('password_reset_tokens')->where('email', $request->email)->delete();
+        DB::table('password_reset_tokens')->insert([
+            'email'      => $request->email,
+            'token'      => Hash::make($resetToken),
+            'created_at' => Carbon::now(),
         ]);
 
         try {

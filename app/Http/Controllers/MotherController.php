@@ -26,27 +26,63 @@ class MotherController extends Controller
 
         $allAreas = Area::all();
 
-        $midwifeQuery = Midwife::with(['area', 'mothers' => function ($q) use ($search) {
-            $q->with(['pregnancyHistories']);
+        $areasQuery = Area::with(['midwives']);
+        if ($areaFilter) {
+            $areasQuery->where('area_id', $areaFilter);
+        }
+
+        $areas = $areasQuery->get()->map(function ($area) use ($search, $user) {
+            $midwifeIds = $area->midwives->pluck('midwife_id')->filter()->toArray();
+
+            $mothersQuery = Mother::with(['pregnancyHistories', 'midwife.area'])
+                ->where(function ($q) use ($midwifeIds) {
+                    if (!empty($midwifeIds)) {
+                        $q->whereIn('midwife_id', $midwifeIds);
+                    } else {
+                        $q->whereRaw('1 = 0');
+                    }
+                });
+
             if ($search) {
-                $q->where(function ($sq) use ($search) {
+                $mothersQuery->where(function ($sq) use ($search) {
                     $sq->where('mother_name', 'like', "%{$search}%")
                        ->orWhere('phone_no', 'like', "%{$search}%")
                        ->orWhere('address', 'like', "%{$search}%");
                 });
             }
-        }]);
 
-        if ($areaFilter) {
-            $midwifeQuery->where('area_id', $areaFilter);
+            if ($user && $user->role === 'midwife' && $user->midwife) {
+                if ($user->midwife->area_id != $area->area_id) {
+                    $mothersQuery->where('midwife_id', $user->midwife->midwife_id);
+                }
+            }
+
+            $area->filtered_mothers = $mothersQuery->orderBy('mother_id', 'desc')->get();
+            return $area;
+        });
+
+        $unassignedMothers = collect();
+        if ($user && in_array($user->role, ['admin', 'provider'])) {
+            $unassignedQuery = Mother::with(['pregnancyHistories', 'midwife.area'])
+                ->where(function ($q) {
+                    $q->whereNull('midwife_id')
+                      ->orWhereDoesntHave('midwife');
+                });
+            if ($search) {
+                $unassignedQuery->where(function ($sq) use ($search) {
+                    $sq->where('mother_name', 'like', "%{$search}%")
+                       ->orWhere('phone_no', 'like', "%{$search}%")
+                       ->orWhere('address', 'like', "%{$search}%");
+                });
+            }
+            if (!$areaFilter) {
+                $unassignedMothers = $unassignedQuery->orderBy('mother_id', 'desc')->get();
+            }
         }
-
-        $midwives = $midwifeQuery->get();
 
         $totalMothers = Mother::count();
         $totalMidwives = Midwife::count();
 
-        
         $allMothersList = Mother::with(['midwife.area'])->get()->map(function ($m) use ($user) {
             $prefix = ($user && $user->role === 'midwife') ? 'midwife.' : 'admin.';
             return [
@@ -59,18 +95,17 @@ class MotherController extends Controller
             ];
         });
 
-        return view('mothers.index', compact('user', 'midwives', 'search', 'totalMothers', 'totalMidwives', 'allAreas', 'areaFilter', 'allMothersList'));
+        return view('mothers.index', compact('user', 'areas', 'unassignedMothers', 'search', 'totalMothers', 'totalMidwives', 'allAreas', 'areaFilter', 'allMothersList'));
     }
-
-    
 
     public function create()
     {
         $this->authorize('create', Mother::class);
 
         $user = Auth::user();
+        $areas = Area::with('midwives')->get();
         $midwives = Midwife::with('area')->get();
-        return view('mothers.create', compact('user', 'midwives'));
+        return view('mothers.create', compact('user', 'areas', 'midwives'));
     }
 
     
@@ -137,23 +172,17 @@ class MotherController extends Controller
             ]);
 
             
-            $hasPregnancyData = isset($validated['no_living_children'])
-                || !empty($validated['last_menstrual_period'])
-                || !empty($validated['expected_date_of_delivery'])
-                || !empty($validated['no_of_weeks_pregnant_at_registration']);
-
-            if ($hasPregnancyData) {
-                PregnancyHistory::create([
-                    'mother_id'                            => $mother->mother_id,
-                    'no_living_children'                   => $validated['no_living_children'] ?? 0,
-                    'age_of_youngest_child'                => $validated['age_of_youngest_child'] ?? null,
-                    'last_menstrual_period'                => $validated['last_menstrual_period'] ?? null,
-                    'expected_date_of_delivery'            => $validated['expected_date_of_delivery'] ?? null,
-                    'date_confirmed_by_US'                 => $validated['date_confirmed_by_US'] ?? null,
-                    'no_of_weeks_pregnant_at_registration' => $validated['no_of_weeks_pregnant_at_registration'] ?? null,
-                    'first_fetal_movements_date'           => $validated['first_fetal_movements_date'] ?? null,
-                ]);
-            }
+            PregnancyHistory::create([
+                'mother_id'                            => $mother->mother_id,
+                'no_living_children'                   => $validated['no_living_children'] ?? 0,
+                'age_of_youngest_child'                => $validated['age_of_youngest_child'] ?? null,
+                'last_menstrual_period'                => $validated['last_menstrual_period'] ?? null,
+                'expected_date_of_delivery'            => $validated['expected_date_of_delivery'] ?? null,
+                'date_confirmed_by_US'                 => $validated['date_confirmed_by_US'] ?? null,
+                'no_of_weeks_pregnant_at_registration' => $validated['no_of_weeks_pregnant_at_registration'] ?? null,
+                'first_fetal_movements_date'           => $validated['first_fetal_movements_date'] ?? null,
+                'is_delivered'                         => false,
+            ]);
 
             
             $hasFamilyHealth = !empty($validated['diabetes'])
@@ -238,12 +267,13 @@ class MotherController extends Controller
 
         $user = Auth::user();
 
+        $areas = Area::with('midwives')->get();
         $midwives = Midwife::with('area')->get();
+        $activePregnancy = $mother->activePregnancy();
+        $latestPregnancy = $mother->currentPregnancy();
 
-        return view('mothers.edit', compact('user', 'mother', 'midwives'));
+        return view('mothers.edit', compact('user', 'mother', 'areas', 'midwives', 'activePregnancy', 'latestPregnancy'));
     }
-
-    
 
     public function update(Request $request, $id)
     {
@@ -261,12 +291,152 @@ class MotherController extends Controller
             'husband_name'       => 'nullable|string|max:255',
             'husband_occupation' => 'nullable|string|max:255',
             'address'            => 'nullable|string|max:500',
+
+            // Current / Next Pregnancy Details
+            'is_new_pregnancy'                     => 'nullable|boolean',
+            'no_living_children'                   => 'nullable|integer|min:0',
+            'age_of_youngest_child'                => 'nullable|integer|min:0',
+            'last_menstrual_period'                => 'nullable|date',
+            'expected_date_of_delivery'            => 'nullable|date',
+            'date_confirmed_by_US'                 => 'nullable|date',
+            'no_of_weeks_pregnant_at_registration' => 'nullable|integer|min:0|max:45',
+            'first_fetal_movements_date'           => 'nullable|date',
         ]);
 
-        $mother->update($validated);
+        DB::transaction(function () use ($mother, $validated, $request) {
+            $mother->update([
+                'mother_name'        => $validated['mother_name'],
+                'phone_no'           => $validated['phone_no'] ?? null,
+                'midwife_id'         => $validated['midwife_id'],
+                'date_of_birth'      => $validated['date_of_birth'] ?? null,
+                'height'             => $validated['height'] ?? null,
+                'weight'             => $validated['weight'] ?? null,
+                'blood_pressure'     => $validated['blood_pressure'] ?? null,
+                'husband_name'       => $validated['husband_name'] ?? null,
+                'husband_occupation' => $validated['husband_occupation'] ?? null,
+                'address'            => $validated['address'] ?? null,
+            ]);
+
+            $hasPregnancyData = isset($validated['no_living_children'])
+                || !empty($validated['last_menstrual_period'])
+                || !empty($validated['expected_date_of_delivery'])
+                || !empty($validated['no_of_weeks_pregnant_at_registration']);
+
+            if ($hasPregnancyData) {
+                $activePregnancy = $mother->activePregnancy();
+                $isNewPregnancy = $request->boolean('is_new_pregnancy');
+
+                if ($isNewPregnancy || !$activePregnancy) {
+                    if ($activePregnancy) {
+                        $activePregnancy->is_delivered = true;
+                        $activePregnancy->delivery_date = $activePregnancy->delivery_date ?? now();
+                        $activePregnancy->save();
+
+                        $alreadyRecorded = PreviousPregnancyHistory::where('mother_id', $mother->mother_id)
+                            ->where('date_of_birth', $activePregnancy->delivery_date)
+                            ->exists();
+
+                        if (!$alreadyRecorded) {
+                            $count = $mother->previousPregnancyHistories()->count() + 1;
+                            $ordinal = match($count) {
+                                1 => '1st Pregnancy',
+                                2 => '2nd Pregnancy',
+                                3 => '3rd Pregnancy',
+                                default => "{$count}th Pregnancy",
+                            };
+
+                            PreviousPregnancyHistory::create([
+                                'mother_id'          => $mother->mother_id,
+                                'date_of_birth'      => $activePregnancy->delivery_date,
+                                'birth_weight'       => null,
+                                'gender'             => null,
+                                'which_pregnancy'    => $ordinal,
+                                'results'            => 'Completed Delivery',
+                                'place_of_pregnancy' => 'Hospital/Clinic',
+                            ]);
+                        }
+                    }
+
+                    PregnancyHistory::create([
+                        'mother_id'                            => $mother->mother_id,
+                        'no_living_children'                   => $validated['no_living_children'] ?? 0,
+                        'age_of_youngest_child'                => $validated['age_of_youngest_child'] ?? null,
+                        'last_menstrual_period'                => $validated['last_menstrual_period'] ?? null,
+                        'expected_date_of_delivery'            => $validated['expected_date_of_delivery'] ?? null,
+                        'date_confirmed_by_US'                 => $validated['date_confirmed_by_US'] ?? null,
+                        'no_of_weeks_pregnant_at_registration' => $validated['no_of_weeks_pregnant_at_registration'] ?? null,
+                        'first_fetal_movements_date'           => $validated['first_fetal_movements_date'] ?? null,
+                        'is_delivered'                         => false,
+                    ]);
+                } else {
+                    $activePregnancy->update([
+                        'no_living_children'                   => $validated['no_living_children'] ?? $activePregnancy->no_living_children,
+                        'age_of_youngest_child'                => $validated['age_of_youngest_child'] ?? $activePregnancy->age_of_youngest_child,
+                        'last_menstrual_period'                => $validated['last_menstrual_period'] ?? $activePregnancy->last_menstrual_period,
+                        'expected_date_of_delivery'            => $validated['expected_date_of_delivery'] ?? $activePregnancy->expected_date_of_delivery,
+                        'date_confirmed_by_US'                 => $validated['date_confirmed_by_US'] ?? $activePregnancy->date_confirmed_by_US,
+                        'no_of_weeks_pregnant_at_registration' => $validated['no_of_weeks_pregnant_at_registration'] ?? $activePregnancy->no_of_weeks_pregnant_at_registration,
+                        'first_fetal_movements_date'           => $validated['first_fetal_movements_date'] ?? $activePregnancy->first_fetal_movements_date,
+                    ]);
+                }
+            }
+        });
 
         return redirect()->route($request->user()->role === 'midwife' ? 'midwife.mothers.show' : 'admin.mothers.show', $mother->mother_id)
             ->with('success', 'Mother record updated successfully!');
+    }
+
+    public function recordDelivery(Request $request, $id)
+    {
+        $mother = Mother::findOrFail($id);
+        $this->authorize('update', $mother);
+
+        $validated = $request->validate([
+            'delivery_date'      => 'required|date|before_or_equal:today',
+            'gender'             => 'nullable|in:Male,Female',
+            'birth_weight'       => 'nullable|numeric|min:0.1|max:10',
+            'results'            => 'nullable|string|max:255',
+            'place_of_pregnancy' => 'nullable|string|max:255',
+        ]);
+
+        DB::transaction(function () use ($mother, $validated) {
+            $active = $mother->activePregnancy()
+                ?? $mother->pregnancyHistories()->latest()->first();
+
+            if ($active) {
+                $active->is_delivered = true;
+                $active->delivery_date = $validated['delivery_date'];
+                $active->save();
+            }
+
+            $count = $mother->previousPregnancyHistories()->count() + 1;
+            $ordinal = match($count) {
+                1 => '1st Pregnancy',
+                2 => '2nd Pregnancy',
+                3 => '3rd Pregnancy',
+                default => "{$count}th Pregnancy",
+            };
+
+            PreviousPregnancyHistory::create([
+                'mother_id'          => $mother->mother_id,
+                'date_of_birth'      => $validated['delivery_date'],
+                'birth_weight'       => $validated['birth_weight'] ?? null,
+                'gender'             => $validated['gender'] ?? null,
+                'which_pregnancy'    => $ordinal,
+                'results'            => $validated['results'] ?? 'Live Birth',
+                'place_of_pregnancy' => $validated['place_of_pregnancy'] ?? 'Hospital/Clinic',
+            ]);
+        });
+
+        $user = Auth::user();
+        $redirectRoute = ($user && $user->role === 'midwife') ? 'midwife.children.create' : 'admin.children.create';
+
+        return redirect()->route($redirectRoute, [
+            'mother_id'     => $mother->mother_id,
+            'date_of_birth' => $validated['delivery_date'],
+            'gender'        => $validated['gender'] ?? '',
+            'birth_weight'  => $validated['birth_weight'] ?? '',
+        ])->with('success', 'Delivery recorded successfully! Please complete registration for the newborn child.');
     }
 
     
@@ -309,6 +479,22 @@ class MotherController extends Controller
                     $user->delete();
                 }
             }
+
+            // Explicitly delete all associated children and their health records
+            foreach ($mother->children as $child) {
+                \App\Models\Immunization::where('child_id', $child->child_id)->delete();
+                \App\Models\Attendance::where('child_id', $child->child_id)->delete();
+                $child->delete();
+            }
+
+            // Clean up mother clinical records
+            PreviousPregnancyHistory::where('mother_id', $mother->mother_id)->delete();
+            PregnancyHistory::where('mother_id', $mother->mother_id)->delete();
+            FamilyHealthHistory::where('mother_id', $mother->mother_id)->delete();
+            \App\Models\TestDone::where('mother_id', $mother->mother_id)->delete();
+            \App\Models\TriposhaBook::where('mother_id', $mother->mother_id)->delete();
+            \App\Models\Attendance::where('mother_id', $mother->mother_id)->delete();
+
             $mother->delete();
         });
 

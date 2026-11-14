@@ -106,6 +106,35 @@ class Mother extends Model
         return $this->hasMany(PregnancyHistory::class, 'mother_id', 'mother_id');
     }
 
+    public function activePregnancy(): ?PregnancyHistory
+    {
+        if ($this->relationLoaded('pregnancyHistories')) {
+            return $this->pregnancyHistories->where('is_delivered', false)->sortByDesc('id')->first();
+        }
+        return $this->pregnancyHistories()->where('is_delivered', false)->latest()->first();
+    }
+
+    public function currentPregnancy(): ?PregnancyHistory
+    {
+        return $this->activePregnancy()
+            ?? ($this->relationLoaded('pregnancyHistories') ? $this->pregnancyHistories->sortByDesc('id')->first() : $this->pregnancyHistories()->latest()->first());
+    }
+
+    public function hasDelivered(): bool
+    {
+        if ($this->relationLoaded('pregnancyHistories') && $this->relationLoaded('previousPregnancyHistories')) {
+            return $this->pregnancyHistories->where('is_delivered', true)->isNotEmpty()
+                || $this->previousPregnancyHistories->isNotEmpty();
+        }
+        return $this->pregnancyHistories()->where('is_delivered', true)->exists()
+            || $this->previousPregnancyHistories()->exists();
+    }
+
+    public function canAddChild(): bool
+    {
+        return $this->activePregnancy() === null && $this->hasDelivered();
+    }
+
     public function familyHealthHistory(): HasOne
     {
         return $this->hasOne(FamilyHealthHistory::class, 'mother_id', 'mother_id');
@@ -131,8 +160,22 @@ class Mother extends Model
         return $this->previousPregnancyHistories()->count() + 1;
     }
 
+    public function tetanusDosesCount(): int
+    {
+        if ($this->relationLoaded('immunizations')) {
+            return $this->immunizations->filter(function ($imm) {
+                return stripos($imm->vaccine_name, 'tetanus') !== false || stripos($imm->vaccine_name, 'tt') !== false;
+            })->count();
+        }
+
+        return $this->immunizations()->where(function ($q) {
+            $q->where('vaccine_name', 'like', '%tetanus%')
+              ->orWhere('vaccine_name', 'like', '%TT%');
+        })->count();
+    }
+
     public function isTetanusSafe(): bool
     {
-        return $this->pregnancy_number > 4;
+        return $this->tetanusDosesCount() >= 4;
     }
 }

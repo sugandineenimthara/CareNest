@@ -96,7 +96,12 @@
                 <select name="area_id" class="input-field" required>
                     <option value="">Select an Area</option>
                     @foreach($areas as $area)
-                        <option value="{{ $area->area_id }}">{{ $area->area_name }}</option>
+                        @php
+                            $currentMidwives = $area->midwives ? $area->midwives->pluck('midwife_name')->filter()->unique()->join(', ') : '';
+                        @endphp
+                        <option value="{{ $area->area_id }}" {{ old('area_id') == $area->area_id ? 'selected' : '' }}>
+                            {{ $area->area_name }}@if($currentMidwives) (Current: {{ $currentMidwives }})@endif
+                        </option>
                     @endforeach
                 </select>
             </div>

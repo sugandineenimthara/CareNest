@@ -19,6 +19,18 @@ class Midwife extends Model
         'user_id',
     ];
 
+    protected static function booted(): void
+    {
+        static::addGlobalScope('approved', function ($builder) {
+            $builder->where(function ($q) {
+                $q->whereNull('user_id')
+                  ->orWhereHas('user', function ($uq) {
+                      $uq->where('status', 'approved');
+                  });
+            });
+        });
+    }
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

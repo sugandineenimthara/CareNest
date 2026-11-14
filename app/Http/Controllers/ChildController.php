@@ -7,6 +7,7 @@ use App\Models\Child;
 use App\Models\Immunization;
 use App\Models\Midwife;
 use App\Models\Mother;
+use App\Models\PreviousPregnancyHistory;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -132,9 +133,31 @@ class ChildController extends Controller
 
         $user = Auth::user();
         $selectedMotherId = $request->query('mother_id');
-        $mothers = Mother::with(['midwife.area'])->orderBy('mother_name')->get();
+
+        // Only mothers who have recorded a delivery (and have no active undelivered pregnancy) can have a child added
+        $mothersQuery = Mother::with(['midwife.area', 'pregnancyHistories', 'previousPregnancyHistories']);
+
+        if ($user && $user->role === 'midwife' && $user->midwife) {
+            $midwife = $user->midwife;
+            $mothersQuery->where(function ($mq) use ($midwife) {
+                $mq->where('midwife_id', $midwife->midwife_id)
+                   ->orWhereHas('midwife', fn($q) => $q->where('area_id', $midwife->area_id));
+            });
+        }
+
+        $allMothers = $mothersQuery->orderBy('mother_name')->get();
+        $mothers = $allMothers->filter(fn($m) => $m->canAddChild())->values();
+
+        if ($selectedMotherId && !$mothers->contains('mother_id', $selectedMotherId)) {
+            $selectedMother = $allMothers->firstWhere('mother_id', $selectedMotherId)
+                ?? Mother::with(['midwife.area', 'pregnancyHistories', 'previousPregnancyHistories'])->find($selectedMotherId);
+            if ($selectedMother && $selectedMother->canAddChild()) {
+                $mothers->push($selectedMother);
+            }
+        }
+
         $midwives = Midwife::with('area')->get();
-        $areas = Area::all();
+        $areas = Area::with('midwives')->get();
 
         return view('children.create', compact('user', 'mothers', 'midwives', 'areas', 'selectedMotherId'));
     }
@@ -161,7 +184,14 @@ class ChildController extends Controller
             'health_details' => 'nullable|string|max:1000',
         ]);
 
-        $mother = Mother::with('midwife')->findOrFail($validated['mother_id']);
+        $mother = Mother::with(['midwife.area', 'pregnancyHistories', 'previousPregnancyHistories'])->findOrFail($validated['mother_id']);
+
+        if (!$mother->canAddChild()) {
+            return back()->withInput()->withErrors([
+                'mother_id' => 'A child can only be added after the mother\'s delivery has been recorded.'
+            ]);
+        }
+
         $midwifeId = $validated['midwife_id'] ?? ($mother->midwife_id ?? Midwife::query()->value('midwife_id'));
         $areaId = $validated['area_id'] ?? ($mother->midwife?->area_id ?? (Midwife::find($midwifeId)?->area_id ?? Area::query()->value('area_id')));
 
@@ -197,6 +227,43 @@ class ChildController extends Controller
                     'immunization_date' => $validated['bcg_vaccinated_date'] ?? $validated['date_of_birth'],
                     'status' => 'Completed',
                     'remarks' => 'Vaccinated within 24 hours from birth'
+                ]);
+            }
+
+            $alreadyRecorded = PreviousPregnancyHistory::where('mother_id', $mother->mother_id)
+                ->where('date_of_birth', $child->date_of_birth)
+                ->exists();
+
+            if (!$alreadyRecorded) {
+                $count = $mother->previousPregnancyHistories()->count() + 1;
+                $ordinal = match($count) {
+                    1 => '1st Pregnancy',
+                    2 => '2nd Pregnancy',
+                    3 => '3rd Pregnancy',
+                    default => "{$count}th Pregnancy",
+                };
+
+                PreviousPregnancyHistory::create([
+                    'mother_id'          => $mother->mother_id,
+                    'date_of_birth'      => $child->date_of_birth,
+                    'birth_weight'       => $child->birth_weight,
+                    'gender'             => $child->gender,
+                    'which_pregnancy'    => $ordinal,
+                    'results'            => 'Live Birth',
+                    'place_of_pregnancy' => 'Hospital/Clinic',
+                ]);
+            }
+
+            // Update mother's pregnancy history living children count and youngest child age
+            $allChildren = $mother->children()->get();
+            $livingCount = $allChildren->count();
+            $youngestDob = $allChildren->max('date_of_birth');
+            $youngestAge = $youngestDob ? Carbon::parse($youngestDob)->age : 0;
+
+            foreach ($mother->pregnancyHistories as $ph) {
+                $ph->update([
+                    'no_living_children' => $livingCount,
+                    'age_of_youngest_child' => $youngestAge,
                 ]);
             }
 
@@ -270,7 +337,7 @@ class ChildController extends Controller
         $user = Auth::user();
         $mothers = Mother::with(['midwife.area'])->orderBy('mother_name')->get();
         $midwives = Midwife::with('area')->get();
-        $areas = Area::all();
+        $areas = Area::with('midwives')->get();
 
         return view('children.edit', compact('user', 'child', 'mothers', 'midwives', 'areas'));
     }
@@ -316,10 +383,82 @@ class ChildController extends Controller
 
     public function destroy(int $id)
     {
-        $child = Child::findOrFail($id);
+        $child = Child::with('mother.pregnancyHistories')->findOrFail($id);
         $this->authorize('delete', $child);
-        $child->delete();
+        $childName = $child->display_name;
 
-        return redirect()->route('admin.children.index')->with('success', 'Child record removed successfully.');
+        DB::transaction(function () use ($child) {
+            $mother = $child->mother;
+
+            // Delete immunizations and attendances for this child
+            Immunization::where('child_id', $child->child_id)->delete();
+            \App\Models\Attendance::where('child_id', $child->child_id)->delete();
+
+            if ($mother) {
+                // Delete matching PreviousPregnancyHistory created for this child
+                $prevQuery = PreviousPregnancyHistory::where('mother_id', $mother->mother_id)
+                    ->whereDate('date_of_birth', $child->date_of_birth);
+
+                if ($child->gender) {
+                    $matched = (clone $prevQuery)->where('gender', $child->gender)->first();
+                    if ($matched) {
+                        $matched->delete();
+                    } else {
+                        $prevQuery->first()?->delete();
+                    }
+                } else {
+                    $prevQuery->first()?->delete();
+                }
+
+                // Delete the child
+                $child->delete();
+
+                // Recalculate living children count and youngest child age
+                $remainingChildren = $mother->children()->get();
+                $remainingCount = $remainingChildren->count();
+
+                if ($remainingCount > 0) {
+                    $youngestDob = $remainingChildren->max('date_of_birth');
+                    $youngestAge = $youngestDob ? Carbon::parse($youngestDob)->age : null;
+                } else {
+                    $youngestAge = null;
+                }
+
+                // Update mother's pregnancy history fields
+                foreach ($mother->pregnancyHistories as $ph) {
+                    $updates = [
+                        'no_living_children' => $remainingCount,
+                        'age_of_youngest_child' => $youngestAge,
+                    ];
+
+                    // If this pregnancy's delivery date matched this child and no remaining children share this birth date,
+                    // reset the delivery fields
+                    if ($ph->delivery_date && $child->date_of_birth) {
+                        $phDelivDate = Carbon::parse($ph->delivery_date)->format('Y-m-d');
+                        $childDob = Carbon::parse($child->date_of_birth)->format('Y-m-d');
+
+                        if ($phDelivDate === $childDob) {
+                            $hasOtherChildSameDob = $remainingChildren->contains(function ($rc) use ($childDob) {
+                                return $rc->date_of_birth && Carbon::parse($rc->date_of_birth)->format('Y-m-d') === $childDob;
+                            });
+
+                            if (!$hasOtherChildSameDob) {
+                                $updates['is_delivered'] = false;
+                                $updates['delivery_date'] = null;
+                            }
+                        }
+                    }
+
+                    $ph->update($updates);
+                }
+            } else {
+                $child->delete();
+            }
+        });
+
+        $user = Auth::user();
+        $redirectRoute = ($user && $user->role === 'midwife') ? 'midwife.children.index' : 'admin.children.index';
+
+        return redirect()->route($redirectRoute)->with('success', "Child record ({$childName}) deleted successfully.");
     }
 }

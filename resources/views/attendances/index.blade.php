@@ -252,10 +252,17 @@
                         <label for="midwife_id"><i class="fa-solid fa-user-nurse"></i> Conducting Midwife</label>
                         <select id="midwife_id" name="midwife_id" class="form-select">
                             <option value="">— Select Midwife / Area —</option>
-                            @foreach($midwives as $mw)
-                            <option value="{{ $mw->midwife_id }}">
-                                {{ $mw->name }} ({{ $mw->area?->area_name ?? 'Area ' . $mw->area_id }})
-                            </option>
+                            @php
+                                $groupedMidwives = $midwives->groupBy(fn($mw) => $mw->area?->area_name ?? 'Unassigned Area');
+                            @endphp
+                            @foreach($groupedMidwives as $areaName => $mws)
+                                <optgroup label="{{ $areaName }}">
+                                    @foreach($mws as $mw)
+                                        <option value="{{ $mw->midwife_id }}">
+                                            {{ $mw->name ?? $mw->midwife_name }}
+                                        </option>
+                                    @endforeach
+                                </optgroup>
                             @endforeach
                         </select>
                     </div>

@@ -267,13 +267,28 @@
                         </div>
 
                         <div class="form-group">
-                            <label class="form-label" for="midwife_id">Assigned Midwife <span class="req">*</span></label>
+                            <label class="form-label" for="midwife_id">Assigned Midwife / Area <span class="req">*</span></label>
                             <select id="midwife_id" name="midwife_id" class="form-control @error('midwife_id') is-invalid @enderror" required>
-                                <option value="">— Select Midwife —</option>
-                                @foreach($midwives as $midwife)
-                                    <option value="{{ $midwife->midwife_id }}" {{ old('midwife_id') == $midwife->midwife_id ? 'selected' : '' }}>
-                                        {{ $midwife->midwife_name }} {{ $midwife->area ? '(' . $midwife->area->area_name . ')' : '' }}
-                                    </option>
+                                <option value="">— Select Area & Midwife —</option>
+                                @foreach($areas as $area)
+                                    @php
+                                        $midwivesList = $area->midwives->pluck('midwife_name')->filter()->unique()->join(', ');
+                                        $primaryMidwife = $area->midwives->first();
+                                        $isSelected = false;
+                                        if (old('midwife_id') && $area->midwives->pluck('midwife_id')->contains(old('midwife_id'))) {
+                                            $isSelected = true;
+                                        } elseif (!old('midwife_id') && $user->role === 'midwife' && $user->midwife && $user->midwife->area_id == $area->area_id) {
+                                            $isSelected = true;
+                                        }
+                                        $optionValue = ($user->role === 'midwife' && $user->midwife && $user->midwife->area_id == $area->area_id)
+                                            ? $user->midwife->midwife_id
+                                            : ($primaryMidwife ? $primaryMidwife->midwife_id : '');
+                                    @endphp
+                                    @if($primaryMidwife)
+                                        <option value="{{ $optionValue }}" {{ $isSelected ? 'selected' : '' }}>
+                                            {{ $area->area_name }} ({{ $midwivesList ?: 'No Midwife Assigned' }})
+                                        </option>
+                                    @endif
                                 @endforeach
                             </select>
                             @error('midwife_id')<span class="field-error">{{ $message }}</span>@enderror

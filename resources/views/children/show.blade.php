@@ -93,6 +93,10 @@
             border: none; color: white; box-shadow: 0 4px 14px rgba(0,200,83,0.3); cursor: pointer;
         }
         .btn-record-vaccine:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,200,83,0.4); }
+        .btn-delete {
+            background: #fee2e2; border: 1.5px solid #fca5a5; color: #dc2626; cursor: pointer;
+        }
+        .btn-delete:hover { background: #fecaca; }
 
         .content-container { padding: 36px 48px; display: flex; flex-direction: column; gap: 28px; }
 
@@ -289,11 +293,17 @@
                         <i class="fa-solid fa-pen-to-square"></i>
                         <span>Edit Child</span>
                     </a>
-                    @endif
                     <button type="button" class="btn-action btn-record-vaccine" onclick="openVaccineModal('', '')">
                         <i class="fa-solid fa-syringe"></i>
                         <span>Record Vaccine Dose</span>
                     </button>
+                    @endif
+                    @can('delete', $child)
+                    <button type="button" class="btn-action btn-delete" onclick="openDeleteChildModal()">
+                        <i class="fa-solid fa-trash-can"></i>
+                        <span>Delete Child</span>
+                    </button>
+                    @endcan
                 </div>
                 @include('partials.top-header-user')
             </div>
@@ -535,29 +545,35 @@
                                         @elseif($item['status'] === 'Overdue')
                                             <div>
                                                 <span class="badge-status status-overdue">Overdue</span>
+                                                @if(in_array($role, ['admin', 'provider', 'midwife']))
                                                 <div style="margin-top:4px;">
                                                     <button type="button" class="btn-log-dose" onclick="openVaccineModal('{{ $item['vaccine_name'] }}', '{{ $item['dose'] }}')">
                                                         <i class="fa-solid fa-syringe"></i> Record Now
                                                     </button>
                                                 </div>
+                                                @endif
                                             </div>
                                         @elseif($item['status'] === 'Due Now')
                                             <div>
                                                 <span class="badge-status status-due">Due Now</span>
+                                                @if(in_array($role, ['admin', 'provider', 'midwife']))
                                                 <div style="margin-top:4px;">
                                                     <button type="button" class="btn-log-dose" onclick="openVaccineModal('{{ $item['vaccine_name'] }}', '{{ $item['dose'] }}')">
                                                         <i class="fa-solid fa-syringe"></i> Record
                                                     </button>
                                                 </div>
+                                                @endif
                                             </div>
                                         @else
                                             <div>
                                                 <span class="badge-status status-upcoming">Due ~ {{ \Carbon\Carbon::parse($item['due_date'])->format('M Y') }}</span>
+                                                @if(in_array($role, ['admin', 'provider', 'midwife']))
                                                 <div style="margin-top:4px;">
                                                     <button type="button" class="btn-log-dose" style="background:#64748b;" onclick="openVaccineModal('{{ $item['vaccine_name'] }}', '{{ $item['dose'] }}')">
                                                         Log Early
                                                     </button>
                                                 </div>
+                                                @endif
                                             </div>
                                         @endif
                                     </div>
@@ -571,6 +587,7 @@
     </div>
 
     
+    @if(in_array($role, ['admin', 'provider', 'midwife']))
     <div class="modal-overlay" id="vaccineModal">
         <div class="modal-card">
             <div class="modal-header">
@@ -619,10 +636,17 @@
                 <div class="form-group" style="margin-top:12px;">
                     <label class="form-label" for="modal_midwife_id">Administering Midwife</label>
                     <select name="midwife_id" id="modal_midwife_id" class="form-select">
-                        @foreach($midwives as $mw)
-                            <option value="{{ $mw->midwife_id }}" {{ $child->midwife_id == $mw->midwife_id ? 'selected' : '' }}>
-                                {{ $mw->midwife_name }} ({{ $mw->area ? $mw->area->area_name : 'No Area' }})
-                            </option>
+                        @php
+                            $groupedMidwives = $midwives->groupBy(fn($mw) => $mw->area?->area_name ?? 'No Area');
+                        @endphp
+                        @foreach($groupedMidwives as $areaName => $mws)
+                            <optgroup label="{{ $areaName }}">
+                                @foreach($mws as $mw)
+                                    <option value="{{ $mw->midwife_id }}" {{ $child->midwife_id == $mw->midwife_id ? 'selected' : '' }}>
+                                        {{ $mw->midwife_name }}
+                                    </option>
+                                @endforeach
+                            </optgroup>
                         @endforeach
                     </select>
                 </div>
@@ -641,6 +665,7 @@
             </form>
         </div>
     </div>
+    @endif
 
     <script>
         function openVaccineModal(vaccineName, dose) {
@@ -667,5 +692,50 @@
             }
         });
     </script>
+
+    @can('delete', $child)
+    <!-- Delete Child Confirmation Modal -->
+    <div id="deleteChildModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15,23,42,0.6); backdrop-filter:blur(4px); z-index:9999; align-items:center; justify-content:center;">
+        <div style="background:white; border-radius:24px; max-width:480px; width:90%; padding:32px; box-shadow:0 25px 50px -12px rgba(0,0,0,0.25); text-align:center;">
+            <div style="width:64px; height:64px; border-radius:20px; background:#fef2f2; color:#dc2626; display:inline-flex; align-items:center; justify-content:center; font-size:28px; margin-bottom:20px;">
+                <i class="fa-solid fa-trash-can"></i>
+            </div>
+            <h2 style="font-family:var(--font-heading); font-size:22px; font-weight:800; color:#0f172a; margin-bottom:10px;">
+                Delete Child Record?
+            </h2>
+            <p style="font-size:14px; color:#64748b; line-height:1.6; margin-bottom:24px;">
+                Are you sure you want to permanently delete <strong>{{ $child->display_name }}</strong> (ID #{{ $child->child_id }})? This action cannot be undone and all associated immunization and clinical records will be removed.
+            </p>
+            <div style="display:flex; gap:12px; justify-content:center;">
+                <button type="button" onclick="closeDeleteChildModal()" style="padding:12px 24px; border-radius:12px; background:#f1f5f9; color:#475569; border:none; font-weight:700; font-size:14px; cursor:pointer;">
+                    Cancel
+                </button>
+                <form action="{{ route($prefix . 'children.destroy', $child->child_id) }}" method="POST" style="margin:0;">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" style="padding:12px 24px; border-radius:12px; background:#dc2626; color:white; border:none; font-weight:700; font-size:14px; cursor:pointer; display:inline-flex; align-items:center; gap:8px;">
+                        <i class="fa-solid fa-trash-can"></i> Confirm Delete
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+        function openDeleteChildModal() {
+            const m = document.getElementById('deleteChildModal');
+            if (m) m.style.display = 'flex';
+        }
+        function closeDeleteChildModal() {
+            const m = document.getElementById('deleteChildModal');
+            if (m) m.style.display = 'none';
+        }
+        window.addEventListener('click', function(e) {
+            const m = document.getElementById('deleteChildModal');
+            if (e.target === m) {
+                m.style.display = 'none';
+            }
+        });
+    </script>
+    @endcan
 </body>
 </html>

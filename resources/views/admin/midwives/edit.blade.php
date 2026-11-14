@@ -383,8 +383,11 @@
                         <select name="area_id" class="form-control" required>
                             <option value="">Select an Area</option>
                             @foreach($areas as $area)
+                                @php
+                                    $otherMidwives = $area->midwives->where('midwife_id', '!=', $user->midwife->midwife_id ?? 0)->pluck('midwife_name')->filter()->unique()->join(', ');
+                                @endphp
                                 <option value="{{ $area->area_id }}" {{ (old('area_id', $user->midwife->area_id ?? '') == $area->area_id) ? 'selected' : '' }}>
-                                    {{ $area->area_name }}
+                                    {{ $area->area_name }}@if($otherMidwives) (Co-midwives: {{ $otherMidwives }})@endif
                                 </option>
                             @endforeach
                         </select>

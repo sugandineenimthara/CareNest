@@ -56,8 +56,8 @@ describe('Mother Portal - My Children', () => {
 
   it('shows children cards or empty state', () => {
     cy.get('body').then(($body) => {
-      if ($body.find('.child-card').length > 0) {
-        cy.get('.child-card').first().should('be.visible')
+      if ($body.find('.child-card, .child-row').length > 0) {
+        cy.get('.child-card, .child-row').first().should('be.visible')
       } else {
         cy.contains(/no children|your registered children will appear/i).should('be.visible')
       }

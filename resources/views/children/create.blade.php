@@ -322,12 +322,12 @@
                         <div class="form-group">
                             <label class="form-label">Gender <span class="required">*</span></label>
                             <div class="gender-options">
-                                <input type="radio" name="gender" id="gender_male" value="Male" class="gender-input" {{ old('gender', 'Male') === 'Male' ? 'checked' : '' }} required>
+                                <input type="radio" name="gender" id="gender_male" value="Male" class="gender-input" {{ old('gender', request()->query('gender', 'Male')) === 'Male' ? 'checked' : '' }} required>
                                 <label for="gender_male" class="gender-label">
                                     <i class="fa-solid fa-mars" style="color:#0284c7;"></i> Male
                                 </label>
 
-                                <input type="radio" name="gender" id="gender_female" value="Female" class="gender-input" {{ old('gender') === 'Female' ? 'checked' : '' }} required>
+                                <input type="radio" name="gender" id="gender_female" value="Female" class="gender-input" {{ old('gender', request()->query('gender')) === 'Female' ? 'checked' : '' }} required>
                                 <label for="gender_female" class="gender-label">
                                     <i class="fa-solid fa-venus" style="color:#db2777;"></i> Female
                                 </label>
@@ -336,12 +336,12 @@
 
                         <div class="form-group">
                             <label class="form-label" for="date_of_birth">Date of Birth <span class="required">*</span></label>
-                            <input type="date" name="date_of_birth" id="date_of_birth" class="form-input" max="{{ date('Y-m-d') }}" value="{{ old('date_of_birth', date('Y-m-d')) }}" required>
+                            <input type="date" name="date_of_birth" id="date_of_birth" class="form-input" max="{{ date('Y-m-d') }}" value="{{ old('date_of_birth', request()->query('date_of_birth', date('Y-m-d'))) }}" required>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label" for="birth_weight">Birth Weight (kg) <span class="required">*</span></label>
-                            <input type="number" step="0.01" name="birth_weight" id="birth_weight" class="form-input" placeholder="e.g. 3.25" value="{{ old('birth_weight') }}" required>
+                            <input type="number" step="0.01" name="birth_weight" id="birth_weight" class="form-input" placeholder="e.g. 3.25" value="{{ old('birth_weight', request()->query('birth_weight')) }}" required>
                         </div>
 
                         <div class="form-group">
@@ -354,8 +354,11 @@
                             <select name="area_id" id="area_id" class="form-select">
                                 <option value="">-- Auto-inherit from Mother/Midwife --</option>
                                 @foreach($areas as $area)
+                                    @php
+                                        $mwNames = $area->midwives ? $area->midwives->pluck('midwife_name')->filter()->unique()->join(', ') : '';
+                                    @endphp
                                     <option value="{{ $area->area_id }}" {{ old('area_id') == $area->area_id ? 'selected' : '' }}>
-                                        {{ $area->area_name }}
+                                        {{ $area->area_name }}@if($mwNames) ({{ $mwNames }})@endif
                                     </option>
                                 @endforeach
                             </select>

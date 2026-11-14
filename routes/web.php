@@ -71,6 +71,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/mothers/{id}', [MotherController::class, 'show'])->name('mothers.show');
         Route::get('/mothers/{id}/edit', [MotherController::class, 'edit'])->name('mothers.edit');
         Route::put('/mothers/{id}', [MotherController::class, 'update'])->name('mothers.update');
+        Route::post('/mothers/{id}/delivery', [MotherController::class, 'recordDelivery'])->name('mothers.delivery');
         Route::delete('/mothers/{id}', [MotherController::class, 'destroy'])->name('mothers.destroy');
 
         Route::get('/children', [\App\Http\Controllers\ChildController::class, 'index'])->name('children.index');
@@ -114,6 +115,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/mothers/{id}', [MotherController::class, 'show'])->name('mothers.show');
         Route::get('/mothers/{id}/edit', [MotherController::class, 'edit'])->name('mothers.edit');
         Route::put('/mothers/{id}', [MotherController::class, 'update'])->name('mothers.update');
+        Route::post('/mothers/{id}/delivery', [MotherController::class, 'recordDelivery'])->name('mothers.delivery');
         Route::delete('/mothers/{id}', [MotherController::class, 'destroy'])->name('mothers.destroy');
 
         Route::get('/children', [\App\Http\Controllers\ChildController::class, 'index'])->name('children.index');
@@ -122,6 +124,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/children/{id}', [\App\Http\Controllers\ChildController::class, 'show'])->name('children.show');
         Route::get('/children/{id}/edit', [\App\Http\Controllers\ChildController::class, 'edit'])->name('children.edit');
         Route::put('/children/{id}', [\App\Http\Controllers\ChildController::class, 'update'])->name('children.update');
+        Route::delete('/children/{id}', [\App\Http\Controllers\ChildController::class, 'destroy'])->name('children.destroy');
 
         Route::get('/immunizations', [\App\Http\Controllers\ImmunizationController::class, 'index'])->name('immunizations.index');
         Route::post('/immunizations/child', [\App\Http\Controllers\ImmunizationController::class, 'storeChildVaccine'])->name('immunizations.child.store');

@@ -296,7 +296,7 @@
                         <div>
                             @if($mother->isTetanusSafe())
                                 <span class="badge badge-safe">
-                                    <i class="fa-solid fa-shield-check"></i> Safe from Tetanus (&gt;4th Pregnancy)
+                                    <i class="fa-solid fa-shield-check"></i> Safe from Tetanus
                                 </span>
                             @else
                                 <span class="badge badge-vaccinated">
@@ -755,14 +755,14 @@
                         <div class="stat-icon" style="background:#dcfce7; color:#16a34a;"><i class="fa-solid fa-shield-check"></i></div>
                         <div>
                             <div class="stat-val">{{ $mothersSafeCount }}</div>
-                            <div class="stat-lbl">Safe from Tetanus (&gt;4th Preg)</div>
+                            <div class="stat-lbl">Safe from Tetanus</div>
                         </div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-icon" style="background:#fee2e2; color:#dc2626;"><i class="fa-solid fa-triangle-exclamation"></i></div>
                         <div>
                             <div class="stat-val">{{ $mothersDueCount }}</div>
-                            <div class="stat-lbl">Tetanus Dose Due (1st-4th Preg)</div>
+                            <div class="stat-lbl">Tetanus Dose Due</div>
                         </div>
                     </div>
                 </div>
@@ -814,9 +814,9 @@
                                         <td>
                                             @if($mother->is_tetanus_safe)
                                                 <span class="badge badge-safe">
-                                                    <i class="fa-solid fa-shield-check"></i> Safe from Tetanus (&gt;4th Preg)
+                                                    <i class="fa-solid fa-shield-check"></i> Safe from Tetanus
                                                 </span>
-                                            @elseif($mother->tetanus_record)
+                                            @elseif($mother->tetanus_status === 'Vaccinated')
                                                 <span class="badge badge-vaccinated">
                                                     <i class="fa-solid fa-circle-check"></i> Vaccinated
                                                 </span>
@@ -828,15 +828,27 @@
                                         </td>
                                         <td>
                                             @if($mother->is_tetanus_safe)
-                                                <span style="font-size:12px; color:#15803d; font-weight:600;">
-                                                    <i class="fa-solid fa-lock"></i> Protected by previous doses
-                                                </span>
-                                            @elseif($mother->tetanus_record)
-                                                <div style="font-size:12px; color:#334155;">
-                                                    Batch: <strong style="font-family:monospace;">{{ $mother->tetanus_record->batch_no }}</strong>
+                                                <div style="font-size:12px; color:#15803d; font-weight:700;">
+                                                    <i class="fa-solid fa-shield-check"></i> Safe from Tetanus ({{ $mother->tt_doses_count }} doses completed)
                                                 </div>
-                                                <div style="font-size:11px; color:#64748b;">
-                                                    Date: {{ \Carbon\Carbon::parse($mother->tetanus_record->immunization_date)->format('M d, Y') }}
+                                                <div style="font-size:11px; color:#64748b; margin-top:3px; display:flex; flex-direction:column; gap:2px;">
+                                                    @foreach($mother->tetanus_records as $idx => $rec)
+                                                        <span>Dose {{ $idx + 1 }}: Batch <strong>{{ $rec->batch_no }}</strong> &bull; {{ \Carbon\Carbon::parse($rec->immunization_date)->format('M d, Y') }}</span>
+                                                    @endforeach
+                                                </div>
+                                            @elseif($mother->tetanus_records->count() > 0)
+                                                <div style="display:flex; flex-direction:column; gap:4px;">
+                                                    @foreach($mother->tetanus_records as $idx => $rec)
+                                                        <div style="font-size:11px; color:#334155; display:flex; align-items:center; gap:6px;">
+                                                            <span style="background:#e0f2fe; color:#0369a1; padding:1px 6px; border-radius:6px; font-weight:700;">Dose {{ $idx + 1 }}</span>
+                                                            <span>Batch: <strong>{{ $rec->batch_no }}</strong> &bull; {{ \Carbon\Carbon::parse($rec->immunization_date)->format('M d, Y') }}</span>
+                                                        </div>
+                                                    @endforeach
+                                                    @if($mother->tetanus_status === 'Due')
+                                                        <div style="font-size:11px; color:#b91c1c; font-weight:700; margin-top:2px;">
+                                                            <i class="fa-solid fa-circle-exclamation"></i> Dose required for Pregnancy #{{ $mother->current_preg_no }}
+                                                        </div>
+                                                    @endif
                                                 </div>
                                             @else
                                                 <span style="font-size:12px; color:#b91c1c; font-weight:600;">
@@ -850,11 +862,11 @@
                                         </td>
                                         <td>
                                             @if(!$mother->is_tetanus_safe)
-                                                <button type="button" class="btn-log-small" onclick="openMotherModal('{{ $mother->mother_id }}', '{{ $mother->current_preg_no }}')">
+                                                <button type="button" class="btn-log-small" onclick="openMotherModal('{{ $mother->mother_id }}', '{{ $mother->current_preg_no }}', '{{ $mother->tt_doses_count + 1 }}')">
                                                     <i class="fa-solid fa-syringe"></i> Record TT
                                                 </button>
                                             @else
-                                                <span style="font-size:12px; color:#94a3b8; font-weight:600;">Safe</span>
+                                                <span style="font-size:12px; color:#15803d; font-weight:700;"><i class="fa-solid fa-shield-check"></i> Safe</span>
                                             @endif
                                         </td>
                                     </tr>
@@ -930,8 +942,15 @@
                 <div class="form-group" style="margin-top:12px;">
                     <label class="form-label" for="midwife_id">Administering Midwife</label>
                     <select name="midwife_id" class="form-select">
-                        @foreach($midwives as $mw)
-                            <option value="{{ $mw->midwife_id }}">{{ $mw->midwife_name }} ({{ $mw->area ? $mw->area->area_name : 'No Area' }})</option>
+                        @php
+                            $groupedMidwives = $midwives->groupBy(fn($mw) => $mw->area?->area_name ?? 'No Area');
+                        @endphp
+                        @foreach($groupedMidwives as $areaName => $mws)
+                            <optgroup label="{{ $areaName }}">
+                                @foreach($mws as $mw)
+                                    <option value="{{ $mw->midwife_id }}">{{ $mw->midwife_name }}</option>
+                                @endforeach
+                            </optgroup>
                         @endforeach
                     </select>
                 </div>
@@ -1034,14 +1053,15 @@
             if (modal) modal.classList.remove('open');
         }
 
-        function openMotherModal(motherId, pregNo) {
+        function openMotherModal(motherId, pregNo, nextDoseNo) {
             const modal = document.getElementById('motherModal');
             if (!modal) return;
             if (motherId) {
                 document.getElementById('modal_mother_id').value = motherId;
             }
-            if (pregNo) {
-                document.getElementById('modal_mother_dose').value = `Pregnancy #${pregNo} Tetanus Dose`;
+            const doseNum = nextDoseNo || (pregNo || 1);
+            if (doseNum) {
+                document.getElementById('modal_mother_dose').value = `Pregnancy #${pregNo || doseNum} Tetanus Dose (Dose #${doseNum})`;
             }
             modal.classList.add('open');
         }

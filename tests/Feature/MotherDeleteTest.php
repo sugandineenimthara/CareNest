@@ -59,9 +59,10 @@ class MotherDeleteTest extends TestCase
             'role'     => 'midwife',
             'status'   => 'approved',
         ]);
+        $this->otherArea = Area::create(['area_name' => 'Kala-Eliya-North']);
         $this->otherMidwife = Midwife::create([
             'midwife_name' => 'Other Midwife',
-            'area_id'      => $this->area->area_id,
+            'area_id'      => $this->otherArea->area_id,
             'user_id'      => $this->otherMidwifeUser->id,
         ]);
 
