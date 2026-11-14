@@ -223,6 +223,7 @@
             </div>
         </div>
 
+
         
         <div class="dist-card">
             <div class="dist-card-header">
@@ -241,7 +242,7 @@
                     <div class="form-group">
                         <label for="issuing_date"><i class="fa-solid fa-calendar"></i> Distribution Date <span style="color:#e11d48;">*</span></label>
                         <input type="date" id="issuing_date" name="issuing_date" class="form-input"
-                               value="{{ old('issuing_date', date('Y-m-d')) }}" required>
+                               value="{{ old('issuing_date', date('Y-m-d')) }}" onchange="updateStockTracker()" required>
                     </div>
                     <div class="form-group">
                         <label for="session_label"><i class="fa-solid fa-tag"></i> Session Name</label>
@@ -251,7 +252,7 @@
                     <div class="form-group">
                         <label for="opening_stock"><i class="fa-solid fa-warehouse"></i> Opening Stock (Pkts in Storage)</label>
                         <input type="number" id="opening_stock" name="opening_stock" class="form-input"
-                               placeholder="e.g. 200" min="0" value="{{ old('opening_stock') }}" oninput="updateStockTracker()">
+                               placeholder="e.g. 200" min="0" value="{{ old('opening_stock', $defaultOpeningStock ?? '') }}" oninput="updateStockTracker()">
                     </div>
                     <div>
                         <button type="button" class="btn-add-row" onclick="addRow()" style="height:45px; margin-top:20px;">
@@ -454,6 +455,7 @@
 <script>
 const mothers  = @json($mothersList);
 const children = @json($childrenList);
+const distributionsByDate = @json($distributionsByDate ?? []);
 
 let rowCount = 0;
 
@@ -538,22 +540,25 @@ function renumberRows() {
 
 function updateStockTracker() {
     const opening = parseInt(document.getElementById('opening_stock').value) || null;
+    const dateInput = document.getElementById('issuing_date');
+    const dateVal = dateInput ? dateInput.value : '';
+    const alreadyDistributed = distributionsByDate[dateVal] || 0;
 
-    let total = 0;
+    let formTotal = 0;
     document.querySelectorAll('#batchRows input[type="number"]').forEach(inp => {
-        total += parseInt(inp.value) || 0;
+        formTotal += parseInt(inp.value) || 0;
     });
 
-    document.getElementById('tracker-opening').textContent    = opening !== null ? opening : '—';
-    document.getElementById('tracker-distributed').textContent = total;
+    const totalDistributed = alreadyDistributed + formTotal;
+
+    document.getElementById('tracker-opening').textContent     = opening !== null ? opening : '—';
+    document.getElementById('tracker-distributed').textContent = totalDistributed;
 
     const remBox = document.getElementById('remaining-box');
     if (opening !== null) {
-        const rem = opening - total;
+        const rem = opening - formTotal;
         document.getElementById('tracker-remaining').textContent = rem;
-        if (rem < 0) {
-            remBox.className = 'stock-box low';
-        } else if (rem < 20) {
+        if (rem < 0 || rem < 20) {
             remBox.className = 'stock-box low';
         } else {
             remBox.className = 'stock-box remaining';

@@ -106,11 +106,9 @@ class VaccineReportController extends Controller
         foreach ($existingReportVaccines as $customVac) {
             $matched = false;
             foreach ($vaccineDefinitions as $label => $keywords) {
-                foreach ($keywords as $kw) {
-                    if (stripos($customVac, $kw) !== false) {
-                        $matched = true;
-                        break 2;
-                    }
+                if ($this->isVaccineMatch($label, $keywords, $customVac)) {
+                    $matched = true;
+                    break;
                 }
             }
             if (!$matched) {
@@ -122,11 +120,9 @@ class VaccineReportController extends Controller
         foreach ($existingImmunVaccines as $customVac) {
             $matched = false;
             foreach ($vaccineDefinitions as $label => $keywords) {
-                foreach ($keywords as $kw) {
-                    if (stripos($customVac, $kw) !== false) {
-                        $matched = true;
-                        break 2;
-                    }
+                if ($this->isVaccineMatch($label, $keywords, $customVac)) {
+                    $matched = true;
+                    break;
                 }
             }
             if (!$matched) {
@@ -139,23 +135,12 @@ class VaccineReportController extends Controller
         foreach ($vaccineDefinitions as $label => $keywords) {
             $storageStock = $reports->filter(function ($rep) use ($keywords, $label) {
                 if (!$rep->vaccine_used) return false;
-                if (strcasecmp($rep->vaccine_used, $label) === 0) return true;
-                foreach ($keywords as $kw) {
-                    if (stripos($rep->vaccine_used, $kw) !== false) return true;
-                }
-                return false;
+                return $this->isVaccineMatch($label, $keywords, $rep->vaccine_used);
             })->sum(fn ($r) => ($r->items_received ?? 0) + ($r->opening_stock ?? 0));
 
             $usedCount = $immunizations->filter(function ($imm) use ($keywords, $label) {
                 if (!$imm->vaccine_name) return false;
-                if (strcasecmp($imm->vaccine_name, $label) === 0) return true;
-                if ($label === 'DT' && stripos($imm->vaccine_name, 'DPT') !== false) {
-                    return false;
-                }
-                foreach ($keywords as $kw) {
-                    if (stripos($imm->vaccine_name, $kw) !== false) return true;
-                }
-                return false;
+                return $this->isVaccineMatch($label, $keywords, $imm->vaccine_name);
             })->count();
 
             $vaccinesLeft = max(0, $storageStock - $usedCount);
@@ -230,5 +215,36 @@ class VaccineReportController extends Controller
             'from_date'   => $validated['date'],
             'to_date'     => $validated['date'],
         ])->with('success', 'Storage stock recorded successfully for ' . $validated['vaccine_name'] . ' (' . $validated['stock_received'] . ' doses).');
+    }
+
+    protected function isVaccineMatch(string $label, array $keywords, string $candidate): bool
+    {
+        if (strcasecmp($candidate, $label) === 0) {
+            return true;
+        }
+
+        // Exclude Inactivated Polio (FITV / fIPV / IPV) from Oral Polio (OPV)
+        if ($label === 'Oral Polio (OPV)') {
+            if (stripos($candidate, 'FITV') !== false ||
+                stripos($candidate, 'IPV') !== false ||
+                stripos($candidate, 'Inactivated') !== false) {
+                return false;
+            }
+        }
+
+        // Exclude DPT from DT
+        if ($label === 'DT') {
+            if (stripos($candidate, 'DPT') !== false) {
+                return false;
+            }
+        }
+
+        foreach ($keywords as $kw) {
+            if (stripos($candidate, $kw) !== false) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

@@ -212,4 +212,35 @@ class VaccineReportTest extends TestCase
         $pentaRow2 = $response2->viewData('vaccineRows')->firstWhere('vaccine_type', 'Pentavalent');
         $this->assertNull($pentaRow2);
     }
+
+    public function test_entering_fitv_stock_does_not_increase_opv_stock(): void
+    {
+        // Record 50 doses of Inactivated Polio (FITV) from storage
+        $this->actingAs($this->adminUser)->post(route('admin.vaccine-reports.store'), [
+            'clinic_type'    => 'pediatric',
+            'date'           => '2026-11-01',
+            'vaccine_name'   => 'Inactivated Polio (FITV)',
+            'stock_received' => 50,
+            'batch_no'       => 'FITV-BATCH-1',
+        ]);
+
+        $response = $this->actingAs($this->adminUser)->get(route('admin.vaccine-reports.index', [
+            'clinic_type' => 'pediatric',
+            'from_date'   => '2026-11-01',
+            'to_date'     => '2026-11-01',
+        ]));
+
+        $response->assertStatus(200);
+
+        $vaccineRows = $response->viewData('vaccineRows');
+        $fitvRow = $vaccineRows->firstWhere('vaccine_type', 'Inactivated Polio (FITV)');
+        $opvRow = $vaccineRows->firstWhere('vaccine_type', 'Oral Polio (OPV)');
+
+        $this->assertNotNull($fitvRow);
+        $this->assertEquals(50, $fitvRow['got_from_storage']);
+
+        // OPV stock must remain 0 and NOT increase when FITV stock is entered
+        $this->assertNotNull($opvRow);
+        $this->assertEquals(0, $opvRow['got_from_storage']);
+    }
 }

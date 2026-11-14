@@ -109,14 +109,34 @@ class AttendanceController extends Controller
             ];
         })->values();
 
+        $existingClinics = Attendance::select('clinic_date', 'clinic_type', 'clinic_name')
+            ->distinct()
+            ->get()
+            ->map(function ($c) {
+                return [
+                    'date' => $c->clinic_date->format('Y-m-d'),
+                    'type' => $c->clinic_type,
+                    'name' => $c->clinic_name,
+                ];
+            })->values();
+
+        $existingAttendees = Attendance::select('clinic_date', 'clinic_type', 'mother_id', 'child_id')
+            ->get()
+            ->map(function ($a) {
+                return [
+                    'date'      => $a->clinic_date->format('Y-m-d'),
+                    'type'      => $a->clinic_type,
+                    'mother_id' => $a->mother_id,
+                    'child_id'  => $a->child_id,
+                ];
+            })->values();
+
         return view('attendances.index', compact(
             'user', 'clinicSessions', 'search', 'clinicType', 'dateFrom', 'dateTo',
             'totalAttendancesEver', 'totalMotherAttendances', 'totalPediatricAttendances', 'totalClinicsEver',
-            'mothersList', 'childrenList', 'midwives'
+            'mothersList', 'childrenList', 'midwives', 'existingClinics', 'existingAttendees'
         ));
     }
-
-    
 
     public function storeBatch(Request $request)
     {
@@ -134,10 +154,81 @@ class AttendanceController extends Controller
             'attendees.*.remarks'        => 'nullable|string|max:500',
         ]);
 
+        $clinicDate = Carbon::parse($request->clinic_date)->toDateString();
+        $clinicType = $request->clinic_type;
+        $typeLabel  = $clinicType === 'mother' ? 'Maternal' : 'Pediatric';
+
+        // 1. Enforce only one maternal clinic and one pediatric clinic per day
+        $existingClinic = Attendance::whereDate('clinic_date', $clinicDate)
+            ->where('clinic_type', $clinicType)
+            ->first();
+
+        if ($existingClinic && trim(strtolower($existingClinic->clinic_name)) !== trim(strtolower($request->clinic_name))) {
+            return back()->withInput()->with('error', "Only one {$typeLabel} clinic is allowed per day. A {$typeLabel} clinic ({$existingClinic->clinic_name}) already exists on this date.");
+        }
+
+        // 2. Validate attendee entries: single attendance per clinic
+        if ($clinicType === 'mother') {
+            $motherIds = [];
+            foreach ($request->attendees as $item) {
+                if (!empty($item['mother_id'])) {
+                    $motherIds[] = (int) $item['mother_id'];
+                }
+            }
+
+            if (empty($motherIds)) {
+                return back()->withInput()->with('error', 'Please select at least one valid mother attendee.');
+            }
+
+            // Reject if duplicate mother in the submitted batch
+            if (count($motherIds) !== count(array_unique($motherIds))) {
+                return back()->withInput()->with('error', 'Each mother can only attend once per clinic. Duplicate mother entries are not allowed.');
+            }
+
+            // Reject if any mother has already attended a maternal clinic on this date
+            $alreadyAttended = Attendance::whereDate('clinic_date', $clinicDate)
+                ->where('clinic_type', 'mother')
+                ->whereIn('mother_id', $motherIds)
+                ->with('mother')
+                ->first();
+
+            if ($alreadyAttended) {
+                $motherName = $alreadyAttended->mother?->mother_name ?? ('Mother #' . $alreadyAttended->mother_id);
+                return back()->withInput()->with('error', "{$motherName} has already attended the maternal clinic on this date. Each mother can only attend once per clinic.");
+            }
+        } else {
+            $childIds = [];
+            foreach ($request->attendees as $item) {
+                if (!empty($item['child_id'])) {
+                    $childIds[] = (int) $item['child_id'];
+                }
+            }
+
+            if (empty($childIds)) {
+                return back()->withInput()->with('error', 'Please select at least one valid child attendee.');
+            }
+
+            // Reject if duplicate child in the submitted batch
+            if (count($childIds) !== count(array_unique($childIds))) {
+                return back()->withInput()->with('error', 'Each child can only attend once per clinic. Duplicate child entries are not allowed.');
+            }
+
+            // Reject if any child has already attended a pediatric clinic on this date
+            $alreadyAttended = Attendance::whereDate('clinic_date', $clinicDate)
+                ->where('clinic_type', 'pediatric')
+                ->whereIn('child_id', $childIds)
+                ->with('child')
+                ->first();
+
+            if ($alreadyAttended) {
+                $childName = $alreadyAttended->child?->display_name ?? ('Child #' . $alreadyAttended->child_id);
+                return back()->withInput()->with('error', "{$childName} has already attended the pediatric clinic on this date. Each child can only attend once per clinic.");
+            }
+        }
+
         $user = Auth::user();
         $midwifeId = $request->midwife_id;
 
-        
         if (!$midwifeId) {
             if ($user->role === 'midwife') {
                 $mw = Midwife::where('user_id', $user->id)->first();
@@ -182,12 +273,8 @@ class AttendanceController extends Controller
                             $mother->update(['blood_pressure' => $bpRate]);
 
                             
-                            if (preg_match('/(\d+)\s*[\/\-]\s*(\d+)/', $bpRate, $m)) {
-                                $systolic = (int)$m[1];
-                                $diastolic = (int)$m[2];
-                                if ($systolic >= 140 || $diastolic >= 90) {
-                                    $highRiskAlerts[] = $mother->mother_name . " ({$bpRate} mmHg)";
-                                }
+                            if ($mother->isHighBloodPressure()) {
+                                $highRiskAlerts[] = $mother->mother_name . " ({$bpRate} mmHg)";
                             }
                         }
                     }

@@ -128,23 +128,66 @@ class AlertController extends Controller
         $clinicalHighBPMothers = $mothersQuery->get()
             ->filter(fn($mother) => $mother->isHighBloodPressure())
             ->map(function ($mother) {
+                $bp = trim($mother->blood_pressure);
+                $measure = str_contains(strtolower($bp), 'mmhg') ? $bp : $bp . ' mmHg';
                 return (object)[
                     'type' => 'High Risk Blood Pressure (> 140/90)',
                     'severity' => 'danger',
                     'icon' => 'fa-heart-pulse',
                     'mother_name' => $mother->mother_name ?? 'Unknown',
                     'contact_no' => $mother->phone_no ?? '-',
-                    'condition_text' => 'Recorded BP: ' . $mother->blood_pressure . ' mmHg (Exceeds 140/90 Threshold)',
+                    'condition_text' => $measure,
                     'area' => $mother->midwife->area->area_name ?? '-',
                     'midwife' => $mother->midwife->midwife_name ?? '-',
                     'created_at' => $mother->updated_at ?? $mother->created_at,
                 ];
             });
 
-        
+        $attendancesQuery = \App\Models\Attendance::with(['mother.user', 'mother.midwife.area'])
+            ->where('clinic_type', 'mother')
+            ->where(function ($q) {
+                $q->whereNotNull('blood_pressure')->where('blood_pressure', '!=', '')
+                  ->orWhere(function ($sq) {
+                      $sq->whereNotNull('remarks')->where('remarks', '!=', '');
+                  });
+            });
+
+        if ($user->role === 'midwife' && $user->midwife) {
+            $attendancesQuery->where('midwife_id', $user->midwife->midwife_id);
+        }
+
+        $attendanceHighBPMothers = $attendancesQuery->get()
+            ->filter(fn($att) => $att->isHighBloodPressure() && $att->mother)
+            ->map(function ($att) {
+                $mother = $att->mother;
+                $rawBp = trim($att->blood_pressure ?: $att->remarks);
+                $measure = str_contains(strtolower($rawBp), 'mmhg') ? $rawBp : $rawBp . ' mmHg';
+                return (object)[
+                    'type' => 'High Risk Blood Pressure (> 140/90)',
+                    'severity' => 'danger',
+                    'icon' => 'fa-heart-pulse',
+                    'mother_name' => $mother->mother_name ?? 'Unknown',
+                    'contact_no' => $mother->phone_no ?? '-',
+                    'condition_text' => $measure,
+                    'area' => $mother->midwife->area->area_name ?? '-',
+                    'midwife' => $mother->midwife->midwife_name ?? '-',
+                    'created_at' => $att->created_at,
+                ];
+            });
+
+        $clinicalAlerts = $clinicalHighBPMothers->values();
+        $seenMothers = $clinicalAlerts->pluck('mother_name')->all();
+        foreach ($attendanceHighBPMothers as $attAlert) {
+            if (!in_array($attAlert->mother_name, $seenMothers, true)) {
+                $clinicalAlerts->push($attAlert);
+                $seenMothers[] = $attAlert->mother_name;
+            }
+        }
+
+        // 2. High BP from family health history (exclude negative/normal answers such as 'None', 'no', 'nil')
         $highBPQuery = FamilyHealthHistory::with(['mother.user', 'mother.midwife.area'])
             ->whereNotNull('high_blood_pressure')
-            ->whereNotIn('high_blood_pressure', ['no', 'No', 'false', '0', '']);
+            ->whereNotIn('high_blood_pressure', ['no', 'No', 'NO', 'false', '0', '', 'none', 'None', 'NONE', 'nil', 'Nil', 'normal', 'Normal', 'N/A', 'na']);
 
         if ($user->role === 'mother') {
             if (!$user->mother) abort(403, 'Your mother profile is not linked or incomplete. Please contact the administrator.');
@@ -168,7 +211,7 @@ class AlertController extends Controller
                 ];
             });
 
-        
+        // 3. Low Haemoglobin Alerts (< 11.0 g/dL)
         $lowHbQuery = TestDone::with(['mother.user', 'mother.midwife.area'])
             ->where('Haemoglobin', '<', 11.0);
 
@@ -194,7 +237,7 @@ class AlertController extends Controller
                 ];
             });
 
-        
+        // 4. High Blood / Urine Sugar Alerts
         $highSugarQuery = TestDone::with(['mother.user', 'mother.midwife.area'])
             ->where(function($q) {
                 $q->where('urine_sugar_level', '!=', 'Negative')
@@ -223,9 +266,9 @@ class AlertController extends Controller
                 ];
             });
 
-        
+        // Merge all alerts
         $allAlerts = collect()
-            ->merge($clinicalHighBPMothers)
+            ->merge($clinicalAlerts)
             ->merge($highBPMothers)
             ->merge($lowHbMothers)
             ->merge($highSugarMothers)
