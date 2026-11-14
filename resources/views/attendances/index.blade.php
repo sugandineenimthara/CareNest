@@ -231,7 +231,7 @@
                     <div class="form-group">
                         <label for="clinic_date"><i class="fa-solid fa-calendar-day"></i> Clinic Date <span style="color:#ef4444;">*</span></label>
                         <input type="date" id="clinic_date" name="clinic_date" class="form-input"
-                               value="{{ old('clinic_date', date('Y-m-d')) }}" required>
+                               value="{{ old('clinic_date', date('Y-m-d')) }}" onchange="syncClinicForDateAndType()" required>
                     </div>
 
                     <div class="form-group">
@@ -526,11 +526,39 @@
 </div>
 
 <script>
-const mothersList  = @json($mothersList);
-const childrenList = @json($childrenList);
+const mothersList       = @json($mothersList);
+const childrenList      = @json($childrenList);
+const existingClinics   = @json($existingClinics ?? []);
+const existingAttendees = @json($existingAttendees ?? []);
 
 let currentClinicType = 'mother';
 let rowCounter = 0;
+
+function syncClinicForDateAndType() {
+    const dateVal = document.getElementById('clinic_date').value;
+    const clinicNameInp = document.getElementById('clinic_name');
+    const existing = existingClinics.find(c => c.date === dateVal && c.type === currentClinicType);
+
+    if (existing) {
+        clinicNameInp.value = existing.name;
+        clinicNameInp.readOnly = true;
+        clinicNameInp.style.backgroundColor = '#f1f5f9';
+    } else {
+        clinicNameInp.readOnly = false;
+        clinicNameInp.style.backgroundColor = '';
+        if (currentClinicType === 'mother') {
+            if (!clinicNameInp.value || clinicNameInp.value.includes('Child') || clinicNameInp.value.includes('Pediatric') || clinicNameInp.value.includes('Baby')) {
+                clinicNameInp.value = 'MOH Maternity Care Clinic';
+            }
+        } else {
+            if (!clinicNameInp.value || clinicNameInp.value.includes('Maternity') || clinicNameInp.value.includes('Mother')) {
+                clinicNameInp.value = 'Well Baby & Child Development Clinic';
+            }
+        }
+    }
+
+    refreshAllDropdowns();
+}
 
 function switchClinicType(type) {
     currentClinicType = type;
@@ -544,7 +572,6 @@ function switchClinicType(type) {
     const colWeight       = document.getElementById('col-heading-weight');
     const counterHead     = document.getElementById('counter-heading');
     const addBtnLbl       = document.getElementById('add-btn-label');
-    const clinicNameInp   = document.getElementById('clinic_name');
 
     if (type === 'mother') {
         btnMother.classList.add('active');
@@ -555,9 +582,6 @@ function switchClinicType(type) {
         colWeight.style.display = 'none';
         counterHead.textContent = 'Total Attendance for this Mother Clinic:';
         addBtnLbl.textContent = 'Add Another Mother';
-        if (!clinicNameInp.value || clinicNameInp.value.includes('Child') || clinicNameInp.value.includes('Pediatric') || clinicNameInp.value.includes('Baby')) {
-            clinicNameInp.value = 'MOH Maternity Care Clinic';
-        }
     } else {
         btnPediatric.classList.add('active');
         btnMother.classList.remove('active');
@@ -567,15 +591,13 @@ function switchClinicType(type) {
         colWeight.style.display = '';
         counterHead.textContent = 'Total Attendance for this Pediatric Clinic:';
         addBtnLbl.textContent = 'Add Another Child';
-        if (!clinicNameInp.value || clinicNameInp.value.includes('Maternity') || clinicNameInp.value.includes('Mother')) {
-            clinicNameInp.value = 'Well Baby & Child Development Clinic';
-        }
     }
 
     const tbody = document.getElementById('attendeeRows');
     tbody.innerHTML = '';
     rowCounter = 0;
     addAttendeeRow();
+    syncClinicForDateAndType();
 }
 
 function buildMothersOptions(selectedId = '') {
@@ -592,6 +614,36 @@ function buildChildrenOptions(selectedId = '') {
         opts += `<option value="${c.id}" ${selectedId == c.id ? 'selected' : ''}>#${c.id} — ${c.name} (Mother: ${c.mother_name}) [${c.area}]</option>`;
     });
     return opts;
+}
+
+function refreshAllDropdowns() {
+    const dateVal = document.getElementById('clinic_date').value;
+    const isMother = currentClinicType === 'mother';
+
+    const attendedSet = new Set(
+        existingAttendees
+            .filter(a => a.date === dateVal && a.type === currentClinicType)
+            .map(a => isMother ? a.mother_id : a.child_id)
+    );
+
+    const allSelects = Array.from(document.querySelectorAll('#attendeeRows select'));
+    const selectedValues = new Set(allSelects.map(s => parseInt(s.value, 10)).filter(Boolean));
+
+    allSelects.forEach(selectEl => {
+        const currentVal = parseInt(selectEl.value, 10);
+        Array.from(selectEl.options).forEach(opt => {
+            if (!opt.value) return;
+            const val = parseInt(opt.value, 10);
+            const isAttended = attendedSet.has(val);
+            const isSelectedElsewhere = selectedValues.has(val) && val !== currentVal;
+            opt.disabled = isAttended || isSelectedElsewhere;
+        });
+    });
+}
+
+function onAttendeeChange() {
+    updateLiveCount();
+    refreshAllDropdowns();
 }
 
 function checkBPInput(input, statusElId) {
@@ -638,7 +690,7 @@ function addAttendeeRow(entityId = '', bpOrHeight = '', weightVal = '') {
         tr.innerHTML = `
             <td class="td-num">${tbody.rows.length + 1}</td>
             <td>
-                <select class="td-select" name="attendees[${idx}][mother_id]" required onchange="updateLiveCount()">
+                <select class="td-select" name="attendees[${idx}][mother_id]" required onchange="onAttendeeChange()">
                     ${buildMothersOptions(entityId)}
                 </select>
             </td>
@@ -658,7 +710,7 @@ function addAttendeeRow(entityId = '', bpOrHeight = '', weightVal = '') {
         tr.innerHTML = `
             <td class="td-num">${tbody.rows.length + 1}</td>
             <td>
-                <select class="td-select" name="attendees[${idx}][child_id]" required onchange="updateLiveCount()">
+                <select class="td-select" name="attendees[${idx}][child_id]" required onchange="onAttendeeChange()">
                     ${buildChildrenOptions(entityId)}
                 </select>
             </td>
@@ -680,6 +732,7 @@ function addAttendeeRow(entityId = '', bpOrHeight = '', weightVal = '') {
 
     tbody.appendChild(tr);
     renumberAttendeeRows();
+    refreshAllDropdowns();
     updateLiveCount();
 }
 
@@ -687,6 +740,7 @@ function removeAttendeeRow(idx) {
     const row = document.getElementById(`att-row-${idx}`);
     if (row) row.remove();
     renumberAttendeeRows();
+    refreshAllDropdowns();
     updateLiveCount();
 }
 
@@ -729,7 +783,52 @@ function toggleClinicSession(idx) {
 
 document.addEventListener('DOMContentLoaded', function() {
     addAttendeeRow();
-    updateLiveCount();
+    syncClinicForDateAndType();
+
+    const form = document.getElementById('attendanceBatchForm');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            const dateVal = document.getElementById('clinic_date').value;
+            const clinicNameVal = document.getElementById('clinic_name').value.trim();
+            const isMother = currentClinicType === 'mother';
+
+            const existingClinic = existingClinics.find(c => c.date === dateVal && c.type === currentClinicType);
+            if (existingClinic && existingClinic.name.toLowerCase().trim() !== clinicNameVal.toLowerCase()) {
+                e.preventDefault();
+                alert('Only one ' + (isMother ? 'maternal' : 'pediatric') + ' clinic is allowed per day.');
+                return false;
+            }
+
+            const selects = Array.from(document.querySelectorAll('#attendeeRows select'));
+            const values = selects.map(s => parseInt(s.value, 10)).filter(Boolean);
+
+            if (values.length === 0) {
+                e.preventDefault();
+                return false;
+            }
+
+            const unique = new Set(values);
+            if (unique.size !== values.length) {
+                e.preventDefault();
+                alert('Each ' + (isMother ? 'mother' : 'child') + ' can only attend once per clinic.');
+                return false;
+            }
+
+            const attendedSet = new Set(
+                existingAttendees
+                    .filter(a => a.date === dateVal && a.type === currentClinicType)
+                    .map(a => isMother ? a.mother_id : a.child_id)
+            );
+
+            for (const id of values) {
+                if (attendedSet.has(id)) {
+                    e.preventDefault();
+                    alert('A selected participant has already attended the clinic on this date.');
+                    return false;
+                }
+            }
+        });
+    }
 });
 </script>
 
