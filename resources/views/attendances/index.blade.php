@@ -657,11 +657,24 @@ function checkBPInput(input, statusElId) {
         return;
     }
 
-    const match = val.match(/(\d+)\s*[\/\-]\s*(\d+)/);
-    if (match) {
-        const sys = parseInt(match[1], 10);
-        const dia = parseInt(match[2], 10);
-        if (sys >= 140 || dia >= 90) {
+    const matchSlash = val.match(/(\d+)\s*[\/\-]\s*(\d+)/);
+    const matchSingle = val.match(/(\d+)/);
+    let isHigh = false;
+    let hasMatch = false;
+
+    if (matchSlash) {
+        hasMatch = true;
+        const sys = parseInt(matchSlash[1], 10);
+        const dia = parseInt(matchSlash[2], 10);
+        isHigh = (sys >= 140 || dia >= 90);
+    } else if (matchSingle) {
+        hasMatch = true;
+        const sys = parseInt(matchSingle[1], 10);
+        isHigh = (sys >= 140);
+    }
+
+    if (hasMatch) {
+        if (isHigh) {
             statusEl.style.display = 'inline-flex';
             statusEl.className = 'bp-high-badge';
             statusEl.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> High Risk (&gt;140/90)';

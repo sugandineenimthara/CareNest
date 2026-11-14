@@ -40,6 +40,9 @@ class Attendance extends Model
         if (preg_match('/(\d+)\s*[\/\-]\s*(\d+)/', $bp, $m)) {
             return ((int)$m[1] >= 140 || (int)$m[2] >= 90);
         }
+        if (preg_match('/(\d+)/', $bp, $m)) {
+            return (int)$m[1] >= 140;
+        }
         return false;
     }
 

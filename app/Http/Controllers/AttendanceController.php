@@ -273,12 +273,8 @@ class AttendanceController extends Controller
                             $mother->update(['blood_pressure' => $bpRate]);
 
                             
-                            if (preg_match('/(\d+)\s*[\/\-]\s*(\d+)/', $bpRate, $m)) {
-                                $systolic = (int)$m[1];
-                                $diastolic = (int)$m[2];
-                                if ($systolic >= 140 || $diastolic >= 90) {
-                                    $highRiskAlerts[] = $mother->mother_name . " ({$bpRate} mmHg)";
-                                }
+                            if ($mother->isHighBloodPressure()) {
+                                $highRiskAlerts[] = $mother->mother_name . " ({$bpRate} mmHg)";
                             }
                         }
                     }

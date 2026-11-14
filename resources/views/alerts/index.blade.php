@@ -330,7 +330,6 @@
                             <th>CLINIC AREA</th>
                             <th>MIDWIFE IN-CHARGE</th>
                             <th>CONTACT NO</th>
-                            <th>ACTION</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -353,15 +352,10 @@
                                 <td>{{ $alert->area }}</td>
                                 <td>{{ $alert->midwife }}</td>
                                 <td>{{ $alert->contact_no }}</td>
-                                <td>
-                                    <button class="action-arrow-btn" title="View Details">
-                                        <i class="fa-solid fa-chevron-right"></i>
-                                    </button>
-                                </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" style="text-align: center; color: #94a3b8; padding: 40px;">
+                                <td colspan="6" style="text-align: center; color: #94a3b8; padding: 40px;">
                                     <i class="fa-solid fa-shield-heart" style="font-size: 32px; color: #e2e8f0; display: block; margin-bottom: 12px;"></i>
                                     No high-risk medical alerts found.
                                 </td>

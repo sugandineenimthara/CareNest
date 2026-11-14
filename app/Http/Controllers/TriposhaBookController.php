@@ -70,10 +70,41 @@ class TriposhaBookController extends Controller
 
         
         $totalPacketsEver   = TriposhaBook::sum('no_of_packets');
-        $totalSessionsEver  = TriposhaBook::select('issuing_date', 'session_label')
-                                ->distinct()->count();
+        $totalSessionsEver  = DB::table('triposha_books')
+                                ->select('issuing_date', 'session_label')
+                                ->groupBy('issuing_date', 'session_label')
+                                ->get()
+                                ->count();
         $mothersServed      = TriposhaBook::where('recipient_type', 'Mother')->count();
         $childrenServed     = TriposhaBook::where('recipient_type', 'Child')->count();
+        $distributedToday   = TriposhaBook::whereDate('issuing_date', today())->sum('no_of_packets');
+
+        $distributionsByDate = TriposhaBook::all()
+                                ->groupBy(function ($item) {
+                                    return Carbon::parse($item->issuing_date)->format('Y-m-d');
+                                })
+                                ->map(function ($group) {
+                                    return $group->sum('no_of_packets');
+                                })
+                                ->toArray();
+
+        // Calculate remaining stock from the latest recorded distribution session
+        $latestRecordWithStock = TriposhaBook::whereNotNull('opening_stock')
+            ->orderBy('issuing_date', 'desc')
+            ->orderBy('serial_no', 'desc')
+            ->first();
+
+        $defaultOpeningStock = null;
+        if ($latestRecordWithStock && $latestRecordWithStock->opening_stock !== null) {
+            $sessionPacketsQuery = TriposhaBook::whereDate('issuing_date', $latestRecordWithStock->issuing_date);
+            if ($latestRecordWithStock->session_label !== null) {
+                $sessionPacketsQuery->where('session_label', $latestRecordWithStock->session_label);
+            } else {
+                $sessionPacketsQuery->whereNull('session_label');
+            }
+            $sessionPackets = $sessionPacketsQuery->sum('no_of_packets');
+            $defaultOpeningStock = max(0, $latestRecordWithStock->opening_stock - $sessionPackets);
+        }
 
         
         $mothers  = Mother::with('midwife.area')->orderBy('mother_name')->get();
@@ -100,6 +131,7 @@ class TriposhaBookController extends Controller
         return view('triposha.index', compact(
             'user', 'sessions', 'search', 'dateFrom', 'dateTo',
             'totalPacketsEver', 'totalSessionsEver', 'mothersServed', 'childrenServed',
+            'distributedToday', 'distributionsByDate', 'defaultOpeningStock',
             'mothers', 'children', 'midwives', 'mothersList', 'childrenList'
         ));
     }
@@ -118,6 +150,24 @@ class TriposhaBookController extends Controller
             'rows.*.mother_id'      => 'nullable|exists:mothers,mother_id',
             'rows.*.child_id'       => 'nullable|exists:children,child_id',
         ]);
+
+        $openingStock = $request->opening_stock;
+        if ($openingStock === null) {
+            $latestRecordWithStock = TriposhaBook::whereNotNull('opening_stock')
+                ->orderBy('issuing_date', 'desc')
+                ->orderBy('serial_no', 'desc')
+                ->first();
+            if ($latestRecordWithStock && $latestRecordWithStock->opening_stock !== null) {
+                $sessionPacketsQuery = TriposhaBook::whereDate('issuing_date', $latestRecordWithStock->issuing_date);
+                if ($latestRecordWithStock->session_label !== null) {
+                    $sessionPacketsQuery->where('session_label', $latestRecordWithStock->session_label);
+                } else {
+                    $sessionPacketsQuery->whereNull('session_label');
+                }
+                $sessionPackets = $sessionPacketsQuery->sum('no_of_packets');
+                $openingStock = max(0, $latestRecordWithStock->opening_stock - $sessionPackets);
+            }
+        }
 
         $midwife      = Midwife::first();
         $user         = Auth::user();
@@ -168,7 +218,7 @@ class TriposhaBookController extends Controller
                     'recipient_type'=> $recipientType,
                     'name_of_mother'=> $nameOfMother,
                     'name_of_child' => $nameOfChild,
-                    'opening_stock' => $firstRow ? ($request->opening_stock ?? null) : null,
+                    'opening_stock' => $firstRow ? ($openingStock ?? null) : null,
                     'session_label' => $sessionLabel,
                 ]);
 
@@ -177,12 +227,16 @@ class TriposhaBookController extends Controller
 
             DB::commit();
 
+            $user = Auth::user();
+            $routePrefix = ($user->role === 'midwife') ? 'midwife.' : 'admin.';
             $totalGiven = array_sum(array_column($request->rows, 'no_of_packets'));
-            return redirect()->route('triposha.index')
+            return redirect()->route($routePrefix . 'triposha.index')
                 ->with('success', "✅ Thriposha distribution saved! {$totalGiven} packets distributed to " . count($request->rows) . " recipients on " . Carbon::parse($request->issuing_date)->format('d M Y') . ".");
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->withInput()->with('error', 'Error saving records: ' . $e->getMessage());
+            $user = Auth::user();
+            $routePrefix = ($user->role === 'midwife') ? 'midwife.' : 'admin.';
+            return redirect()->route($routePrefix . 'triposha.index')->withInput()->with('error', 'Error saving records: ' . $e->getMessage());
         }
     }
 

@@ -203,4 +203,19 @@ class ClinicAttendanceAndVaccinationTest extends TestCase
         $childProfileResponse->assertSee('Current Weight');
         $childProfileResponse->assertSee('Current BMI Value');
     }
+
+    public function test_mother_blood_pressure_higher_than_140_triggers_high_risk_alert(): void
+    {
+        // Set blood pressure higher than 140 (as single number 145)
+        $this->mother1->update(['blood_pressure' => '145']);
+        $this->mother1->refresh();
+
+        $this->assertTrue($this->mother1->isHighBloodPressure());
+
+        // Verify mother appears on the high risk alert page
+        $alertResponse = $this->actingAs($this->adminUser)->get(route('admin.alerts.index'));
+        $alertResponse->assertStatus(200);
+        $alertResponse->assertSee($this->mother1->mother_name);
+        $alertResponse->assertSee('145 mmHg');
+    }
 }

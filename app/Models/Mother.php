@@ -53,6 +53,10 @@ class Mother extends Model
             $diastolic = (int)$m[2];
             return ($systolic >= 140 || $diastolic >= 90);
         }
+        if (preg_match('/(\d+)/', $this->blood_pressure, $m)) {
+            $systolic = (int)$m[1];
+            return $systolic >= 140;
+        }
         return false;
     }
 
