@@ -19,6 +19,8 @@ class PregnancyHistory extends Model
         'date_confirmed_by_US',
         'no_of_weeks_pregnant_at_registration',
         'first_fetal_movements_date',
+        'is_delivered',
+        'delivery_date',
     ];
 
     protected $casts = [
@@ -26,6 +28,8 @@ class PregnancyHistory extends Model
         'expected_date_of_delivery' => 'date:Y-m-d',
         'date_confirmed_by_US' => 'date:Y-m-d',
         'first_fetal_movements_date' => 'date:Y-m-d',
+        'delivery_date' => 'date:Y-m-d',
+        'is_delivered' => 'boolean',
         'no_living_children' => 'integer',
         'age_of_youngest_child' => 'integer',
         'no_of_weeks_pregnant_at_registration' => 'integer',

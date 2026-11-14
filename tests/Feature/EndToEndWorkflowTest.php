@@ -81,6 +81,13 @@ class EndToEndWorkflowTest extends TestCase
             'lmp_date' => Carbon::now()->subMonths(5)->format('Y-m-d'),
             'edd_date' => Carbon::now()->addMonths(4)->format('Y-m-d'),
         ]);
+
+        \App\Models\PregnancyHistory::create([
+            'mother_id' => $this->mother->mother_id,
+            'is_delivered' => true,
+            'delivery_date' => Carbon::now()->subMonths(3)->format('Y-m-d'),
+            'no_living_children' => 0,
+        ]);
     }
 
     public function test_admin_can_navigate_manage_children_and_record_vaccines(): void

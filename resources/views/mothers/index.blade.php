@@ -187,61 +187,82 @@
         }
 
         
-        .mothers-grid {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 16px;
-            padding: 20px;
-            background: rgba(255,255,255,0.6); backdrop-filter: blur(10px);
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            background: rgba(255,255,255,0.9);
+            backdrop-filter: blur(10px);
             border-radius: 0 0 20px 20px;
             border: 1px solid rgba(226,232,240,0.6);
             border-top: none;
         }
-
-        .mother-card {
-            background: #fff; border-radius: 18px;
-            padding: 20px;
-            border: 1px solid #f1f5f9;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.04);
-            transition: all 0.25s ease;
-            text-decoration: none; color: inherit; display: block;
+        .mothers-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
         }
-        .mother-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 32px rgba(0,0,0,0.1);
-            border-color: #bbf7d0;
+        .mothers-table th {
+            text-align: left;
+            padding: 14px 18px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            background: #f8fafc;
+            border-bottom: 1.5px solid #e2e8f0;
+            white-space: nowrap;
         }
-        .mother-card-top { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 14px; }
-        .mother-initials {
-            width: 44px; height: 44px; border-radius: 14px; flex-shrink: 0;
-            background: linear-gradient(135deg, #e8f5e9, #e0f2f1);
-            display: flex; align-items: center; justify-content: center;
-            font-family: var(--font-heading); font-size: 16px; font-weight: 800;
+        .mothers-table td {
+            padding: 14px 18px;
+            font-size: 13px;
+            border-bottom: 1px solid #f1f5f9;
+            color: #1e293b;
+            vertical-align: middle;
+        }
+        .mothers-table tr:hover td {
+            background: #f8fafc;
+        }
+        .mothers-table tr:last-child td {
+            border-bottom: none;
+        }
+        .row-name a {
+            font-family: var(--font-heading);
+            font-size: 15px;
+            font-weight: 800;
+            color: #0f172a;
+            text-decoration: none;
+            transition: color 0.15s ease;
+        }
+        .row-name a:hover {
+            color: #00c853;
+        }
+        .row-sub {
+            font-size: 12px;
+            color: #64748b;
+            margin-top: 2px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-view-row {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #e8f5e9;
+            color: #2e7d32;
+            border-radius: 10px;
+            padding: 7px 14px;
+            font-size: 12px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+        .btn-view-row:hover {
+            background: #c8e6c9;
             color: #1b5e20;
         }
-        .mother-card-info { flex: 1; min-width: 0; }
-        .mother-card-name { font-family: var(--font-heading); font-size: 15px; font-weight: 800; color: #0f172a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .mother-card-phone { font-size: 12px; color: #64748b; margin-top: 2px; }
-        .mother-card-id { font-size: 11px; color: #94a3b8; font-weight: 700; }
-
-        .mother-card-details { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
-        .detail-tag {
-            display: flex; align-items: center; gap: 5px;
-            background: #f8fafc; border-radius: 8px; padding: 4px 10px;
-            font-size: 11px; font-weight: 600; color: #475569;
-        }
-        .detail-tag i { color: #94a3b8; font-size: 10px; }
-
-        .mother-card-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #f1f5f9; padding-top: 12px; }
-        .edd-label { font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
-        .edd-value { font-size: 13px; font-weight: 700; color: #0f172a; margin-top: 1px; }
-        .view-btn {
-            display: flex; align-items: center; gap: 5px;
-            background: #e8f5e9; color: #2e7d32;
-            border: none; border-radius: 10px; padding: 6px 12px;
-            font-size: 12px; font-weight: 700; cursor: pointer; text-decoration: none;
-            transition: all 0.2s ease;
-        }
-        .view-btn:hover { background: #c8e6c9; }
 
         .empty-group {
             padding: 40px; text-align: center;
@@ -436,7 +457,7 @@
                     </div>
                     <div class="stat-chip-info">
                         <div class="stat-chip-num">
-                            {{ $midwives->sum(fn($m) => $m->mothers->count()) > 0 ? number_format($midwives->avg(fn($m) => $m->mothers->count()), 1) : '--' }}
+                            {{ $totalMidwives > 0 ? number_format($totalMothers / $totalMidwives, 1) : '--' }}
                         </div>
                         <div class="stat-chip-label">Avg. Mothers / Midwife</div>
                     </div>
@@ -450,7 +471,6 @@
                 </div>
             @endif
 
-            
             <div class="area-pills">
                 <span class="pill-label"><i class="fa-solid fa-filter"></i> Filter Area:</span>
                 <a href="{{ route($prefix . 'mothers.index', array_filter(['search' => $search])) }}" class="area-pill {{ empty($areaFilter) ? 'active' : '' }}">
@@ -472,121 +492,192 @@
                 </div>
             @endif
 
-            @if($search && $midwives->every(fn($m) => $m->mothers->isEmpty()))
+            @php
+                $hasAnyMothers = $areas->some(fn($a) => $a->filtered_mothers->isNotEmpty()) || ($unassignedMothers && $unassignedMothers->isNotEmpty());
+            @endphp
+
+            @if($search && !$hasAnyMothers)
                 <div class="no-results">
                     <i class="fa-solid fa-magnifying-glass" style="display:block;"></i>
                     <p>No mothers found matching <strong>"{{ $search }}"</strong></p>
                     <a href="{{ route($prefix . 'mothers.index') }}" style="color:#00c853; font-weight:700; font-size:14px; margin-top:10px; display:inline-block;">Clear search</a>
                 </div>
             @else
-                @forelse($midwives as $midwife)
-                    @if(!$search || $midwife->mothers->isNotEmpty())
+                @forelse($areas as $area)
+                    @if(!$search || $area->filtered_mothers->isNotEmpty())
                         <div class="midwife-group">
                             <div class="midwife-group-header">
                                 <div class="midwife-avatar">
-                                    {{ strtoupper(substr($midwife->midwife_name, 0, 1)) }}
+                                    <i class="fa-solid fa-hospital"></i>
                                 </div>
                                 <div>
-                                    <div class="midwife-name">{{ $midwife->midwife_name }}</div>
+                                    <div class="midwife-name">{{ $area->area_name }}</div>
                                     <div class="midwife-area">
-                                        <i class="fa-solid fa-location-dot"></i>
-                                        {{ $midwife->area->area_name ?? 'No Area Assigned' }}
+                                        <i class="fa-solid fa-user-nurse" style="color: #00c853;"></i>
+                                        Assigned Midwives: 
+                                        @if($area->midwives->count() > 0)
+                                            <strong>{{ $area->midwives->pluck('midwife_name')->filter()->unique()->join(', ') }}</strong>
+                                        @else
+                                            <span style="color:#94a3b8;">None Assigned</span>
+                                        @endif
                                     </div>
                                 </div>
                                 <span class="midwife-count-badge">
                                     <i class="fa-solid fa-users"></i>
-                                    {{ $midwife->mothers->count() }} {{ Str::plural('mother', $midwife->mothers->count()) }}
+                                    {{ $area->filtered_mothers->count() }} {{ Str::plural('mother', $area->filtered_mothers->count()) }}
                                 </span>
                             </div>
 
-                            @if($midwife->mothers->isEmpty())
+                            @if($area->filtered_mothers->isEmpty())
                                 <div class="empty-group">
                                     <i class="fa-regular fa-folder-open" style="font-size:28px; display:block; margin-bottom:8px;"></i>
-                                    No mothers assigned to this midwife yet.
+                                    No mothers registered in {{ $area->area_name }} yet.
                                 </div>
                             @else
-                                <div class="mothers-grid">
-                                    @foreach($midwife->mothers as $mother)
-                                        @php
-                                            $initials = collect(explode(' ', $mother->mother_name))->map(fn($w) => strtoupper(substr($w,0,1)))->take(2)->implode('');
-                                            $latestPregnancy = $mother->pregnancyHistories->last();
-                                        @endphp
-                                        <a href="{{ route($prefix . 'mothers.show', $mother->mother_id) }}" class="mother-card">
-                                            <div class="mother-card-top">
-                                                <div class="mother-initials">{{ $initials }}</div>
-                                                <div class="mother-card-info">
-                                                    <div class="mother-card-name">{{ $mother->mother_name }}</div>
-                                                    <div class="mother-card-phone">
-                                                        <i class="fa-solid fa-phone" style="font-size:10px;"></i>
-                                                        {{ $mother->phone_no ?? 'No phone' }}
-                                                    </div>
-                                                    <div class="mother-card-id">ID #{{ $mother->mother_id }}</div>
-                                                </div>
-                                            </div>
-
-                                            <div class="mother-card-details">
-                                                @if($mother->age)
-                                                    <div class="detail-tag">
-                                                        <i class="fa-solid fa-cake-candles"></i>
-                                                        Age {{ $mother->age }}
-                                                    </div>
-                                                @endif
-                                                @if($mother->bmi)
-                                                    <div class="detail-tag">
-                                                        <i class="fa-solid fa-weight-scale"></i>
-                                                        BMI {{ $mother->bmi }}
-                                                    </div>
-                                                @endif
-                                                @if($mother->blood_pressure)
-                                                    <div class="detail-tag" style="{{ $mother->isHighBloodPressure() ? 'background:#fee2e2; color:#dc2626; font-weight:800; border:1px solid #fca5a5;' : '' }}">
-                                                        <i class="fa-solid fa-heart-pulse" style="{{ $mother->isHighBloodPressure() ? 'color:#dc2626;' : '' }}"></i>
-                                                        BP {{ $mother->blood_pressure }}
-                                                        @if($mother->isHighBloodPressure())
-                                                            <span style="font-size:9px; background:#dc2626; color:white; border-radius:4px; padding:1px 4px; margin-left:3px;">High Risk</span>
-                                                        @endif
-                                                    </div>
-                                                @endif
-                                                @if($mother->husband_name)
-                                                    <div class="detail-tag">
-                                                        <i class="fa-solid fa-ring"></i>
-                                                        {{ Str::limit($mother->husband_name, 14) }}
-                                                    </div>
-                                                @endif
-                                                @if($mother->address)
-                                                    <div class="detail-tag" style="width:100%;">
-                                                        <i class="fa-solid fa-map-pin"></i>
-                                                        {{ Str::limit($mother->address, 36) }}
-                                                    </div>
-                                                @endif
-                                            </div>
-
-                                            <div class="mother-card-footer">
-                                                <div>
-                                                    <div class="edd-label">Expected Delivery</div>
-                                                    <div class="edd-value">
-                                                        @if($latestPregnancy && $latestPregnancy->expected_date_of_delivery)
-                                                             {{ \Carbon\Carbon::parse($latestPregnancy->expected_date_of_delivery)->format('d M Y') }}
+                                <div class="table-responsive">
+                                    <table class="mothers-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Mother Name &amp; ID</th>
+                                                <th>Age / DOB</th>
+                                                <th>Clinical Metrics</th>
+                                                <th>Husband</th>
+                                                <th>Address</th>
+                                                <th>Pregnancy / EDD</th>
+                                                <th style="text-align:right;">Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach($area->filtered_mothers as $mother)
+                                                @php
+                                                    $latestPregnancy = $mother->pregnancyHistories->last();
+                                                @endphp
+                                                <tr class="mother-row">
+                                                    <td>
+                                                        <div class="row-name">
+                                                            <a href="{{ route($prefix . 'mothers.show', $mother->mother_id) }}">{{ $mother->mother_name }}</a>
+                                                        </div>
+                                                        <div class="row-sub">
+                                                            ID #{{ $mother->mother_id }}
+                                                            @if($mother->phone_no) &bull; <i class="fa-solid fa-phone" style="font-size:10px;"></i> {{ $mother->phone_no }} @endif
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <div style="font-weight:700; color:#1e293b;">{{ $mother->age ? $mother->age . ' yrs' : '—' }}</div>
+                                                        <div style="font-size:11px; color:#64748b;">{{ $mother->date_of_birth ? $mother->date_of_birth->format('d M Y') : '—' }}</div>
+                                                    </td>
+                                                    <td>
+                                                        @if($mother->blood_pressure)
+                                                            <span style="display:inline-flex; align-items:center; gap:5px; font-weight:700; font-size:12px; {{ $mother->isHighBloodPressure() ? 'color:#dc2626;' : 'color:#166534;' }}">
+                                                                <i class="fa-solid fa-heart-pulse"></i> {{ $mother->blood_pressure }}
+                                                                @if($mother->isHighBloodPressure())
+                                                                    <span style="font-size:9px; background:#dc2626; color:white; border-radius:4px; padding:1px 5px;">High Risk</span>
+                                                                @endif
+                                                            </span>
                                                         @else
-                                                            <span style="color:#94a3b8;">Not recorded</span>
+                                                            <span style="color:#94a3b8;">—</span>
                                                         @endif
-                                                    </div>
-                                                </div>
-                                                <span class="view-btn">
-                                                    View <i class="fa-solid fa-arrow-right"></i>
-                                                </span>
-                                            </div>
-                                        </a>
-                                    @endforeach
+                                                        @if($mother->bmi)
+                                                            <div style="font-size:11px; color:#64748b; margin-top:2px;">BMI: <strong>{{ $mother->bmi }}</strong></div>
+                                                        @endif
+                                                    </td>
+                                                    <td>
+                                                        <div style="font-weight:600; color:#1e293b;">{{ $mother->husband_name ?? '—' }}</div>
+                                                        @if($mother->husband_occupation)
+                                                            <div style="font-size:11px; color:#64748b;">{{ $mother->husband_occupation }}</div>
+                                                        @endif
+                                                    </td>
+                                                    <td>
+                                                        <div style="font-size:12px; color:#475569; max-width:220px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                                                            {{ $mother->address ?? '—' }}
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        @if($latestPregnancy && $latestPregnancy->expected_date_of_delivery)
+                                                            <div style="font-size:12px; font-weight:700; color:#1b5e20;">
+                                                                EDD: {{ \Carbon\Carbon::parse($latestPregnancy->expected_date_of_delivery)->format('d M Y') }}
+                                                            </div>
+                                                            <div style="font-size:11px; color:#64748b;">
+                                                                {{ $latestPregnancy->is_delivered ? 'Delivered' : 'Active Pregnancy' }}
+                                                            </div>
+                                                        @else
+                                                            <span style="color:#94a3b8; font-size:12px;">Not recorded</span>
+                                                        @endif
+                                                    </td>
+                                                    <td style="text-align:right;">
+                                                        <a href="{{ route($prefix . 'mothers.show', $mother->mother_id) }}" class="btn-view-row">
+                                                            <span>View Profile</span>
+                                                            <i class="fa-solid fa-arrow-right" style="font-size:10px;"></i>
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
                                 </div>
                             @endif
                         </div>
                     @endif
                 @empty
                     <div class="no-results">
-                        <i class="fa-solid fa-stethoscope" style="display:block;"></i>
-                        <p>No midwives found. Please add midwives first.</p>
+                        <i class="fa-solid fa-hospital" style="display:block;"></i>
+                        <p>No clinic areas found in the system.</p>
                     </div>
                 @endforelse
+
+                @if(isset($unassignedMothers) && $unassignedMothers->isNotEmpty())
+                    <div class="midwife-group">
+                        <div class="midwife-group-header">
+                            <div class="midwife-avatar" style="background:#f1f5f9; color:#64748b;">
+                                <i class="fa-solid fa-question"></i>
+                            </div>
+                            <div>
+                                <div class="midwife-name">Unassigned Clinic Area</div>
+                                <div class="midwife-area" style="color:#e11d48;">
+                                    Mothers requiring area/midwife assignment
+                                </div>
+                            </div>
+                            <span class="midwife-count-badge">
+                                <i class="fa-solid fa-users"></i>
+                                {{ $unassignedMothers->count() }} {{ Str::plural('mother', $unassignedMothers->count()) }}
+                            </span>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="mothers-table">
+                                <thead>
+                                    <tr>
+                                        <th>Mother Name &amp; ID</th>
+                                        <th>Phone</th>
+                                        <th>Husband</th>
+                                        <th>Address</th>
+                                        <th style="text-align:right;">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($unassignedMothers as $mother)
+                                        <tr class="mother-row">
+                                            <td>
+                                                <div class="row-name">
+                                                    <a href="{{ route($prefix . 'mothers.show', $mother->mother_id) }}">{{ $mother->mother_name }}</a>
+                                                </div>
+                                                <div class="row-sub">ID #{{ $mother->mother_id }}</div>
+                                            </td>
+                                            <td>{{ $mother->phone_no ?? '—' }}</td>
+                                            <td>{{ $mother->husband_name ?? '—' }}</td>
+                                            <td>{{ $mother->address ?? '—' }}</td>
+                                            <td style="text-align:right;">
+                                                <a href="{{ route($prefix . 'mothers.show', $mother->mother_id) }}" class="btn-view-row">
+                                                    <span>View Profile</span>
+                                                    <i class="fa-solid fa-arrow-right" style="font-size:10px;"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                @endif
             @endif
         </main>
     </div>
@@ -664,15 +755,15 @@
             if (!groups.length) return;
 
             groups.forEach(group => {
-                const cards = group.querySelectorAll('.mother-card');
+                const rows = group.querySelectorAll('.mother-row');
                 let visibleInGroup = 0;
-                cards.forEach(card => {
-                    const text = card.textContent.toLowerCase();
+                rows.forEach(row => {
+                    const text = row.textContent.toLowerCase();
                     if (!q || text.includes(q)) {
-                        card.style.display = '';
+                        row.style.display = '';
                         visibleInGroup++;
                     } else {
-                        card.style.display = 'none';
+                        row.style.display = 'none';
                     }
                 });
                 if (!q || visibleInGroup > 0) {

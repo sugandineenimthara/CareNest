@@ -25,8 +25,8 @@ describe('Children Registry', () => {
 
   it('shows children cards when records exist', () => {
     cy.get('body').then(($body) => {
-      if ($body.find('.child-card').length > 0) {
-        cy.get('.child-card').first().should('be.visible')
+      if ($body.find('.child-card, .child-row').length > 0) {
+        cy.get('.child-card, .child-row').first().should('be.visible')
       } else {
         cy.contains(/no children|empty/i).should('be.visible')
       }

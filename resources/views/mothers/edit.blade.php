@@ -128,13 +128,24 @@
                         </div>
 
                         <div class="form-group">
-                            <label class="form-label" for="midwife_id">Assigned Midwife <span class="req">*</span></label>
+                            <label class="form-label" for="midwife_id">Assigned Midwife / Area <span class="req">*</span></label>
                             <select id="midwife_id" name="midwife_id" class="form-control @error('midwife_id') is-invalid @enderror" required>
-                                <option value="">— Select Midwife —</option>
-                                @foreach($midwives as $midwife)
-                                    <option value="{{ $midwife->midwife_id }}" {{ old('midwife_id', $mother->midwife_id) == $midwife->midwife_id ? 'selected' : '' }}>
-                                        {{ $midwife->midwife_name }} {{ $midwife->area ? '(' . $midwife->area->area_name . ')' : '' }}
-                                    </option>
+                                <option value="">— Select Area & Midwife —</option>
+                                @foreach($areas as $area)
+                                    @php
+                                        $midwivesList = $area->midwives->pluck('midwife_name')->filter()->unique()->join(', ');
+                                        $primaryMidwife = $area->midwives->first();
+                                        $isSelected = ($mother->midwife && $mother->midwife->area_id == $area->area_id)
+                                            || (old('midwife_id') && $area->midwives->pluck('midwife_id')->contains(old('midwife_id')));
+                                        $optionValue = ($mother->midwife && $mother->midwife->area_id == $area->area_id)
+                                            ? $mother->midwife_id
+                                            : ($primaryMidwife ? $primaryMidwife->midwife_id : '');
+                                    @endphp
+                                    @if($primaryMidwife)
+                                        <option value="{{ $optionValue }}" {{ $isSelected ? 'selected' : '' }}>
+                                            {{ $area->area_name }} ({{ $midwivesList ?: 'No Midwife Assigned' }})
+                                        </option>
+                                    @endif
                                 @endforeach
                             </select>
                             @error('midwife_id')<span class="field-error">{{ $message }}</span>@enderror
@@ -176,6 +187,134 @@
                             @error('address')<span class="field-error">{{ $message }}</span>@enderror
                         </div>
                     </div>
+                </div>
+
+                <div class="form-section">
+                    <div class="section-header">
+                        <div class="section-icon" style="background:#e0f2fe; color:#0284c7;"><i class="fa-solid fa-baby-carriage"></i></div>
+                        <div>
+                            <div class="section-title">Current Pregnancy Details</div>
+                            <div style="font-size:12px; color:#64748b;">Record or update current pregnancy information</div>
+                        </div>
+                    </div>
+
+                    @if($activePregnancy)
+                        <div style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:14px; padding:14px 18px; margin-bottom:20px; display:flex; align-items:center; justify-content:space-between; gap:12px;">
+                            <div>
+                                <span style="font-weight:800; color:#166534; font-size:13px;"><i class="fa-solid fa-circle-check"></i> Active Pregnancy in Progress</span>
+                                <div style="font-size:12px; color:#475569; margin-top:2px;">
+                                    EDD: {{ $activePregnancy->expected_date_of_delivery ? \Carbon\Carbon::parse($activePregnancy->expected_date_of_delivery)->format('d M Y') : 'Not set' }}
+                                </div>
+                            </div>
+                            <label style="display:flex; align-items:center; gap:8px; font-size:13px; font-weight:700; color:#1b5e20; cursor:pointer;">
+                                <input type="checkbox" name="is_new_pregnancy" id="is_new_pregnancy" value="1" style="width:16px; height:16px; accent-color:#16a34a;">
+                                Record as New Pregnancy (Archive previous to history)
+                            </label>
+                        </div>
+                    @else
+                        <div style="background:#eff6ff; border:1px solid #bfdbfe; border-radius:14px; padding:14px 18px; margin-bottom:20px;">
+                            <span style="font-weight:800; color:#1e40af; font-size:13px;"><i class="fa-solid fa-circle-info"></i> Record Next Pregnancy</span>
+                            <div style="font-size:12px; color:#475569; margin-top:2px;">
+                                Previous pregnancy delivered. Enter details below to record her new current pregnancy. Previous pregnancy records remain preserved in her profile.
+                            </div>
+                        </div>
+                    @endif
+
+                    <div class="form-grid-2">
+                        <div class="form-group">
+                            <label class="form-label" for="no_living_children">Number of Living Children</label>
+                            <input type="number" id="no_living_children" name="no_living_children" min="0" class="form-control @error('no_living_children') is-invalid @enderror"
+                                value="{{ old('no_living_children', $activePregnancy?->no_living_children ?? $mother->children->count()) }}">
+                            @error('no_living_children')<span class="field-error">{{ $message }}</span>@enderror
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="age_of_youngest_child">Age of Youngest Child (Years)</label>
+                            <input type="number" id="age_of_youngest_child" name="age_of_youngest_child" min="0" class="form-control @error('age_of_youngest_child') is-invalid @enderror"
+                                value="{{ old('age_of_youngest_child', $activePregnancy?->age_of_youngest_child ?? '') }}">
+                            @error('age_of_youngest_child')<span class="field-error">{{ $message }}</span>@enderror
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="last_menstrual_period">Last Menstrual Period (LMP)</label>
+                            <input type="date" id="last_menstrual_period" name="last_menstrual_period" class="form-control @error('last_menstrual_period') is-invalid @enderror"
+                                value="{{ old('last_menstrual_period', $activePregnancy?->last_menstrual_period ? \Carbon\Carbon::parse($activePregnancy->last_menstrual_period)->format('Y-m-d') : '') }}">
+                            @error('last_menstrual_period')<span class="field-error">{{ $message }}</span>@enderror
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="expected_date_of_delivery">Expected Date of Delivery (EDD)</label>
+                            <input type="date" id="expected_date_of_delivery" name="expected_date_of_delivery" class="form-control @error('expected_date_of_delivery') is-invalid @enderror"
+                                value="{{ old('expected_date_of_delivery', $activePregnancy?->expected_date_of_delivery ? \Carbon\Carbon::parse($activePregnancy->expected_date_of_delivery)->format('Y-m-d') : '') }}">
+                            @error('expected_date_of_delivery')<span class="field-error">{{ $message }}</span>@enderror
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="date_confirmed_by_US">Date Confirmed by US</label>
+                            <input type="date" id="date_confirmed_by_US" name="date_confirmed_by_US" class="form-control @error('date_confirmed_by_US') is-invalid @enderror"
+                                value="{{ old('date_confirmed_by_US', $activePregnancy?->date_confirmed_by_US ? \Carbon\Carbon::parse($activePregnancy->date_confirmed_by_US)->format('Y-m-d') : '') }}">
+                            @error('date_confirmed_by_US')<span class="field-error">{{ $message }}</span>@enderror
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="no_of_weeks_pregnant_at_registration">Weeks Pregnant at Registration</label>
+                            <input type="number" id="no_of_weeks_pregnant_at_registration" name="no_of_weeks_pregnant_at_registration" min="0" max="45" class="form-control @error('no_of_weeks_pregnant_at_registration') is-invalid @enderror"
+                                value="{{ old('no_of_weeks_pregnant_at_registration', $activePregnancy?->no_of_weeks_pregnant_at_registration ?? '') }}">
+                            @error('no_of_weeks_pregnant_at_registration')<span class="field-error">{{ $message }}</span>@enderror
+                        </div>
+
+                        <div class="form-group span-2">
+                            <label class="form-label" for="first_fetal_movements_date">First Fetal Movements Date</label>
+                            <input type="date" id="first_fetal_movements_date" name="first_fetal_movements_date" class="form-control @error('first_fetal_movements_date') is-invalid @enderror"
+                                value="{{ old('first_fetal_movements_date', $activePregnancy?->first_fetal_movements_date ? \Carbon\Carbon::parse($activePregnancy->first_fetal_movements_date)->format('Y-m-d') : '') }}">
+                            @error('first_fetal_movements_date')<span class="field-error">{{ $message }}</span>@enderror
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <div class="section-header">
+                        <div class="section-icon" style="background:#ede7f6; color:#6d28d9;"><i class="fa-solid fa-clock-rotate-left"></i></div>
+                        <div>
+                            <div class="section-title">Previous Pregnancy Records</div>
+                            <div style="font-size:12px; color:#64748b;">Preserved history of past pregnancies ({{ $mother->previousPregnancyHistories->count() }} record{{ $mother->previousPregnancyHistories->count() === 1 ? '' : 's' }})</div>
+                        </div>
+                    </div>
+
+                    @if($mother->previousPregnancyHistories->count() > 0)
+                        <div style="overflow-x:auto;">
+                            <table style="width:100%; border-collapse:collapse; font-size:13px;">
+                                <thead>
+                                    <tr style="background:#f8fafc; border-bottom:1.5px solid #e2e8f0; text-align:left;">
+                                        <th style="padding:10px 12px; font-weight:700; color:#475569;">#</th>
+                                        <th style="padding:10px 12px; font-weight:700; color:#475569;">Pregnancy</th>
+                                        <th style="padding:10px 12px; font-weight:700; color:#475569;">Date of Birth</th>
+                                        <th style="padding:10px 12px; font-weight:700; color:#475569;">Weight</th>
+                                        <th style="padding:10px 12px; font-weight:700; color:#475569;">Gender</th>
+                                        <th style="padding:10px 12px; font-weight:700; color:#475569;">Results</th>
+                                        <th style="padding:10px 12px; font-weight:700; color:#475569;">Place</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($mother->previousPregnancyHistories as $i => $prev)
+                                        <tr style="border-bottom:1px solid #f1f5f9;">
+                                            <td style="padding:10px 12px; font-weight:700; color:#94a3b8;">{{ $i+1 }}</td>
+                                            <td style="padding:10px 12px; font-weight:700; color:#1e293b;">{{ $prev->which_pregnancy ?? '—' }}</td>
+                                            <td style="padding:10px 12px;">{{ $prev->date_of_birth ? $prev->date_of_birth->format('d M Y') : '—' }}</td>
+                                            <td style="padding:10px 12px;">{{ $prev->birth_weight ? $prev->birth_weight . ' kg' : '—' }}</td>
+                                            <td style="padding:10px 12px;">{{ $prev->gender ?? '—' }}</td>
+                                            <td style="padding:10px 12px;"><span style="background:#f1f5f9; padding:2px 8px; border-radius:6px; font-size:12px; font-weight:600;">{{ $prev->results ?? 'Delivered' }}</span></td>
+                                            <td style="padding:10px 12px; color:#64748b;">{{ $prev->place_of_pregnancy ?? '—' }}</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @else
+                        <div style="font-size:13px; color:#94a3b8; text-align:center; padding:16px;">
+                            <i class="fa-solid fa-notes-medical" style="margin-right:6px;"></i> No previous pregnancy records on file.
+                        </div>
+                    @endif
                 </div>
 
                 <div class="form-actions">

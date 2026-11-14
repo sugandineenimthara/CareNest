@@ -165,8 +165,11 @@
                             <label class="form-label" for="area_id">Clinic Area</label>
                             <select name="area_id" id="area_id" class="form-select">
                                 @foreach($areas as $area)
+                                    @php
+                                        $mwNames = $area->midwives ? $area->midwives->pluck('midwife_name')->filter()->unique()->join(', ') : '';
+                                    @endphp
                                     <option value="{{ $area->area_id }}" {{ old('area_id', $child->area_id) == $area->area_id ? 'selected' : '' }}>
-                                        {{ $area->area_name }}
+                                        {{ $area->area_name }}@if($mwNames) ({{ $mwNames }})@endif
                                     </option>
                                 @endforeach
                             </select>

@@ -168,7 +168,7 @@ class AuthController extends Controller
         if (Auth::check()) {
             return $this->redirectBasedOnRole(Auth::user());
         }
-        $areas = Area::all();
+        $areas = Area::with('midwives')->get();
         return view('auth.register_midwife', compact('areas'));
     }
 

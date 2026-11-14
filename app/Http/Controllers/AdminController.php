@@ -16,7 +16,12 @@ class AdminController extends Controller
 {
     public function midwifeRequests()
     {
-        $requests = User::where('role', 'midwife')->with('midwife.area')->get();
+        $requests = User::where('role', 'midwife')
+            ->with(['midwife' => function ($q) {
+                $q->withoutGlobalScope('approved')->with('area');
+            }])
+            ->orderBy('created_at', 'desc')
+            ->get();
         return view('admin.midwife-requests', compact('requests'));
     }
 
@@ -31,12 +36,13 @@ class AdminController extends Controller
         $user->status = 'approved';
         $user->save();
 
-        
-        if ($user->midwife && $user->midwife->area_id) {
-            $areaId = $user->midwife->area_id;
+        $midwife = Midwife::withoutGlobalScope('approved')->where('user_id', $user->id)->first();
+        if ($midwife && $midwife->area_id) {
+            $areaId = $midwife->area_id;
 
-            $placeholderMidwives = Midwife::where('area_id', $areaId)
-                ->where('midwife_id', '!=', $user->midwife->midwife_id)
+            $placeholderMidwives = Midwife::withoutGlobalScope('approved')
+                ->where('area_id', $areaId)
+                ->where('midwife_id', '!=', $midwife->midwife_id)
                 ->where(function ($q) {
                     $q->whereNull('user_id')
                       ->orWhere('midwife_name', 'like', 'Midwife (%');
@@ -44,12 +50,12 @@ class AdminController extends Controller
                 ->get();
 
             foreach ($placeholderMidwives as $placeholder) {
-                Mother::where('midwife_id', $placeholder->midwife_id)->update(['midwife_id' => $user->midwife->midwife_id]);
-                Child::where('midwife_id', $placeholder->midwife_id)->update(['midwife_id' => $user->midwife->midwife_id]);
-                Attendance::where('midwife_id', $placeholder->midwife_id)->update(['midwife_id' => $user->midwife->midwife_id]);
-                Immunization::where('midwife_id', $placeholder->midwife_id)->update(['midwife_id' => $user->midwife->midwife_id]);
-                TriposhaBook::where('midwife_id', $placeholder->midwife_id)->update(['midwife_id' => $user->midwife->midwife_id]);
-                Report::where('midwife_id', $placeholder->midwife_id)->update(['midwife_id' => $user->midwife->midwife_id]);
+                Mother::where('midwife_id', $placeholder->midwife_id)->update(['midwife_id' => $midwife->midwife_id]);
+                Child::where('midwife_id', $placeholder->midwife_id)->update(['midwife_id' => $midwife->midwife_id]);
+                Attendance::where('midwife_id', $placeholder->midwife_id)->update(['midwife_id' => $midwife->midwife_id]);
+                Immunization::where('midwife_id', $placeholder->midwife_id)->update(['midwife_id' => $midwife->midwife_id]);
+                TriposhaBook::where('midwife_id', $placeholder->midwife_id)->update(['midwife_id' => $midwife->midwife_id]);
+                Report::where('midwife_id', $placeholder->midwife_id)->update(['midwife_id' => $midwife->midwife_id]);
 
                 $placeholder->delete();
             }
@@ -69,6 +75,9 @@ class AdminController extends Controller
         $user->status = 'rejected';
         $user->save();
 
+        // If admin reject it don't add that midwife to system
+        Midwife::withoutGlobalScope('approved')->where('user_id', $user->id)->delete();
+
         return redirect()->back()->with('success', 'Midwife rejected.');
     }
 
@@ -76,7 +85,9 @@ class AdminController extends Controller
     {
         $pendingRequests = User::where('role', 'midwife')
                     ->where('status', 'pending')
-                    ->with('midwife.area')
+                    ->with(['midwife' => function ($q) {
+                        $q->withoutGlobalScope('approved')->with('area');
+                    }])
                     ->get();
 
         $midwives = User::where('role', 'midwife')
@@ -88,16 +99,20 @@ class AdminController extends Controller
 
     public function editMidwife($id)
     {
-        $user = User::findOrFail($id);
+        $user = User::with(['midwife' => function ($q) {
+            $q->withoutGlobalScope('approved');
+        }])->findOrFail($id);
         if ($user->role !== 'midwife') abort(403);
         
-        $areas = \App\Models\Area::all();
+        $areas = \App\Models\Area::with('midwives')->get();
         return view('admin.midwives.edit', compact('user', 'areas'));
     }
 
     public function updateMidwife(Request $request, $id)
     {
-        $user = User::findOrFail($id);
+        $user = User::with(['midwife' => function ($q) {
+            $q->withoutGlobalScope('approved');
+        }])->findOrFail($id);
         if ($user->role !== 'midwife') abort(403);
 
         $request->validate([
@@ -106,19 +121,17 @@ class AdminController extends Controller
             'area_id' => 'required|exists:areas,area_id'
         ]);
 
-        
         $user->name = $request->name;
         $user->email = $request->email;
         $user->save();
 
-        
         if ($user->midwife) {
             $user->midwife->midwife_name = $request->name;
             $user->midwife->area_id = $request->area_id;
             $user->midwife->save();
 
-            
-            $placeholderMidwives = Midwife::where('area_id', $request->area_id)
+            $placeholderMidwives = Midwife::withoutGlobalScope('approved')
+                ->where('area_id', $request->area_id)
                 ->where('midwife_id', '!=', $user->midwife->midwife_id)
                 ->where(function ($q) {
                     $q->whereNull('user_id')
@@ -146,10 +159,7 @@ class AdminController extends Controller
         $user = User::findOrFail($id);
         if ($user->role !== 'midwife') abort(403);
 
-        
-        if ($user->midwife) {
-            $user->midwife->delete();
-        }
+        Midwife::withoutGlobalScope('approved')->where('user_id', $user->id)->delete();
         $user->delete();
 
         return redirect()->route('admin.midwives.index')->with('success', 'Midwife deleted successfully.');

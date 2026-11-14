@@ -177,7 +177,7 @@
                         &nbsp;·&nbsp; Registered {{ $mother->created_at->format('d M Y') }}
                     </div>
                     <div class="hero-tags">
-                        <span class="hero-tag"><i class="fa-solid fa-stethoscope"></i> {{ $mother->midwife->midwife_name ?? 'Unassigned' }}</span>
+                        <span class="hero-tag"><i class="fa-solid fa-stethoscope"></i> {{ ($mother->midwife?->area && $mother->midwife->area->midwives->count()) ? $mother->midwife->area->midwives->pluck('midwife_name')->filter()->unique()->join(', ') : ($mother->midwife->midwife_name ?? 'Unassigned') }}</span>
                         <span class="hero-tag"><i class="fa-solid fa-location-dot"></i> {{ $mother->midwife->area->area_name ?? 'No Area' }}</span>
                         @if($mother->phone_no)
                             <span class="hero-tag"><i class="fa-solid fa-phone"></i> {{ $mother->phone_no }}</span>
@@ -322,13 +322,32 @@
                     </div>
                 </div>
 
-                
+                <!-- Current Pregnancy -->
                 <div class="info-card">
-                    <div class="card-header">
-                        <div class="card-icon ci-blue"><i class="fa-solid fa-baby-carriage"></i></div>
-                        <div class="card-title">Current Pregnancy</div>
+                    <div class="card-header" style="justify-content:space-between;">
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <div class="card-icon ci-blue"><i class="fa-solid fa-baby-carriage"></i></div>
+                            <div class="card-title">Current Pregnancy</div>
+                        </div>
+                        @if($latestPregnancy)
+                            @if(!$latestPregnancy->is_delivered)
+                                <span style="background:#e0f2fe; color:#0369a1; padding:3px 10px; border-radius:8px; font-size:11px; font-weight:800;">
+                                    ACTIVE
+                                </span>
+                            @else
+                                <span style="background:#dcfce7; color:#15803d; padding:3px 10px; border-radius:8px; font-size:11px; font-weight:800;">
+                                    DELIVERED
+                                </span>
+                            @endif
+                        @endif
                     </div>
                     @if($latestPregnancy)
+                        @if($latestPregnancy->is_delivered)
+                            <div style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:10px; padding:8px 12px; margin-bottom:12px; font-size:12px; color:#166534; display:flex; align-items:center; gap:8px;">
+                                <i class="fa-solid fa-circle-check"></i>
+                                <span>Delivered on <strong>{{ $latestPregnancy->delivery_date ? $latestPregnancy->delivery_date->format('d M Y') : 'Completed' }}</strong> (Added to pregnancy history)</span>
+                            </div>
+                        @endif
                         <div class="info-rows">
                             <div class="info-row">
                                 <span class="info-row-label">Living Children</span>
@@ -365,8 +384,29 @@
                                 <span class="info-row-value">{{ $latestPregnancy->first_fetal_movements_date ? $latestPregnancy->first_fetal_movements_date->format('d M Y') : '—' }}</span>
                             </div>
                         </div>
+
+                        @if(in_array($role, ['admin', 'provider', 'midwife']))
+                            <div style="margin-top:14px; padding-top:12px; border-top:1px solid #f1f5f9; display:flex; justify-content:flex-end;">
+                                @if(!$latestPregnancy->is_delivered)
+                                    <button type="button" onclick="openDeliveryModal()" style="background:#0284c7; color:#fff; border:none; padding:8px 16px; border-radius:10px; font-size:12px; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
+                                        <i class="fa-solid fa-baby"></i> Record Delivery
+                                    </button>
+                                @else
+                                    <a href="{{ route($prefix . 'mothers.edit', $mother->mother_id) }}" style="background:linear-gradient(135deg,#1b5e20,#00695c); color:#fff; padding:8px 16px; border-radius:10px; font-size:12px; font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:6px;">
+                                        <i class="fa-solid fa-plus"></i> Record Next Pregnancy
+                                    </a>
+                                @endif
+                            </div>
+                        @endif
                     @else
                         <div class="no-data"><i class="fa-solid fa-notes-medical"></i>No pregnancy history recorded yet.</div>
+                        @if(in_array($role, ['admin', 'provider', 'midwife']))
+                            <div style="margin-top:14px; padding-top:12px; border-top:1px solid #f1f5f9; display:flex; justify-content:flex-end;">
+                                <a href="{{ route($prefix . 'mothers.edit', $mother->mother_id) }}" style="background:linear-gradient(135deg,#1b5e20,#00695c); color:#fff; padding:8px 16px; border-radius:10px; font-size:12px; font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:6px;">
+                                    <i class="fa-solid fa-plus"></i> Record Pregnancy
+                                </a>
+                            </div>
+                        @endif
                     @endif
                 </div>
 
@@ -405,7 +445,91 @@
                 </div>
             </div>
 
-            
+            <!-- Children Profiles -->
+            <div class="full-card">
+                <div class="card-header" style="justify-content:space-between;">
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <div class="card-icon" style="width:40px; height:40px; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:17px; background:#e0f2fe; color:#0284c7;">
+                            <i class="fa-solid fa-children"></i>
+                        </div>
+                        <div class="card-title">Children ({{ $mother->children->count() }})</div>
+                    </div>
+                    @if(in_array($role, ['admin', 'provider', 'midwife']) && $mother->canAddChild())
+                        <a href="{{ route($prefix . 'children.create', ['mother_id' => $mother->mother_id]) }}" style="background:linear-gradient(135deg,#0284c7,#0369a1); color:#fff; padding:6px 14px; border-radius:10px; font-size:12px; font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:6px;">
+                            <i class="fa-solid fa-plus"></i> Register Child
+                        </a>
+                    @endif
+                </div>
+
+                @if($mother->children->count() > 0)
+                    <div style="overflow-x:auto;">
+                        <table class="preg-table">
+                            <thead>
+                                <tr>
+                                    <th>Child Name &amp; ID</th>
+                                    <th>Gender</th>
+                                    <th>Date of Birth</th>
+                                    <th>Age</th>
+                                    <th>Birth Weight</th>
+                                    <th>BCG Status</th>
+                                    <th style="text-align:right;">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($mother->children as $child)
+                                    <tr>
+                                        <td>
+                                            <div style="font-weight:700; color:#1e293b; font-size:14px;">
+                                                <a href="{{ route($prefix . 'children.show', $child->child_id) }}" style="color:#1b4d3e; text-decoration:none;">
+                                                    {{ $child->child_name ?: 'Baby of ' . $mother->mother_name }}
+                                                </a>
+                                            </div>
+                                            <div style="font-size:11px; color:#64748b;">
+                                                ID #{{ $child->child_id }}
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span style="display:inline-flex; align-items:center; gap:5px; font-weight:700; font-size:12px; {{ $child->gender === 'Female' ? 'color:#db2777;' : 'color:#0284c7;' }}">
+                                                <i class="fa-solid {{ $child->gender === 'Female' ? 'fa-venus' : 'fa-mars' }}"></i>
+                                                {{ $child->gender }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span style="font-weight:600; color:#334155;">{{ $child->date_of_birth ? $child->date_of_birth->format('d M Y') : '—' }}</span>
+                                        </td>
+                                        <td>
+                                            <span style="font-weight:600; color:#334155;">{{ $child->age ?? 'Newborn' }}</span>
+                                        </td>
+                                        <td>
+                                            <span style="font-weight:700; color:#1e293b;">{{ $child->birth_weight ? $child->birth_weight . ' kg' : '—' }}</span>
+                                        </td>
+                                        <td>
+                                            @if($child->bcg_vaccinated_at_birth)
+                                                <span style="background:#dcfce7; color:#15803d; border:1px solid #86efac; font-size:11px; font-weight:700; padding:3px 8px; border-radius:10px; display:inline-flex; align-items:center; gap:4px;">
+                                                    <i class="fa-solid fa-check"></i> BCG Vaccinated
+                                                </span>
+                                            @else
+                                                <span style="background:#fef3c7; color:#b45309; border:1px solid #fde68a; font-size:11px; font-weight:700; padding:3px 8px; border-radius:10px; display:inline-flex; align-items:center; gap:4px;">
+                                                    <i class="fa-solid fa-clock"></i> BCG Pending
+                                                </span>
+                                            @endif
+                                        </td>
+                                        <td style="text-align:right;">
+                                            <a href="{{ route($prefix . 'children.show', $child->child_id) }}" style="padding:6px 12px; border-radius:8px; background:#fff; border:1px solid #cbd5e1; color:#0284c7; font-size:12px; font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:4px;">
+                                                View <i class="fa-solid fa-arrow-right" style="font-size:10px;"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                @else
+                    <div class="no-data" style="padding:24px 0;"><i class="fa-solid fa-baby"></i>No registered children for this mother yet.</div>
+                @endif
+            </div>
+
+            <!-- Previous Pregnancy History -->
             <div class="full-card">
                 <div class="card-header">
                     <div class="card-icon ci-purple" style="width:40px;height:40px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;background:#ede7f6;color:#6d28d9;">
@@ -502,6 +626,87 @@
                 });
             </script>
             @endcan
+
+            @if(in_array($role, ['admin', 'provider', 'midwife']))
+            <!-- Record Delivery Modal -->
+            <div id="deliveryModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15,23,42,0.6); backdrop-filter:blur(4px); z-index:9999; align-items:center; justify-content:center;">
+                <div style="background:white; border-radius:24px; max-width:480px; width:90%; padding:32px; box-shadow:0 25px 50px -12px rgba(0,0,0,0.25); text-align:left;">
+                    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <div style="width:40px; height:40px; border-radius:12px; background:#e0f2fe; color:#0284c7; display:flex; align-items:center; justify-content:center; font-size:18px;">
+                                <i class="fa-solid fa-baby"></i>
+                            </div>
+                            <h2 style="font-family:var(--font-heading); font-size:20px; font-weight:800; color:#0f172a; margin:0;">
+                                Record Delivery
+                            </h2>
+                        </div>
+                        <button type="button" onclick="closeDeliveryModal()" style="background:transparent; border:none; color:#94a3b8; font-size:18px; cursor:pointer;">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                    <p style="font-size:13px; color:#64748b; line-height:1.5; margin-bottom:20px;">
+                        Record the delivery for <strong>{{ $mother->mother_name }}</strong>. This pregnancy will be marked as delivered and saved into her pregnancy history.
+                    </p>
+                    <form action="{{ route($prefix . 'mothers.delivery', $mother->mother_id) }}" method="POST">
+                        @csrf
+                        <div style="display:flex; flex-direction:column; gap:14px; margin-bottom:24px;">
+                            <div>
+                                <label style="display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:4px; text-transform:uppercase;">Delivery Date *</label>
+                                <input type="date" name="delivery_date" value="{{ date('Y-m-d') }}" max="{{ date('Y-m-d') }}" required style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:12px; font-family:var(--font-main); font-size:14px;">
+                            </div>
+                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                                <div>
+                                    <label style="display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:4px; text-transform:uppercase;">Gender</label>
+                                    <select name="gender" style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:12px; font-family:var(--font-main); font-size:14px;">
+                                        <option value="">— Select —</option>
+                                        <option value="Male">Male</option>
+                                        <option value="Female">Female</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label style="display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:4px; text-transform:uppercase;">Birth Weight (kg)</label>
+                                    <input type="number" step="0.01" min="0.1" max="10" name="birth_weight" placeholder="e.g. 3.2" style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:12px; font-family:var(--font-main); font-size:14px;">
+                                </div>
+                            </div>
+                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                                <div>
+                                    <label style="display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:4px; text-transform:uppercase;">Results</label>
+                                    <input type="text" name="results" value="Live Birth" style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:12px; font-family:var(--font-main); font-size:14px;">
+                                </div>
+                                <div>
+                                    <label style="display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:4px; text-transform:uppercase;">Place of Delivery</label>
+                                    <input type="text" name="place_of_pregnancy" value="Hospital/Clinic" style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:12px; font-family:var(--font-main); font-size:14px;">
+                                </div>
+                            </div>
+                        </div>
+                        <div style="display:flex; gap:12px; justify-content:flex-end;">
+                            <button type="button" onclick="closeDeliveryModal()" style="padding:10px 20px; border-radius:12px; background:#f1f5f9; color:#475569; border:none; font-weight:700; font-size:14px; cursor:pointer;">
+                                Cancel
+                            </button>
+                            <button type="submit" style="padding:10px 24px; border-radius:12px; background:linear-gradient(135deg,#0284c7,#0369a1); color:white; border:none; font-weight:700; font-size:14px; cursor:pointer; display:inline-flex; align-items:center; gap:8px;">
+                                <i class="fa-solid fa-check"></i> Save Delivery
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <script>
+                function openDeliveryModal() {
+                    const m = document.getElementById('deliveryModal');
+                    if (m) m.style.display = 'flex';
+                }
+                function closeDeliveryModal() {
+                    const m = document.getElementById('deliveryModal');
+                    if (m) m.style.display = 'none';
+                }
+                window.addEventListener('click', function(e) {
+                    const m = document.getElementById('deliveryModal');
+                    if (e.target === m) {
+                        m.style.display = 'none';
+                    }
+                });
+            </script>
+            @endif
         </main>
     </div>
 </body>

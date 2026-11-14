@@ -207,29 +207,15 @@
         
         .auth-footer {
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
             align-items: center;
+            text-align: center;
             padding: 20px 60px;
             font-size: 12px;
             font-weight: 600;
             color: #94a3b8;
             letter-spacing: 0.5px;
             z-index: 10;
-        }
-
-        .footer-links {
-            display: flex;
-            gap: 24px;
-        }
-
-        .footer-links a {
-            color: #94a3b8;
-            text-decoration: none;
-            transition: color 0.2s ease;
-        }
-
-        .footer-links a:hover {
-            color: var(--forest-green);
         }
 
         @media (max-width: 992px) {
@@ -258,11 +244,6 @@
 
     <footer class="auth-footer">
         <div>© 2026 CARENEST MATERNAL AND PEDIATRIC MANAGEMENT SYSTEM. ALL RIGHTS RESERVED.</div>
-        <div class="footer-links">
-            <a href="#">PRIVACY POLICY</a>
-            <a href="#">TERMS OF SERVICE</a>
-            <a href="#">SUPPORT</a>
-        </div>
     </footer>
 
     @yield('scripts')

@@ -207,100 +207,108 @@
         }
 
         
-        .children-grid {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(420px, 1fr)); gap: 20px;
+        .table-responsive {
+            background: white;
+            border-radius: 16px;
+            overflow-x: auto;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
         }
-        .child-card {
-            background: white; border: 1px solid #e2e8f0; border-radius: 20px;
-            padding: 20px; display: flex; flex-direction: column; gap: 16px;
-            transition: all 0.25s ease; box-shadow: 0 4px 12px rgba(0,0,0,0.02);
-            position: relative;
+        .children-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
         }
-        .child-card:hover {
-            transform: translateY(-3px); box-shadow: 0 12px 24px rgba(0,0,0,0.07);
-            border-color: #cbd5e1;
+        .children-table th {
+            text-align: left;
+            padding: 12px 16px;
+            font-size: 11px;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            background: #f8fafc;
+            border-bottom: 1.5px solid #e2e8f0;
+            white-space: nowrap;
         }
-
-        .child-header {
-            display: flex; justify-content: space-between; align-items: flex-start;
+        .children-table td {
+            padding: 12px 16px;
+            font-size: 13px;
+            border-bottom: 1px solid #f1f5f9;
+            color: #1e293b;
+            vertical-align: middle;
         }
-        .child-main { display: flex; align-items: center; gap: 12px; }
-        .child-gender-avatar {
-            width: 48px; height: 48px; border-radius: 14px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 20px; font-weight: 800;
+        .children-table tr:hover td {
+            background: #f8fafc;
         }
-        .gender-male { background: #e0f2fe; color: #0284c7; }
-        .gender-female { background: #fce7f3; color: #db2777; }
-
-        .child-name { font-family: var(--font-heading); font-size: 16px; font-weight: 800; color: #1e293b; }
-        .child-meta { font-size: 12px; color: #64748b; display: flex; align-items: center; gap: 8px; margin-top: 2px; }
-        .child-id-pill {
-            background: #f1f5f9; color: #475569; font-weight: 700; font-size: 11px;
-            padding: 2px 8px; border-radius: 6px;
+        .children-table tr:last-child td {
+            border-bottom: none;
         }
-
-        
-        .measure-chips {
-            display: flex; gap: 8px; flex-wrap: wrap;
+        .row-name a {
+            font-family: var(--font-heading);
+            font-size: 14px;
+            font-weight: 800;
+            color: #0f172a;
+            text-decoration: none;
+            transition: color 0.15s ease;
         }
-        .chip {
-            background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px;
-            padding: 6px 12px; font-size: 12px; font-weight: 600; color: #334155;
-            display: flex; align-items: center; gap: 6px;
+        .row-name a:hover {
+            color: #0284c7;
         }
-        .chip i { color: #64748b; font-size: 12px; }
-        .chip strong { color: #0f172a; }
-
-        
+        .row-sub {
+            font-size: 11px;
+            color: #64748b;
+            margin-top: 2px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-view-row {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: #e0f2fe;
+            color: #0284c7;
+            border-radius: 8px;
+            padding: 6px 12px;
+            font-size: 12px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+        .btn-view-row:hover {
+            background: #bae6fd;
+            color: #0369a1;
+        }
+        .btn-edit-row {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: #f1f5f9;
+            color: #475569;
+            border-radius: 8px;
+            padding: 6px 10px;
+            font-size: 12px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+        .btn-edit-row:hover {
+            background: #e2e8f0;
+            color: #1e293b;
+        }
         .bcg-pill {
             display: inline-flex; align-items: center; gap: 6px; font-size: 11px;
-            font-weight: 700; padding: 4px 10px; border-radius: 12px;
+            font-weight: 700; padding: 3px 8px; border-radius: 10px;
+            white-space: nowrap;
         }
         .bcg-done { background: #dcfce7; color: #15803d; border: 1px solid #86efac; }
         .bcg-pending { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
-
-        
-        .mother-subcard {
-            background: linear-gradient(135deg, #f0fdf4 0%, #f8fafc 100%);
-            border: 1px solid #d1fae5; border-radius: 14px;
-            padding: 12px 14px; display: flex; align-items: center; justify-content: space-between;
-            gap: 12px;
-        }
-        .mother-left { display: flex; align-items: center; gap: 10px; }
-        .mother-icon {
-            width: 32px; height: 32px; border-radius: 50%;
-            background: #dcfce7; color: #166534;
-            display: flex; align-items: center; justify-content: center; font-size: 14px;
-        }
-        .mother-name-title { font-size: 13px; font-weight: 700; color: #14532d; }
-        .mother-details-sub { font-size: 11px; color: #4b5563; display: flex; align-items: center; gap: 8px; }
-        .mother-view-link {
-            font-size: 12px; font-weight: 700; color: #059669; text-decoration: none;
-            padding: 4px 10px; background: white; border: 1px solid #a7f3d0; border-radius: 8px;
-            display: flex; align-items: center; gap: 4px; white-space: nowrap;
-        }
-        .mother-view-link:hover { background: #ecfdf5; color: #047857; }
-
-        
-        .child-footer {
-            display: flex; justify-content: space-between; align-items: center;
-            padding-top: 12px; border-top: 1px solid #f1f5f9;
-        }
-        .btn-view-child {
-            font-size: 13px; font-weight: 700; color: #1b4d3e; text-decoration: none;
-            display: flex; align-items: center; gap: 6px; transition: gap 0.2s ease;
-        }
-        .btn-view-child:hover { gap: 10px; color: #00c853; }
-        .btn-edit-child {
-            font-size: 12px; font-weight: 600; color: #64748b; text-decoration: none;
-            display: flex; align-items: center; gap: 4px;
-        }
-        .btn-edit-child:hover { color: #1e293b; }
-
-        
         .empty-area {
             text-align: center; padding: 32px; color: #94a3b8; font-size: 14px;
+        }
         
         .search-box {
             position: relative;
@@ -449,77 +457,84 @@
                 @endif
 
                 @if($myChildren->count() > 0)
-                    <div class="children-grid">
-                        @foreach($myChildren as $child)
-                            <div class="child-card">
-                                <div class="child-header">
-                                    <div class="child-main">
-                                        <div class="child-gender-avatar {{ $child->gender === 'Female' ? 'gender-female' : 'gender-male' }}">
-                                            <i class="fa-solid {{ $child->gender === 'Female' ? 'fa-venus' : 'fa-mars' }}"></i>
-                                        </div>
-                                        <div>
-                                            <h3 class="child-name">{{ $child->display_name }}</h3>
-                                            <div class="child-meta">
-                                                <span class="child-id-pill">ID: #{{ $child->child_id }}</span>
-                                                <span>•</span>
-                                                <span>{{ $child->age ?? 'Age N/A' }}</span>
-                                                <span>•</span>
-                                                <span>DOB: {{ \Carbon\Carbon::parse($child->date_of_birth)->format('M d, Y') }}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div>
-                                        @if($child->bcg_vaccinated_at_birth)
-                                            <span class="bcg-pill bcg-done" title="BCG vaccinated before 24hrs from birth">
-                                                <i class="fa-solid fa-check"></i> BCG Vaccinated
-                                            </span>
-                                        @else
-                                            <span class="bcg-pill bcg-pending" title="BCG not yet recorded">
-                                                <i class="fa-solid fa-clock"></i> BCG Pending
-                                            </span>
-                                        @endif
-                                    </div>
-                                </div>
-
-                                <div class="measure-chips">
-                                    <div class="chip">
-                                        <i class="fa-solid fa-weight-scale"></i>
-                                        <span>Weight: <strong>{{ $child->weight ? $child->weight . ' kg' : ($child->birth_weight ? $child->birth_weight . ' kg' : 'N/A') }}</strong></span>
-                                    </div>
-                                    <div class="chip">
-                                        <i class="fa-solid fa-ruler-vertical"></i>
-                                        <span>Height: <strong>{{ $child->height ? $child->height . ' cm' : ($child->birth_length ? $child->birth_length . ' cm' : 'N/A') }}</strong></span>
-                                    </div>
+                    <div class="table-responsive">
+                        <table class="children-table">
+                            <thead>
+                                <tr>
+                                    <th>Child Name &amp; ID</th>
+                                    <th>Gender</th>
+                                    <th>Age / DOB</th>
+                                    <th>Growth Metrics</th>
+                                    <th>BCG Status</th>
+                                    <th>Assigned Midwife &amp; Area</th>
+                                    <th style="text-align:right;">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($myChildren as $child)
                                     @php
                                         $idxBmi = $child->bmi ?: $child->calculateBmi();
                                     @endphp
-                                    @if($idxBmi)
-                                    <div class="chip" style="background:#e0f2fe; color:#0369a1;">
-                                        <i class="fa-solid fa-chart-line"></i>
-                                        <span>BMI: <strong>{{ $idxBmi }}</strong></span>
-                                    </div>
-                                    @endif
-                                    <div class="chip">
-                                        <i class="fa-solid fa-syringe"></i>
-                                        <span>Vaccines: <strong>{{ $child->immunizations->count() }}</strong></span>
-                                    </div>
-                                </div>
-
-                                <div style="font-size:12px; color:#64748b; background:#f8fafc; padding:10px 14px; border-radius:12px; border:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center;">
-                                    <span><i class="fa-solid fa-user-nurse" style="color:#00c853;"></i> Midwife: <strong>{{ $child->midwife->midwife_name ?? ($child->mother?->midwife?->midwife_name ?? 'Assigned Midwife') }}</strong></span>
-                                    <span><i class="fa-solid fa-location-dot" style="color:#0284c7;"></i> {{ $child->area->area_name ?? ($child->midwife?->area?->area_name ?? 'Clinic Area') }}</span>
-                                </div>
-
-                                <div class="child-footer">
-                                    <a href="{{ route('mother.immunizations.index') }}" class="btn-view-child" style="flex:1;">
-                                        <i class="fa-solid fa-syringe"></i>
-                                        <span>View Immunization Details</span>
-                                        <i class="fa-solid fa-arrow-right"></i>
-                                    </a>
-                                </div>
-                            </div>
-                        @endforeach
+                                    <tr class="child-row child-card">
+                                        <td>
+                                            <div class="row-name">
+                                                <a href="{{ route('mother.immunizations.index') }}">{{ $child->display_name }}</a>
+                                            </div>
+                                            <div class="row-sub">
+                                                ID #{{ $child->child_id }}
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span style="display:inline-flex; align-items:center; gap:5px; font-weight:700; font-size:12px; {{ $child->gender === 'Female' ? 'color:#db2777;' : 'color:#0284c7;' }}">
+                                                <i class="fa-solid {{ $child->gender === 'Female' ? 'fa-venus' : 'fa-mars' }}"></i>
+                                                {{ $child->gender }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div style="font-weight:700; color:#1e293b;">{{ $child->age ?? 'Age N/A' }}</div>
+                                            <div style="font-size:11px; color:#64748b;">DOB: {{ \Carbon\Carbon::parse($child->date_of_birth)->format('M d, Y') }}</div>
+                                        </td>
+                                        <td>
+                                            <div style="font-size:12px; color:#334155; display:flex; flex-direction:column; gap:2px;">
+                                                <span>Weight: <strong>{{ $child->weight ? $child->weight . ' kg' : ($child->birth_weight ? $child->birth_weight . ' kg' : '—') }}</strong></span>
+                                                <span>Height: <strong>{{ $child->height ? $child->height . ' cm' : ($child->birth_length ? $child->birth_length . ' cm' : '—') }}</strong></span>
+                                                @if($idxBmi)
+                                                    <span style="color:#0369a1; font-weight:700;">BMI: {{ $idxBmi }}</span>
+                                                @endif
+                                            </div>
+                                        </td>
+                                        <td>
+                                            @if($child->bcg_vaccinated_at_birth)
+                                                <span class="bcg-pill bcg-done" title="BCG vaccinated before 24hrs from birth">
+                                                    <i class="fa-solid fa-check"></i> BCG Vaccinated
+                                                </span>
+                                            @else
+                                                <span class="bcg-pill bcg-pending" title="BCG not yet recorded">
+                                                    <i class="fa-solid fa-clock"></i> BCG Pending
+                                                </span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            <div style="font-size:12px; color:#1e293b;">
+                                                <i class="fa-solid fa-user-nurse" style="color:#00c853;"></i>
+                                                {{ $child->midwife->midwife_name ?? ($child->mother?->midwife?->midwife_name ?? 'Assigned Midwife') }}
+                                            </div>
+                                            <div style="font-size:11px; color:#64748b;">
+                                                <i class="fa-solid fa-location-dot" style="color:#0284c7;"></i>
+                                                {{ $child->area->area_name ?? ($child->midwife?->area?->area_name ?? 'Clinic Area') }}
+                                            </div>
+                                        </td>
+                                        <td style="text-align:right;">
+                                            <a href="{{ route('mother.immunizations.index') }}" class="btn-view-row">
+                                                <i class="fa-solid fa-syringe"></i>
+                                                <span>Immunizations</span>
+                                                <i class="fa-solid fa-arrow-right" style="font-size:10px;"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
                     </div>
                 @else
                     <div style="background:white; border-radius:24px; padding:48px 24px; text-align:center; border:1px solid #e2e8f0; box-shadow:0 4px 16px rgba(0,0,0,0.03);">
@@ -607,99 +622,98 @@
                         </div>
 
                         @if($area->filtered_children->count() > 0)
-                            <div class="children-grid">
-                                @foreach($area->filtered_children as $child)
-                                    <div class="child-card">
-                                        <div class="child-header">
-                                            <div class="child-main">
-                                                <div class="child-gender-avatar {{ $child->gender === 'Female' ? 'gender-female' : 'gender-male' }}">
-                                                    <i class="fa-solid {{ $child->gender === 'Female' ? 'fa-venus' : 'fa-mars' }}"></i>
-                                                </div>
-                                                <div>
-                                                    <h3 class="child-name">{{ $child->display_name }}</h3>
-                                                    <div class="child-meta">
-                                                        <span class="child-id-pill">ID: #{{ $child->child_id }}</span>
-                                                        <span>•</span>
-                                                        <span>{{ $child->age ?? 'Age N/A' }}</span>
-                                                        <span>•</span>
-                                                        <span>DOB: {{ \Carbon\Carbon::parse($child->date_of_birth)->format('M d, Y') }}</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div>
-                                                @if($child->bcg_vaccinated_at_birth)
-                                                    <span class="bcg-pill bcg-done" title="BCG vaccinated before 24hrs from birth">
-                                                        <i class="fa-solid fa-check"></i> BCG Vaccinated
-                                                    </span>
-                                                @else
-                                                    <span class="bcg-pill bcg-pending" title="BCG not yet recorded">
-                                                        <i class="fa-solid fa-clock"></i> BCG Pending
-                                                    </span>
-                                                @endif
-                                            </div>
-                                        </div>
-
-                                        <div class="measure-chips">
-                                            <div class="chip">
-                                                <i class="fa-solid fa-weight-scale"></i>
-                                                <span>Wt: <strong>{{ $child->weight ? $child->weight . ' kg' : ($child->birth_weight ? $child->birth_weight . ' kg' : 'N/A') }}</strong></span>
-                                            </div>
-                                            <div class="chip">
-                                                <i class="fa-solid fa-ruler-vertical"></i>
-                                                <span>Ht: <strong>{{ $child->height ? $child->height . ' cm' : ($child->birth_length ? $child->birth_length . ' cm' : 'N/A') }}</strong></span>
-                                            </div>
+                            <div class="table-responsive">
+                                <table class="children-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Child Name &amp; ID</th>
+                                            <th>Gender</th>
+                                            <th>Age / DOB</th>
+                                            <th>Mother Details</th>
+                                            <th>Growth Metrics</th>
+                                            <th>BCG Status</th>
+                                            <th style="text-align:right;">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($area->filtered_children as $child)
                                             @php
                                                 $idxBmi = $child->bmi ?: $child->calculateBmi();
                                             @endphp
-                                            @if($idxBmi)
-                                            <div class="chip" style="background:#e0f2fe; color:#0369a1;">
-                                                <i class="fa-solid fa-chart-line"></i>
-                                                <span>BMI: <strong>{{ $idxBmi }}</strong></span>
-                                            </div>
-                                            @else
-                                            <div class="chip">
-                                                <i class="fa-solid fa-syringe"></i>
-                                                <span>Vaccines: <strong>{{ $child->immunizations->count() }}</strong></span>
-                                            </div>
-                                            @endif
-                                        </div>
-
-                                        <div class="mother-subcard">
-                                            <div class="mother-left">
-                                                <div class="mother-icon"><i class="fa-solid fa-person-breastfeeding"></i></div>
-                                                <div>
-                                                    <div class="mother-name-title">
-                                                        Mother: {{ $child->mother ? $child->mother->mother_name : 'Not Assigned' }}
+                                            <tr class="child-row child-card">
+                                                <td>
+                                                    <div class="row-name">
+                                                        <a href="{{ route($prefix . 'children.show', $child->child_id) }}">{{ $child->display_name }}</a>
                                                     </div>
-                                                    <div class="mother-details-sub">
-                                                        <span>Mother ID: <strong>#{{ $child->mother_id }}</strong></span>
-                                                        @if($child->mother && $child->mother->phone_no)
-                                                            <span>• <i class="fa-solid fa-phone" style="font-size:10px;"></i> {{ $child->mother->phone_no }}</span>
+                                                    <div class="row-sub">
+                                                        ID #{{ $child->child_id }}
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <span style="display:inline-flex; align-items:center; gap:5px; font-weight:700; font-size:12px; {{ $child->gender === 'Female' ? 'color:#db2777;' : 'color:#0284c7;' }}">
+                                                        <i class="fa-solid {{ $child->gender === 'Female' ? 'fa-venus' : 'fa-mars' }}"></i>
+                                                        {{ $child->gender }}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <div style="font-weight:700; color:#1e293b;">{{ $child->age ?? 'Age N/A' }}</div>
+                                                    <div style="font-size:11px; color:#64748b;">DOB: {{ \Carbon\Carbon::parse($child->date_of_birth)->format('M d, Y') }}</div>
+                                                </td>
+                                                <td>
+                                                    @if($child->mother)
+                                                        <div style="font-weight:700; font-size:13px;">
+                                                            <a href="{{ route($prefix . 'mothers.show', $child->mother_id) }}" style="color:#059669; text-decoration:none;">
+                                                                {{ $child->mother->mother_name }}
+                                                            </a>
+                                                        </div>
+                                                        <div style="font-size:11px; color:#64748b;">
+                                                            ID #{{ $child->mother_id }}
+                                                            @if($child->mother->phone_no)
+                                                                &bull; <i class="fa-solid fa-phone" style="font-size:10px;"></i> {{ $child->mother->phone_no }}
+                                                            @endif
+                                                        </div>
+                                                    @else
+                                                        <span style="color:#94a3b8;">Not Assigned</span>
+                                                    @endif
+                                                </td>
+                                                <td>
+                                                    <div style="font-size:12px; color:#334155; display:flex; flex-direction:column; gap:2px;">
+                                                        <span>Wt: <strong>{{ $child->weight ? $child->weight . ' kg' : ($child->birth_weight ? $child->birth_weight . ' kg' : '—') }}</strong></span>
+                                                        <span>Ht: <strong>{{ $child->height ? $child->height . ' cm' : ($child->birth_length ? $child->birth_length . ' cm' : '—') }}</strong></span>
+                                                        @if($idxBmi)
+                                                            <span style="color:#0369a1; font-weight:700;">BMI: {{ $idxBmi }}</span>
                                                         @endif
                                                     </div>
-                                                </div>
-                                            </div>
-                                            @if($child->mother)
-                                                <a href="{{ route($prefix . 'mothers.show', $child->mother_id) }}" class="mother-view-link" title="View Mother Profile">
-                                                    <span>Profile</span> <i class="fa-solid fa-arrow-up-right-from-square"></i>
-                                                </a>
-                                            @endif
-                                        </div>
-
-                                        <div class="child-footer">
-                                            @if(in_array($role, ['admin', 'provider', 'midwife']))
-                                            <a href="{{ route($prefix . 'children.edit', $child->child_id) }}" class="btn-edit-child">
-                                                <i class="fa-solid fa-pen-to-square"></i> Edit
-                                            </a>
-                                            @endif
-                                            <a href="{{ route($prefix . 'children.show', $child->child_id) }}" class="btn-view-child">
-                                                <span>View Immunization Schedule</span>
-                                                <i class="fa-solid fa-arrow-right"></i>
-                                            </a>
-                                        </div>
-                                    </div>
-                                @endforeach
+                                                </td>
+                                                <td>
+                                                    @if($child->bcg_vaccinated_at_birth)
+                                                        <span class="bcg-pill bcg-done" title="BCG vaccinated before 24hrs from birth">
+                                                            <i class="fa-solid fa-check"></i> BCG Vaccinated
+                                                        </span>
+                                                    @else
+                                                        <span class="bcg-pill bcg-pending" title="BCG not yet recorded">
+                                                            <i class="fa-solid fa-clock"></i> BCG Pending
+                                                        </span>
+                                                    @endif
+                                                </td>
+                                                <td style="text-align:right;">
+                                                    <div style="display:inline-flex; align-items:center; gap:6px; justify-content:flex-end;">
+                                                        @if(in_array($role, ['admin', 'provider', 'midwife']))
+                                                            <a href="{{ route($prefix . 'children.edit', $child->child_id) }}" class="btn-edit-row" title="Edit child">
+                                                                <i class="fa-solid fa-pen-to-square"></i>
+                                                                <span>Edit</span>
+                                                            </a>
+                                                        @endif
+                                                        <a href="{{ route($prefix . 'children.show', $child->child_id) }}" class="btn-view-row" title="View Schedule">
+                                                            <span>Schedule</span>
+                                                            <i class="fa-solid fa-arrow-right" style="font-size:10px;"></i>
+                                                        </a>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
                             </div>
                         @else
                             <div class="empty-area">
@@ -793,15 +807,15 @@
             if (!sections.length) return;
 
             sections.forEach(section => {
-                const cards = section.querySelectorAll('.child-card');
+                const rows = section.querySelectorAll('.child-row');
                 let visibleCount = 0;
-                cards.forEach(card => {
-                    const text = card.textContent.toLowerCase();
+                rows.forEach(row => {
+                    const text = row.textContent.toLowerCase();
                     if (!q || text.includes(q)) {
-                        card.style.display = '';
+                        row.style.display = '';
                         visibleCount++;
                     } else {
-                        card.style.display = 'none';
+                        row.style.display = 'none';
                     }
                 });
                 if (!q || visibleCount > 0) {

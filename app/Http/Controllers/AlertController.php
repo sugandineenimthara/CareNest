@@ -24,12 +24,10 @@ class AlertController extends Controller
 
             $notifications = collect();
 
-            $receivedDosesCount = $mother->immunizations->filter(function ($imm) {
-                return stripos($imm->vaccine_name, 'tetanus') !== false || stripos($imm->vaccine_name, 'tt') !== false;
-            })->count();
+            $receivedDosesCount = $mother->tetanusDosesCount();
 
             $nextDoseNum = $receivedDosesCount + 1;
-            if (!$mother->isTetanusSafe() && $nextDoseNum <= 5) {
+            if (!$mother->isTetanusSafe() && $nextDoseNum <= 4) {
                 if ($receivedDosesCount === 0) {
                     $lmp = $mother->pregnancyHistories->last()?->last_menstrual_period;
                     $mDueDate = $lmp ? Carbon::parse($lmp)->addWeeks(12) : Carbon::parse($mother->created_at)->addWeeks(2);
