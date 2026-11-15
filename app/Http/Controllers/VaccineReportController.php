@@ -133,13 +133,20 @@ class VaccineReportController extends Controller
         $vaccineRows = collect();
 
         foreach ($vaccineDefinitions as $label => $keywords) {
+            // Sum only items_received — opening_stock is carried over from previous closing, so summing both would double-count
             $storageStock = $reports->filter(function ($rep) use ($keywords, $label) {
                 if (!$rep->vaccine_used) return false;
                 return $this->isVaccineMatch($label, $keywords, $rep->vaccine_used);
-            })->sum(fn ($r) => ($r->items_received ?? 0) + ($r->opening_stock ?? 0));
+            })->sum(fn ($r) => ($r->items_received ?? 0));
 
-            $usedCount = $immunizations->filter(function ($imm) use ($keywords, $label) {
+            // Determine whether this vaccine belongs to mothers or children to avoid cross-contamination
+            $isMotherVaccine = array_key_exists($label, $this->motherVaccines);
+
+            $usedCount = $immunizations->filter(function ($imm) use ($keywords, $label, $isMotherVaccine) {
                 if (!$imm->vaccine_name) return false;
+                // Only count child immunizations for pediatric vaccines, mother immunizations for mother vaccines
+                if ($isMotherVaccine && !$imm->mother_id) return false;
+                if (!$isMotherVaccine && !$imm->child_id) return false;
                 return $this->isVaccineMatch($label, $keywords, $imm->vaccine_name);
             })->count();
 
@@ -195,26 +202,34 @@ class VaccineReportController extends Controller
 
         $batchNo = $validated['batch_no'] ?: ('STK-' . date('Ymd') . '-' . strtoupper(Str::random(4)));
 
+        // Find the most recent closing_stock for this vaccine type to use as opening_stock
+        $vaccineName = $validated['vaccine_name'];
+        $previousClosing = Report::where('clinic_type', $validated['clinic_type'])
+            ->where(function ($q) use ($vaccineName) {
+                $q->where('vaccine_used', $vaccineName)
+                  ->orWhere('vaccine_used', 'like', "%{$vaccineName}%");
+            })
+            ->orderBy('date', 'desc')
+            ->orderBy('report_id', 'desc')
+            ->value('closing_stock') ?? 0;
+
         Report::create([
             'midwife_id'              => $midwifeId,
             'clinic_type'             => $validated['clinic_type'],
             'date'                    => $validated['date'],
             'vaccine_used'            => $validated['vaccine_name'],
             'items_received'          => (int) $validated['stock_received'],
-            'opening_stock'           => 0,
+            'opening_stock'           => (int) $previousClosing,
             'items_returned'          => 0,
             'no_of_vaccine_performed' => 0,
-            'closing_stock'           => (int) $validated['stock_received'],
+            'closing_stock'           => (int) $previousClosing + (int) $validated['stock_received'],
             'batch_no'                => $batchNo,
         ]);
 
         $prefix = $user->role === 'midwife' ? 'midwife.' : 'admin.';
 
-        return redirect()->route($prefix . 'vaccine-reports.index', [
-            'clinic_type' => $validated['clinic_type'],
-            'from_date'   => $validated['date'],
-            'to_date'     => $validated['date'],
-        ])->with('success', 'Storage stock recorded successfully for ' . $validated['vaccine_name'] . ' (' . $validated['stock_received'] . ' doses).');
+        return redirect()->route($prefix . 'vaccine-reports.index')
+            ->with('success', 'Storage stock recorded successfully for ' . $validated['vaccine_name'] . ' (' . $validated['stock_received'] . ' doses).');
     }
 
     protected function isVaccineMatch(string $label, array $keywords, string $candidate): bool
